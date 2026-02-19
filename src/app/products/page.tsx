@@ -6,6 +6,7 @@ import MenuItemCard from "@/components/ui/menu-item-card"
 import { Button } from "@/components/ui/button"
 import { Loader2, Download, X } from "lucide-react"
 import Image from "next/image"
+import IzakayaLoader from "@/components/oppa-loader"
 
 export default function MenuPage() {
   const [products, setProducts] = useState<MenuItem[]>([])
@@ -19,7 +20,7 @@ export default function MenuPage() {
   const [showInstallButton, setShowInstallButton] = useState(false)
 
   // Handle PWA install prompt
-  useEffect(() => {
+  useEffect(() => {6
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e)
@@ -103,18 +104,15 @@ export default function MenuPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-orange-900 to-yellow-900 flex items-center justify-center">
-        <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-4 rounded-xl">
-          <Loader2 className="h-6 w-6 animate-spin text-yellow-400" />
-          <span className="text-yellow-100 font-medium">Loading menu...</span>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <IzakayaLoader />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-orange-900 to-yellow-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-purple-900 flex items-center justify-center">
         <div className="text-center bg-white/10 backdrop-blur-sm px-6 py-4 rounded-xl">
           <p className="text-yellow-100 font-medium mb-2">Failed to load menu</p>
           <p className="text-yellow-200/80 text-sm">{error}</p>
@@ -124,7 +122,7 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-orange-900 to-yellow-900">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-200 to-purple-100">
       {/* Install Button - Mobile Only */}
       {/* Temporarily always show for testing - remove 'true ||' when PWA is properly configured */}
       {(true || showInstallButton) && (
@@ -198,9 +196,9 @@ export default function MenuPage() {
       )}
 
       <div className="max-w-7xl mx-auto p-4">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">Izakaya Menu</h1>
-          <p className="text-yellow-200 text-lg md:text-xl">Authentic Japanese izakaya flavors delivered fresh</p>
+        <div className="text-center my-2">
+          <h1 className="text-4xl md:text-6xl font-bold text-purple-950 mb-4 drop-shadow-lg">Hilee Products</h1>
+          <p className="text-purple-800 text-lg">Keep your drinks cold for 24 hours or hot for 12 — eco-friendly, reusable, and perfect for any lifestyle.</p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-2 mb-8">
@@ -220,7 +218,7 @@ export default function MenuPage() {
           ))}*/}
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr mb-10">
           {products.map((product) => (
             <MenuItemCard key={product.id} item={product} />
           ))}

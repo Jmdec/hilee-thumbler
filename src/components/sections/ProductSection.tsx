@@ -200,7 +200,6 @@ export default function ProductSection() {
                                                     </Button>
                                                 </div>
                                             </DialogContent>
-
                                         </Dialog>
                                     </div>
 
