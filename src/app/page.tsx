@@ -16,7 +16,8 @@ export default function Home() {
       <HeroSection />
 
       {/* Featured Menu Section - CHANGE INTO INFORMATION SECTION */}
-      <FeaturedMenu /> 
+      <FeaturedMenu />
+      <div className="border-1 border-b-purple-200" />
 
       {/* Products Section */}
       <ProductSection />

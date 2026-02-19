@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Heart, Users, Award, Flame } from "lucide-react"
+import { Heart, Users, Award, Flame, Sprout, Brush, Gift } from "lucide-react"
 
 export default function HomePreview() {
   return (
@@ -18,44 +18,41 @@ export default function HomePreview() {
           {/* Text Section */}
           <div className="space-y-8">
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-lg font-medium text-purple-700 tracking-wide">AUTHENTIC JAPANESE IZAKAYA</span>
+              <span className="text-lg font-medium text-purple-700 tracking-wide">ABOUT US</span>
             </div>
 
             <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-700 via-purple-600 to-purple-600">
-                Izakaya Tori Ichizu
+                Hilee
               </span>
             </h1>
 
             <p className="text-xl text-gray-700 leading-relaxed">
-              Experience the warmth of Japan in every bite! Our master chefs bring you
-              <span className="font-semibold text-purple-700"> authentic flavors</span> from Tokyo's vibrant izakayas to
-              your table. From perfectly grilled yakitori to comforting ramen, every dish is crafted with love and
-              tradition.
+              HILEE started with a simple mission: make premium-quality insulated drinkware accessible to everyone. Born in the Philippines, we&apos;ve become a go-to brand for students, athletes, and adventurers who refuse to compromise on quality or style.
+
             </p>
 
-            <p className="text-lg text-gray-600 leading-relaxed">
-              🍗 <span className="font-medium">Itadakimasu!</span> Join our family and discover why we're the most
-              beloved Japanese izakaya in town. Fresh ingredients, traditional recipes, and that special Japanese
-              hospitality await you!
+            <p className="text-xl text-gray-600 leading-relaxed">
+              Every HILEE flask is crafted from 304 food-grade stainless steel with double-wall vacuum insulation — keeping your drinks ice-cold for 24 hours or piping hot for up to 8. With free name printing, paracord handles, and a range of stunning finishes, your flask is as unique as you are.
+
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 asChild
                 size="lg"
-                className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                <Link href="/menu">🍜 View Our Menu</Link>
+                <Link href="/products">View Our Products</Link>
               </Button>
 
               <Button
                 asChild
                 variant="outline"
                 size="lg"
-                className="border-2 border-orange-600 text-orange-700 hover:bg-orange-600 hover:text-white px-8 py-3 text-lg font-semibold transition-all duration-300 bg-transparent"
+                className="border-2 border-purple-600 text-purple-700 hover:bg-purple-600 hover:text-white px-8 py-3 text-lg font-semibold transition-all duration-300 bg-transparent"
               >
-                <Link href="/reservations">📞 Make Reservation</Link>
+                <Link href="/contact">Contact Us</Link>
               </Button>
             </div>
           </div>
@@ -64,32 +61,32 @@ export default function HomePreview() {
             {[
               {
                 icon: <Flame className="w-8 h-8 text-white" />,
-                title: "Authentic Flavors",
-                desc: "Traditional Japanese recipes from Tokyo",
-                bg: "from-orange-600 to-orange-700",
+                title: "Proudly Filipino",
+                desc: "Designed and made with local craftsmanship",
+                bg: "from-purple-900 to-purple-700",
               },
               {
-                icon: <Heart className="w-8 h-8 text-white" />,
-                title: "Made with Love",
-                desc: "Every dish crafted with Japanese heart",
-                bg: "from-yellow-500 to-yellow-600",
+                icon: <Sprout className="w-8 h-8 text-white" />,
+                title: "Eco-Friendly",
+                desc: "Reusable tumblers that help reduce waste",
+                bg: "from-purple-500 to-purple-400",
               },
               {
-                icon: <Users className="w-8 h-8 text-white" />,
-                title: "Family Atmosphere",
-                desc: "Warm Japanese hospitality & community",
-                bg: "from-orange-500 to-yellow-500",
+                icon: <Brush className="w-8 h-8 text-white" />,
+                title: "Customizable",
+                desc: "Personalize your tumbler to match your style",
+                bg: "from-purple-500 to-purple-400",
               },
               {
-                icon: <Award className="w-8 h-8 text-white" />,
-                title: "Award Winning",
-                desc: "Best Japanese izakaya 3 years running",
-                bg: "from-orange-700 to-orange-800",
+                icon: <Gift className="w-8 h-8 text-white" />,
+                title: "Perfect Gift",
+                desc: "Stylish tumblers ideal for friends and family",
+                bg: "from-purple-900 to-purple-700",
               },
             ].map((card, idx) => (
               <Card
                 key={idx}
-                className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/80 backdrop-blur-sm border border-orange-100 h-full flex flex-col"
+                className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/80 backdrop-blur-sm border border-purple-100 h-full flex flex-col"
               >
                 <CardContent className="p-8 text-center flex flex-col flex-1">
                   <div

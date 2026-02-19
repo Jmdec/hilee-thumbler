@@ -12,40 +12,34 @@ const Footer = () => {
   const [supportModalOpen, setSupportModalOpen] = useState(false)
 
   // Hide footer in admin routes
-  if (pathname.startsWith("/admin")) {
-    return null
-  }
+  if (pathname.startsWith("/admin")) return null
 
   return (
     <>
-      <footer className="bg-black text-white">
+      <footer className="bg-purple-950 text-white">
         <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
             {/* Logo + Description */}
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
-                <span className="text-xl font-bold text-orange-400">Izakaya Tori Ichizu</span>
+                <span className="text-4xl font-bold text-purple-500">Hilee</span>
               </div>
-              <p className="text-white/80 text-sm">
-                Authentic Japanese izakaya cuisine with traditional recipes. Experience the flavors of Japan in a warm,
-                welcoming atmosphere.
+              <p className="text-white/80 text-md sm:text-base">
+                Stylish, durable, and eco-friendly tumblers — keeping your drinks perfect anytime, anywhere.
               </p>
             </div>
 
             {/* Quick Links */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Quick Links</h3>
+              <h3 className="text-lg font-semibold text-purple-200">Quick Links</h3>
               <nav className="flex flex-col space-y-2">
-                <Link href="/" className="text-white/80 hover:text-orange-400 transition-colors text-sm">
+                <Link href="/" className="text-white/80 hover:text-purple-400 transition-colors text-sm sm:text-base">
                   Home
                 </Link>
-                <Link href="/menu" className="text-white/80 hover:text-orange-400 transition-colors text-sm">
-                  Menu
+                <Link href="/shop" className="text-white/80 hover:text-purple-400 transition-colors text-sm sm:text-base">
+                  Products
                 </Link>
-                <Link href="/about" className="text-white/80 hover:text-orange-400 transition-colors text-sm">
-                  About Us
-                </Link>
-                <Link href="/contact" className="text-white/80 hover:text-orange-400 transition-colors text-sm">
+                <Link href="/contact" className="text-white/80 hover:text-purple-400 transition-colors text-sm sm:text-base">
                   Contact
                 </Link>
               </nav>
@@ -53,45 +47,37 @@ const Footer = () => {
 
             {/* Contact Info */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Contact Info</h3>
-              <div className="space-y-2 text-sm">
+              <h3 className="text-lg font-semibold text-purple-200">Hilee</h3>
+              <div className="space-y-2 text-sm sm:text-base">
                 <Link
-                  href="https://www.google.com/maps/place/PISO+PAY.COM+Building/@14.5635978,121.0289417,17z"
+                  href="https://www.google.com/maps/place/Your+Address"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-2 hover:text-orange-400 transition-colors"
+                  className="flex items-center space-x-2 hover:text-purple-400 transition-colors"
                 >
                   <MapPin className="h-4 w-4 text-white/60" />
                   <span className="text-white/80">
-                    1st Floor, PISO PAY.COM BLDG, #47 Polaris St, Bel-Air, Makati City
+                    123 Main St, City, Country
                   </span>
                 </Link>
-
-                <Link
-                  href="tel:(02) 8362 0676"
-                  className="flex items-center space-x-2 hover:text-orange-400 transition-colors"
-                >
+                <Link href="tel:+1234567890" className="flex items-center space-x-2 hover:text-purple-400 transition-colors">
                   <Phone className="h-4 w-4 text-white/60" />
-                  <span className="text-white/80">(02) 8362 0676</span>
+                  <span className="text-white/80">+1 234 567 890</span>
                 </Link>
-
-                <Link
-                  href="mailto:ph.toriichizu01@gmail.com"
-                  className="flex items-center space-x-2 hover:text-orange-400 transition-colors"
-                >
+                <Link href="mailto:info@tumblers.com" className="flex items-center space-x-2 hover:text-purple-400 transition-colors">
                   <Mail className="h-4 w-4 text-white/60" />
-                  <span className="text-white/80">ph.toriichizu01@gmail.com</span>
+                  <span className="text-white/80">info@tumblers.com</span>
                 </Link>
               </div>
             </div>
 
             {/* Support Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Support</h3>
-              <p className="text-white/80 text-sm mb-3">Need help? Contact our support team</p>
+              <h3 className="text-lg font-semibold text-purple-200">Support</h3>
+              <p className="text-white/80 text-sm sm:text-base mb-3">Need help? Our support team is ready to assist.</p>
               <Button
                 onClick={() => setSupportModalOpen(true)}
-                className="w-full bg-orange-400 hover:bg-orange-500 text-black font-semibold flex items-center justify-center gap-2"
+                className="w-full bg-purple-400 hover:bg-purple-500 text-black font-semibold flex items-center justify-center gap-2"
               >
                 <HelpCircle className="h-4 w-4" />
                 Get Support
@@ -100,15 +86,15 @@ const Footer = () => {
           </div>
 
           {/* Footer Bottom */}
-          <div className="border-t border-white/20 mt-8 pt-8 text-center space-y-2">
-            <p className="text-white/60 text-sm">© 2025 Izakaya Tori Ichizu. All rights reserved.</p>
-            <p className="text-white/50 text-xs">
-              Powered by:{" "}
+          <div className="border-t border-white/20 mt-8 pt-6 text-center space-y-2 text-sm sm:text-base">
+            <p className="text-white/60">© 2026 Hilee. All rights reserved.</p>
+            <p className="text-white/50">
+              Powered by{" "}
               <Link
                 href="https://infinitechphil.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-orange-400 transition-colors"
+                className="hover:text-purple-400 transition-colors"
               >
                 Infinitech Advertising Corporation
               </Link>
