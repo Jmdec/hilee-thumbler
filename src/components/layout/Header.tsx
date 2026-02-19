@@ -12,6 +12,7 @@ import Image from "next/image"
 import EventBookingModal from "@/components/event-booking-modal"
 import GoogleTranslate from "@/components/googleTranslate"
 import { useCartStore } from "@/store/cartStore"
+import { useAuthStore } from "@/store/authStore"
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -105,9 +106,10 @@ const Header = () => {
     return null
   }
 
+  const logout = useAuthStore((state) => state.logout)
+
   const handleLogout = () => {
-    localStorage.removeItem("auth_token")
-    localStorage.removeItem("user_data")
+    logout() // handles localStorage cleanup + Zustand state
     setUser(null)
     window.dispatchEvent(new CustomEvent("userDataUpdated"))
     router.push("/login")

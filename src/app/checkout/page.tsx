@@ -54,28 +54,42 @@ const Checkout = () => {
     paymentMethod: "cash",
     notes: "",
   })
+
   const [receiptFile, setReceiptFile] = useState<string | null>(null)
+  const user = localStorage.getItem("user_data")
+  const token = localStorage.getItem("auth_token")
+
 
   useEffect(() => {
     const checkAuthAndFillForm = async () => {
-      const token = localStorage.getItem("auth_token")
-      const userData = localStorage.getItem("user_data")
+      const storedUser = localStorage.getItem("user_data")
+      const storedToken = localStorage.getItem("auth_token")
 
-      if (token && userData) {
+
+      if (storedToken && storedUser) {
         try {
-          const response = await fetch("/api/orders?page=1&per_page=1", {
+          const parsedUserInfo = await JSON.parse(storedUser)
+          setUserInfo(parsedUserInfo)
+
+          const addressesResponse = await fetch("/api/orders?page=1&per_page=1", {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${storedToken}`,
             },
           })
 
+          const response = await fetch("/api/orders?page=1&per_page=1", {
+            headers: {
+              Authorization: `Bearer ${storedToken}`,
+            },
+          })
+          console.log("orders response", response)
           if (response.ok) {
-            const parsedUserData = JSON.parse(userData)
+            const parsedUserData = JSON.parse(storedUser)
             setUserInfo(parsedUserData)
 
             const addressesResponse = await fetch("/api/addresses", {
               headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${storedToken}`,
               },
             })
 
@@ -239,30 +253,38 @@ const Checkout = () => {
       return
     }
 
-    const token = localStorage.getItem("auth_token")
-    if (!token) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to place an order.",
-        variant: "destructive",
-      })
-      router.push("/login")
-      return
-    }
+    console.log("Token in   localStorage:", localStorage.getItem("auth_token"))
 
-    setIsProcessing(true)
+    items: items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      description: item.description || "",
+      price: item.price,
+      quantity: item.quantity,
+      image: typeof item.image === "string" ? item.image : 'placeholder.svg',
+    })),
+
+      // if (!token) {
+      //   toast({
+      //     title: "Authentication Required",
+      //     description: "Please log in to place an order.",
+      //     variant: "destructive",
+      //   })
+      //   router.push("/login")
+      //   return
+      // }
+
+      setIsProcessing(true)
 
     try {
       const orderData = {
         items: items.map((item) => ({
+          id: item.id,
           name: item.name,
           description: item.description || "",
           price: item.price,
           quantity: item.quantity,
-          category: item.category || "Japanese Food",
-          is_spicy: Boolean(item.isSpicy),
-          is_vegetarian: Boolean(item.isVegetarian),
-          image_url: typeof item.image === "string" ? item.image : "",
+          image: typeof item.image === "string" ? item.image : 'placeholder.svg',
         })),
         payment_method: checkoutInfo.paymentMethod,
         delivery_address: checkoutInfo.address,
@@ -274,12 +296,12 @@ const Checkout = () => {
         notes: checkoutInfo.notes || "",
         receipt_file: receiptFile || null,
       }
-
+      console.log("orderData", orderData)
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
+          Accept: "application/json"
         },
         body: JSON.stringify(orderData),
       })
@@ -517,10 +539,10 @@ const Checkout = () => {
                     <div className="space-y-3">
                       <div
                         className={`p-4 rounded-lg border-2 transition-all ${total > 1000
-                            ? "bg-gray-100 border-gray-300 cursor-not-allowed opacity-60"
-                            : checkoutInfo.paymentMethod === "cash"
-                              ? "bg-orange-50 border-orange-500 cursor-pointer"
-                              : "bg-white border-orange-200 hover:border-orange-300 cursor-pointer"
+                          ? "bg-gray-100 border-gray-300 cursor-not-allowed opacity-60"
+                          : checkoutInfo.paymentMethod === "cash"
+                            ? "bg-orange-50 border-orange-500 cursor-pointer"
+                            : "bg-white border-orange-200 hover:border-orange-300 cursor-pointer"
                           }`}
                         onClick={() => {
                           if (total <= 1000) {
@@ -546,8 +568,8 @@ const Checkout = () => {
 
                       <div
                         className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "gcash"
-                            ? "bg-orange-50 border-orange-500"
-                            : "bg-white border-orange-200 hover:border-orange-300"
+                          ? "bg-orange-50 border-orange-500"
+                          : "bg-white border-orange-200 hover:border-orange-300"
                           }`}
                         onClick={() => handleInputChange("paymentMethod", "gcash")}
                       >
@@ -562,8 +584,8 @@ const Checkout = () => {
 
                       <div
                         className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "security_bank"
-                            ? "bg-orange-50 border-orange-500"
-                            : "bg-white border-orange-200 hover:border-orange-300"
+                          ? "bg-orange-50 border-orange-500"
+                          : "bg-white border-orange-200 hover:border-orange-300"
                           }`}
                         onClick={() => handleInputChange("paymentMethod", "security_bank")}
                       >

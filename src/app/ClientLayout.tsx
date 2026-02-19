@@ -16,20 +16,14 @@ import { useAuthStore } from "@/store/authStore"
 
 const queryClient = new QueryClient()
 
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const showHeader = pathname !== "/login" && pathname !== "/register"
-  
-  // Initialize auth from storage on mount
   const initializeAuth = useAuthStore((state) => state.initializeAuth)
 
   useEffect(() => {
-    initializeAuth()
-  }, [initializeAuth])
+    initializeAuth() // Runs once on mount, reads from localStorage, sets Zustand state
+  }, [])
 
   return (
     <>
