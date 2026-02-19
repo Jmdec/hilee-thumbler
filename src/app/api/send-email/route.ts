@@ -34,19 +34,16 @@ export async function POST(request: NextRequest) {
           <tr>
             <td style="padding: 40px 20px;">
               <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
-                 Header with gradient 
                 <tr>
-                  <td style="background: linear-gradient(135deg, #f97316 0%, #ef4444 100%); padding: 40px 30px; text-align: center;">
+                  <td style="background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%); padding: 40px 30px; text-align: center;">
                     <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-                      ABIC Consultancy
+                      Hilee Tumbler
                     </h1>
                     <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 14px; opacity: 0.9;">
-                      Customer Communication
+                      Customer Service
                     </p>
                   </td>
                 </tr>
-                
-                 Content 
                 <tr>
                   <td style="padding: 40px 30px;">
                     <h2 style="margin: 0 0 20px 0; color: #1f2937; font-size: 22px; font-weight: 600;">
@@ -57,15 +54,13 @@ export async function POST(request: NextRequest) {
                     </div>
                   </td>
                 </tr>
-                
-                 Footer 
                 <tr>
                   <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
                     <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
-                      This email was sent from ABIC Consultancy
+                      This email was sent from Hilee.
                     </p>
                     <p style="margin: 0; color: #9ca3af; font-size: 12px;">
-                      © ${new Date().getFullYear()} ABIC Consultancy. All rights reserved.
+                      © ${new Date().getFullYear()} Hilee. All rights reserved.
                     </p>
                   </td>
                 </tr>
