@@ -139,7 +139,7 @@ export default function CustomerServiceChatbot() {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-xl bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 z-50 transition-all duration-300 hover:scale-110"
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-xl bg-gradient-to-r from-purple-500 to-purple-500 hover:from-purple-600 hover:to-purple-600 z-50 transition-all duration-300 hover:scale-110"
           size="icon"
         >
           <MessageCircle className="h-7 w-7 text-white" />

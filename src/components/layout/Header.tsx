@@ -114,9 +114,9 @@ const Header = () => {
   }
 
   const allNav = [
-    { name: "Home", href: "/", icon: Home },
-    { name: "Products", href: "/products", icon: Home },
-    { name: "Contact Us", href: "/contact", icon: MessageSquare },
+    { name: "Home", href: "/"},
+    { name: "Products", href: "/products"},
+    { name: "Contact Us", href: "/contact"},
   ]
 
   const isActivePage = (href: string) => {
@@ -154,7 +154,6 @@ const Header = () => {
                   }`}
                 title={item.name}
               >
-                <item.icon className="h-5 w-5" />
               </Link>
             ))}
           </div>
@@ -167,10 +166,9 @@ const Header = () => {
                 href={item.href}
                 className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${isActivePage(item.href)
                     ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md"
-                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-400"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-900"
                   }`}
               >
-                <item.icon className="h-4 w-4" />
                 <span>{item.name}</span>
               </Link>
             ))}
@@ -256,7 +254,7 @@ const Header = () => {
                         <span className="text-sm font-medium">Cart</span>
                       </div>
                       {itemCount > 0 && (
-                        <Badge className="bg-orange-600 text-white px-2 py-0.5 text-xs">{itemCount}</Badge>
+                        <Badge className="bg-purple-600 text-white px-2 py-0.5 text-xs">{itemCount}</Badge>
                       )}
                     </div>
                   </Link>
@@ -369,7 +367,6 @@ const Header = () => {
                                 : "text-gray-700 hover:bg-gray-50 hover:text-purple-600"
                               }`}
                           >
-                            <item.icon className="h-5 w-5 flex-shrink-0" />
                             <span>{item.name}</span>
                           </Link>
                         ))}

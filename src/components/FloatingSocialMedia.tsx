@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { usePathname } from "next/navigation"
-import { Facebook, Instagram, MessageCircle, Phone, Share2, X } from "lucide-react"
+import { Facebook, Instagram, Mail, Phone, Share2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function FloatingSocialMedia() {
@@ -18,25 +18,25 @@ export default function FloatingSocialMedia() {
     {
       name: "Facebook",
       icon: Facebook,
-      href: "https://www.facebook.com/p/Izakaya-Tori-Ichizu-Philippines-61577219897910/",
+      href: "https://www.facebook.com/p/Hilee-Store-61565449175554/",
       color: "hover:bg-[#1877F2]",
     },
     {
       name: "Instagram",
       icon: Instagram,
-      href: "https://www.instagram.com/izakaya.tori/",
+      href: "https://www.instagram.com/hilee.ph?fbclid=IwY2xjawQDU3BleHRuA2FlbQIxMABicmlkETJQN2hVOEpEQnptZGF0bjJvc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHhhOqXqgnCkG5Pujk_TfEga_jnreN9PmA_N1WdJxoxT6SgH0xkl71rMe3DfT_aem_sPI9UC8mfc2A3CT469nz8w",
       color: "hover:bg-[#E4405F]",
     },
     {
-      name: "WhatsApp",
-      icon: MessageCircle,
-      href: "https://wa.me/283620676",
+      name: "Email",
+      icon: Mail,
+      href: "hileestore@gmail.com",
       color: "hover:bg-[#25D366]",
     },
     {
       name: "Call Us",
       icon: Phone,
-      href: "tel:283620676",
+      href: "tel:+63 956 764 5027",
       color: "hover:bg-orange-600",
     },
   ]
@@ -61,7 +61,7 @@ export default function FloatingSocialMedia() {
           >
             <Button
               size="icon"
-              className={`h-12 w-12 rounded-full bg-orange-600 text-white shadow-lg transition-all duration-300 ${social.color} hover:scale-110 hover:shadow-xl`}
+              className={`h-12 w-12 rounded-full bg-purple-500 text-white shadow-lg transition-all duration-300 ${social.color} hover:scale-110 hover:shadow-xl`}
             >
               <social.icon className="h-5 w-5" />
             </Button>
@@ -73,7 +73,7 @@ export default function FloatingSocialMedia() {
       <Button
         size="icon"
         onClick={() => setIsOpen(!isOpen)}
-        className="h-14 w-14 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 text-white shadow-lg transition-all duration-300 hover:from-orange-600 hover:to-yellow-600 hover:scale-110 hover:shadow-xl md:hidden"
+        className="h-14 w-14 rounded-full bg-purple-800 text-white shadow-lg transition-all duration-300 hover:from-orange-600 hover:to-yellow-600 hover:scale-110 hover:shadow-xl md:hidden"
         aria-label="Toggle social media links"
       >
         {isOpen ? <X className="h-6 w-6" /> : <Share2 className="h-6 w-6" />}
