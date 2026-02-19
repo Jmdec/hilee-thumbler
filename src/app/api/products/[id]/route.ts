@@ -32,20 +32,20 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const token = getAuthToken(request)
     if (!token) return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
 
-    const formData    = await request.formData()
+    const formData = await request.formData()
     const laravelForm = new FormData()
 
-    const name        = formData.get("name") as string
+    const name = formData.get("name") as string
     const description = formData.get("description") as string
-    const price       = formData.get("price") as string
-    const quantity    = formData.get("quantity") as string
-    const isActive    = formData.get("is_active") as string
-    const image       = formData.get("image") as File
+    const price = formData.get("price") as string
+    const stock = formData.get("stock") as string
+    const isActive = formData.get("is_active") as string
+    const image = formData.get("image") as File
 
     laravelForm.append("name", name)
     laravelForm.append("description", description ?? "")
     laravelForm.append("price", price)
-    laravelForm.append("quantity", quantity)
+    laravelForm.append("stock", stock)
     laravelForm.append("_method", "PUT") // Laravel method spoofing for FormData
 
     if (isActive !== null && isActive !== undefined) {
