@@ -266,22 +266,6 @@ const Header = () => {
                     </div>
                   </Link>
 
-                  {/* Events Link */}
-                  <Link href="/events-history" onClick={() => setIsDropdownOpen(false)} className="block">
-                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-purple-600 transition-colors cursor-pointer">
-                      <FolderClock className="h-4 w-4" />
-                      <span className="text-sm font-medium">Events</span>
-                    </div>
-                  </Link>
-
-                  {/* Reservations Link */}
-                  <Link href="/reservation-history" onClick={() => setIsDropdownOpen(false)} className="block">
-                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-purple-600 transition-colors cursor-pointer">
-                      <Calendar className="h-4 w-4" />
-                      <span className="text-sm font-medium">Reservations</span>
-                    </div>
-                  </Link>
-
                   <div className="border-t border-gray-100 mt-2 pt-2">
                     <button
                       onClick={() => {

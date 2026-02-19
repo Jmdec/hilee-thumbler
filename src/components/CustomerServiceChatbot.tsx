@@ -148,9 +148,9 @@ export default function CustomerServiceChatbot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-0 right-0 md:bottom-6 md:right-6 w-full md:w-[420px] h-[85vh] md:h-[700px] max-h-[700px] shadow-2xl z-50 flex flex-col border-orange-200 rounded-t-2xl md:rounded-2xl overflow-hidden p-0">
+        <Card className="fixed bottom-0 right-0 md:bottom-6 md:right-6 w-full md:w-[420px] h-[85vh] md:h-[700px] max-h-[700px] shadow-2xl z-50 flex flex-col border-purple-200 rounded-t-2xl md:rounded-2xl overflow-hidden p-0">
           {/* Header */}
-          <CardHeader className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white flex flex-row items-center justify-between p-4 flex-shrink-0">
+          <CardHeader className="bg-gradient-to-r from-purple-500 to-violet-500 text-white flex flex-row items-center justify-between p-4 flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="h-11 w-11 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
                 <MessageCircle className="h-6 w-6" />
@@ -158,7 +158,7 @@ export default function CustomerServiceChatbot() {
               <div>
                 <CardTitle className="text-lg font-semibold">Customer Service</CardTitle>
                 <p className="text-xs text-white/90 flex items-center gap-1">
-                  <span className="w-2 h-2 bg-yellow-300 rounded-full animate-pulse"></span>
+                  <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
                   Izakaya Tori Ichizu
                 </p>
               </div>
@@ -186,7 +186,7 @@ export default function CustomerServiceChatbot() {
                       <div
                         className={`max-w-[85%] rounded-2xl px-4 py-2.5 shadow-sm ${
                           message.sender === "user"
-                            ? "bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-tr-sm"
+                            ? "bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-tr-sm"
                             : "bg-white text-gray-800 border border-gray-200 rounded-tl-sm"
                         }`}
                       >
@@ -207,15 +207,15 @@ export default function CustomerServiceChatbot() {
                       <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-200">
                         <div className="flex gap-1">
                           <div
-                            className="w-2 h-2 bg-orange-400 rounded-full animate-bounce"
+                            className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
                             style={{ animationDelay: "0ms" }}
                           ></div>
                           <div
-                            className="w-2 h-2 bg-orange-400 rounded-full animate-bounce"
+                            className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
                             style={{ animationDelay: "150ms" }}
                           ></div>
                           <div
-                            className="w-2 h-2 bg-orange-400 rounded-full animate-bounce"
+                            className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
                             style={{ animationDelay: "300ms" }}
                           ></div>
                         </div>
@@ -237,7 +237,7 @@ export default function CustomerServiceChatbot() {
                         key={index}
                         onClick={() => handleFAQClick(faq.question, faq.answer)}
                         disabled={isTyping}
-                        className="text-[11px] px-3 py-1.5 rounded-full border-2 border-orange-300 text-orange-700 hover:bg-orange-500 hover:text-white hover:border-orange-500 bg-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium whitespace-normal text-left leading-snug"
+                        className="text-[11px] px-3 py-1.5 rounded-full border-2 border-purple-300 text-purple-700 hover:bg-purple-500 hover:text-white hover:border-purple-500 bg-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium whitespace-normal text-left leading-snug"
                       >
                         {faq.question}
                       </button>
@@ -253,7 +253,7 @@ export default function CustomerServiceChatbot() {
                 <Button
                   onClick={handleEndChat}
                   variant="outline"
-                  className="w-full text-sm border-2 border-orange-300 text-orange-700 hover:bg-orange-500 hover:text-white hover:border-orange-500 bg-white font-medium rounded-xl h-10 transition-all duration-200"
+                  className="w-full text-sm border-2 border-purple-300 text-purple-700 hover:bg-purple-500 hover:text-white hover:border-purple-500 bg-white font-medium rounded-xl h-10 transition-all duration-200"
                   disabled={isTyping}
                 >
                   End Chat
@@ -263,7 +263,7 @@ export default function CustomerServiceChatbot() {
                   <p className="text-sm text-gray-500 mb-3 font-medium">Chat has ended</p>
                   <Button
                     onClick={handleNewChat}
-                    className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-medium rounded-xl h-10 shadow-md"
+                    className="w-full bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white font-medium rounded-xl h-10 shadow-md"
                   >
                     <RotateCcw className="h-4 w-4 mr-2" />
                     Start New Chat
