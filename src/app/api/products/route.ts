@@ -11,13 +11,25 @@ function getAuthToken(request: NextRequest): string | null {
 
 export async function GET(request: NextRequest) {
   try {
+    const token = getAuthToken(request)
+
+    console.log("[API] Token present:", !!token)
+
+    if (!token) {
+      console.log("[API] No token - returning 401")
+      return NextResponse.json({ success: false, message: "Authentication required" }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
     const queryString = searchParams.toString()
     const apiUrl = `${API_BASE_URL}/api/products${queryString ? `?${queryString}` : ""}`
 
     const response = await fetch(apiUrl, {
       method: "GET",
-      headers: { Accept: "application/json" },
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       cache: "no-cache",
     })
 
@@ -68,7 +80,7 @@ export async function POST(request: NextRequest) {
       },
       body: laravelForm,
     })
-    
+
     const responseData = await response.json()
     if (!response.ok) {
       return NextResponse.json(

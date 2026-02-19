@@ -293,9 +293,9 @@ const Checkout = () => {
       // Handle different response formats
       if (response.ok) {
         // Check multiple possible success formats
-        const orderNumber = 
-          result.data?.order?.order_number || 
-          result.data?.order_number || 
+        const orderNumber =
+          result.data?.order?.order_number ||
+          result.data?.order_number ||
           result.order?.order_number ||
           result.order_number ||
           "your order"
@@ -516,13 +516,12 @@ const Checkout = () => {
 
                     <div className="space-y-3">
                       <div
-                        className={`p-4 rounded-lg border-2 transition-all ${
-                          total > 1000
+                        className={`p-4 rounded-lg border-2 transition-all ${total > 1000
                             ? "bg-gray-100 border-gray-300 cursor-not-allowed opacity-60"
                             : checkoutInfo.paymentMethod === "cash"
-                            ? "bg-orange-50 border-orange-500 cursor-pointer"
-                            : "bg-white border-orange-200 hover:border-orange-300 cursor-pointer"
-                        }`}
+                              ? "bg-orange-50 border-orange-500 cursor-pointer"
+                              : "bg-white border-orange-200 hover:border-orange-300 cursor-pointer"
+                          }`}
                         onClick={() => {
                           if (total <= 1000) {
                             handleInputChange("paymentMethod", "cash")
@@ -539,18 +538,17 @@ const Checkout = () => {
                           )}
                         </div>
                         <p className="text-sm text-gray-600 mt-2">
-                          {total > 1000 
-                            ? "Only available for orders ₱1,000 and below" 
+                          {total > 1000
+                            ? "Only available for orders ₱1,000 and below"
                             : "Pay with cash when your order arrives"}
                         </p>
                       </div>
 
                       <div
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                          checkoutInfo.paymentMethod === "gcash"
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "gcash"
                             ? "bg-orange-50 border-orange-500"
                             : "bg-white border-orange-200 hover:border-orange-300"
-                        }`}
+                          }`}
                         onClick={() => handleInputChange("paymentMethod", "gcash")}
                       >
                         <div className="flex items-center gap-2 text-gray-700">
@@ -563,11 +561,10 @@ const Checkout = () => {
                       </div>
 
                       <div
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                          checkoutInfo.paymentMethod === "security_bank"
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "security_bank"
                             ? "bg-orange-50 border-orange-500"
                             : "bg-white border-orange-200 hover:border-orange-300"
-                        }`}
+                          }`}
                         onClick={() => handleInputChange("paymentMethod", "security_bank")}
                       >
                         <div className="flex items-center gap-2 text-gray-700">
@@ -598,12 +595,12 @@ const Checkout = () => {
                           </svg>
                           <div className="flex-1">
                             <h4 className="font-semibold text-blue-900 mb-3">GCash Payment Instructions</h4>
-                            
+
                             {/* GCash QR Code */}
                             <div className="bg-white p-4 rounded-lg border border-blue-200 mb-3 flex justify-center">
-                              <img 
-                                src="/gcash_qr.png" 
-                                alt="GCash QR Code" 
+                              <img
+                                src="/gcash_qr.png"
+                                alt="GCash QR Code"
                                 className="w-48 h-48 object-contain"
                               />
                             </div>
@@ -717,7 +714,7 @@ const Checkout = () => {
                           </svg>
                           <div className="flex-1">
                             <h4 className="font-semibold text-blue-900 mb-3">Security Bank Payment Instructions</h4>
-                            
+
                             {/* Bank Account Details */}
                             <div className="bg-white p-4 rounded-lg border border-blue-200 mb-3">
                               <div className="space-y-3">

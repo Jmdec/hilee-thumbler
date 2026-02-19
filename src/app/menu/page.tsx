@@ -1,4 +1,5 @@
 "use client"
+
 import { useState, useEffect } from "react"
 import type { MenuItem } from "@/types"
 import MenuItemCard from "@/components/ui/menu-item-card"
@@ -11,7 +12,7 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState("All")
-  
+
   // Install app states
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [showInstallPopup, setShowInstallPopup] = useState(false)
@@ -23,7 +24,7 @@ export default function MenuPage() {
       e.preventDefault()
       setDeferredPrompt(e)
       setShowInstallButton(true)
-      
+
       // Show popup after 3 seconds on page load
       setTimeout(() => {
         setShowInstallPopup(true)
@@ -68,19 +69,22 @@ export default function MenuPage() {
         setLoading(true)
         setError(null)
 
-        const response = await fetch("/api/product?paginate=false")
-        if (!response.ok) throw new Error("Failed to fetch products")
+        const response = await fetch("/api/products?paginate=false")
         const data = await response.json()
+
+
+        console.log("response", response);
+
+        if (!response.ok) throw new Error("Failed to fetch products")
+
 
         const transformedProducts: MenuItem[] = data.map((product: any) => ({
           id: product.id,
           name: product.name,
           description: product.description,
           price: typeof product.price === "string" ? Number.parseFloat(product.price) : product.price,
-          category: product.category,
+          quantity: product.quantity,
           image: product.image,
-          isSpicy: product.is_spicy || false,
-          isVegetarian: product.is_vegetarian || false,
         }))
 
         setProducts(transformedProducts)
@@ -96,8 +100,6 @@ export default function MenuPage() {
     fetchProducts()
   }, [])
 
-  const categories = ["All", ...Array.from(new Set(products.map((p) => p.category)))]
-  const filtered = selectedCategory === "All" ? products : products.filter((p) => p.category === selectedCategory)
 
   if (loading) {
     return (
@@ -163,11 +165,11 @@ export default function MenuPage() {
                   />
                 </div>
               </div>
-              
+
               <h2 className="text-2xl font-bold text-white text-center mb-2">
                 Install Izakaya App
               </h2>
-              
+
               <p className="text-white/95 text-center text-sm leading-relaxed">
                 Quick access • Faster ordering • Exclusive offers
               </p>
@@ -182,7 +184,7 @@ export default function MenuPage() {
                 <Download className="h-5 w-5 mr-2" />
                 Install Now
               </Button>
-              
+
               <Button
                 onClick={handleDismissPopup}
                 variant="ghost"
@@ -202,7 +204,7 @@ export default function MenuPage() {
         </div>
 
         <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {categories.map((category) => (
+          {/* {categories.map((category) => (
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
@@ -215,24 +217,14 @@ export default function MenuPage() {
             >
               {category}
             </Button>
-          ))}
+          ))}*/}
         </div>
 
-        {filtered.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-yellow-200/80 text-lg">
-              {selectedCategory === "All"
-                ? "No menu items available"
-                : `No items found in ${selectedCategory} category`}
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr">
-            {filtered.map((product) => (
-              <MenuItemCard key={product.id} item={product} />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr">
+          {products.map((product) => (
+            <MenuItemCard key={product.id} item={product} />
+          ))}
+        </div>
       </div>
     </div>
   )
