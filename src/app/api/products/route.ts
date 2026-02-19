@@ -61,13 +61,13 @@ export async function POST(request: NextRequest) {
     const name = formData.get("name") as string
     const description = formData.get("description") as string
     const price = formData.get("price") as string
-    const quantity = formData.get("quantity") as string
+    const stock = formData.get("stock") as string
     const image = formData.get("image") as File
 
     laravelForm.append("name", name)
     laravelForm.append("description", description ?? "")
     laravelForm.append("price", price)
-    laravelForm.append("quantity", quantity)
+    laravelForm.append("stock", stock)
 
     if (image && image.size > 0) laravelForm.append("image", image)
 

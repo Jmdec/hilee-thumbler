@@ -20,12 +20,12 @@ export const useCartStore = create<CartStore>()(
       addItem: (item: MenuItem) => {
         // Check auth status from the auth store
         if (typeof window !== "undefined") {
-          const authStorage = localStorage.getItem("auth-storage")
+          const auth_token = localStorage.getItem("auth_token")
           let isLoggedIn = false
           
-          if (authStorage) {
+          if (auth_token) {
             try {
-              const authState = JSON.parse(authStorage)
+              const authState = JSON.parse(auth_token)
               isLoggedIn = authState.state?.isLoggedIn || false
             } catch (e) {
               console.error("Failed to parse auth state:", e)

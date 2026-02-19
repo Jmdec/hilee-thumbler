@@ -55,28 +55,42 @@ const Checkout = () => {
     paymentMethod: "cash",
     notes: "",
   })
+
   const [receiptFile, setReceiptFile] = useState<string | null>(null)
+  const user = localStorage.getItem("user_data")
+  const token = localStorage.getItem("auth_token")
+
 
   useEffect(() => {
     const checkAuthAndFillForm = async () => {
-      const token = localStorage.getItem("auth_token")
-      const userData = localStorage.getItem("user_data")
+      const storedUser = localStorage.getItem("user_data")
+      const storedToken = localStorage.getItem("auth_token")
 
-      if (token && userData) {
+
+      if (storedToken && storedUser) {
         try {
-          const response = await fetch("/api/orders?page=1&per_page=1", {
+          const parsedUserInfo = await JSON.parse(storedUser)
+          setUserInfo(parsedUserInfo)
+
+          const addressesResponse = await fetch("/api/orders?page=1&per_page=1", {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${storedToken}`,
             },
           })
 
+          const response = await fetch("/api/orders?page=1&per_page=1", {
+            headers: {
+              Authorization: `Bearer ${storedToken}`,
+            },
+          })
+          console.log("orders response", response)
           if (response.ok) {
-            const parsedUserData = JSON.parse(userData)
+            const parsedUserData = JSON.parse(storedUser)
             setUserInfo(parsedUserData)
 
             const addressesResponse = await fetch("/api/addresses", {
               headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${storedToken}`,
               },
             })
 
@@ -240,30 +254,38 @@ const Checkout = () => {
       return
     }
 
-    const token = localStorage.getItem("auth_token")
-    if (!token) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to place an order.",
-        variant: "destructive",
-      })
-      router.push("/login")
-      return
-    }
+    console.log("Token in   localStorage:", localStorage.getItem("auth_token"))
 
-    setIsProcessing(true)
+    items: items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      description: item.description || "",
+      price: item.price,
+      quantity: item.quantity,
+      image: typeof item.image === "string" ? item.image : 'placeholder.svg',
+    })),
+
+      // if (!token) {
+      //   toast({
+      //     title: "Authentication Required",
+      //     description: "Please log in to place an order.",
+      //     variant: "destructive",
+      //   })
+      //   router.push("/login")
+      //   return
+      // }
+
+      setIsProcessing(true)
 
     try {
       const orderData = {
         items: items.map((item) => ({
+          id: item.id,
           name: item.name,
           description: item.description || "",
           price: item.price,
           quantity: item.quantity,
-          category: item.category || "Japanese Food",
-          is_spicy: Boolean(item.isSpicy),
-          is_vegetarian: Boolean(item.isVegetarian),
-          image_url: typeof item.image === "string" ? item.image : "",
+          image: typeof item.image === "string" ? item.image : 'placeholder.svg',
         })),
         payment_method: checkoutInfo.paymentMethod,
         delivery_address: checkoutInfo.address,
@@ -275,12 +297,12 @@ const Checkout = () => {
         notes: checkoutInfo.notes || "",
         receipt_file: receiptFile || null,
       }
-
+      console.log("orderData", orderData)
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
+          Accept: "application/json"
         },
         body: JSON.stringify(orderData),
       })
@@ -599,7 +621,7 @@ const Checkout = () => {
 
                             {/* GCash QR Code */}
                             <div className="bg-white p-4 rounded-lg border border-blue-200 mb-3 flex justify-center">
-                              <img
+                              <Image
                                 src="/gcash_qr.png"
                                 alt="GCash QR Code"
                                 className="w-48 h-48 object-contain"
@@ -685,7 +707,7 @@ const Checkout = () => {
                                   <X className="w-5 h-5" />
                                 </button>
                               </div>
-                              <img
+                              <Image
                                 src={receiptFile}
                                 alt="Receipt"
                                 className="mt-3 max-h-40 rounded-lg border border-gray-300"

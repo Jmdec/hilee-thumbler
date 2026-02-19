@@ -75,6 +75,10 @@ export default function LoginPage() {
             redirectPath = "/"
           }
 
+          // 1. Save to localStorage FIRST
+          localStorage.setItem("auth_token", token)
+          localStorage.setItem("user_data", JSON.stringify(user))
+          document.cookie = `auth_token=${token}; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax`
           setTimeout(() => {
             router.push(redirectPath)
           }, 1500)
