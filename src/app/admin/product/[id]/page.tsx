@@ -8,12 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Loader2, Upload, Flame, Leaf, Save, Star } from "lucide-react"
-import { useState, useEffect, useRef } from "react"
+import { ArrowLeft, Loader2, Upload, Save } from "lucide-react"
+import { useState, useEffect, useRef, use } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
+import { useAuthStore } from "@/store/authStore"
 import Image from "next/image"
 
 interface Product {
@@ -21,25 +21,13 @@ interface Product {
   name: string
   description: string
   price: number | string
+  quantity: number
   image: string
-  category: string
-  is_spicy?: boolean
-  is_vegetarian?: boolean
-  is_featured?: boolean
   created_at: string
   updated_at: string
 }
 
-const categories = [
-  "Appetizers",
-  "Main Course",
-  "Desserts",
-  "Beverages",
-  "Korean BBQ",
-  "Noodles",
-  "Rice Dishes",
-  "Soups",
-]
+const categories = ["Tumblers", "Accessories", "Premium", "Limited Edition"]
 
 // Helper function to get valid image URL
 const getImageUrl = (imagePath: string): string => {
@@ -60,23 +48,22 @@ const getImageUrl = (imagePath: string): string => {
   return `${API_BASE_URL}/${fullPath}`
 }
 
-export default function EditProductPage({ params }: { params: { id: string } }) {
+export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params) as { id: string }
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
+  const tokenFromStore = useAuthStore((state) => state.token)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
-    category: "",
-    is_spicy: false,
-    is_vegetarian: false,
-    is_featured: false,
+    quantity: "",
   })
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -96,11 +83,18 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     const fetchProduct = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/product/${params.id}`)
+        const token = tokenFromStore || localStorage.getItem("auth_token")
+        const response = await fetch(`/api/products/${resolvedParams.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        })
         if (!response.ok) {
           throw new Error("Failed to fetch product")
         }
-        const productData = await response.json()
+        const responseData = await response.json()
+        const productData = responseData.data || responseData
         setProduct(productData)
 
         // Populate form
@@ -108,10 +102,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           name: productData.name || "",
           description: productData.description || "",
           price: productData.price ? productData.price.toString() : "",
-          category: productData.category || "",
-          is_spicy: productData.is_spicy || false,
-          is_vegetarian: productData.is_vegetarian || false,
-          is_featured: productData.is_featured || false,
+          quantity: productData.quantity ? productData.quantity.toString() : "",
         })
       } catch (error) {
         console.error("Failed to fetch product:", error)
@@ -126,10 +117,10 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       }
     }
 
-    if (params.id) {
+    if (resolvedParams.id) {
       fetchProduct()
     }
-  }, [params.id, toast, router])
+  }, [resolvedParams.id, toast, router])
 
   // Handle form changes
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -137,12 +128,8 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSwitchChange = (name: string, value: boolean) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleCategoryChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, category: value }))
+  const handleCheckboxChange = (name: string, checked: boolean) => {
+    setFormData((prev) => ({ ...prev, [name]: checked }))
   }
 
   // Handle image selection
@@ -168,10 +155,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       formDataToSend.append("name", formData.name)
       formDataToSend.append("description", formData.description)
       formDataToSend.append("price", formData.price)
-      formDataToSend.append("category", formData.category)
-      formDataToSend.append("is_spicy", formData.is_spicy.toString())
-      formDataToSend.append("is_vegetarian", formData.is_vegetarian.toString())
-      formDataToSend.append("is_featured", formData.is_featured.toString())
+      formDataToSend.append("quantity", formData.quantity)
 
       if (selectedImage) {
         formDataToSend.append("image", selectedImage)
@@ -180,8 +164,13 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       // Add _method for Laravel to handle PUT request
       formDataToSend.append("_method", "PUT")
 
-      const response = await fetch(`/api/product/${params.id}`, {
+      const token = tokenFromStore || localStorage.getItem("auth_token")
+      const response = await fetch(`/api/products/${resolvedParams.id}`, {
         method: "POST", // Use POST with _method for file uploads
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
         body: formDataToSend,
       })
 
@@ -287,31 +276,27 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
               <Card className="bg-white/70 backdrop-blur-sm shadow-xl border-orange-100">
                 <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-xl font-bold">
-                    <span>Product Details</span>
-                    {(formData.is_spicy || formData.is_vegetarian || formData.is_featured) && (
-                      <div className="flex gap-1 ml-auto">
-                        {formData.is_featured && (
-                          <div className="bg-white/20 rounded-full p-1">
-                            <Star className="w-4 h-4 text-white" />
-                          </div>
-                        )}
-                        {formData.is_spicy && (
-                          <div className="bg-white/20 rounded-full p-1">
-                            <Flame className="w-4 h-4 text-white" />
-                          </div>
-                        )}
-                        {formData.is_vegetarian && (
-                          <div className="bg-white/20 rounded-full p-1">
-                            <Leaf className="w-4 h-4 text-white" />
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </CardTitle>
+                  <CardTitle className="text-xl font-bold">Product Details</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 bg-white">
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* preview block styled more like an e‑commerce product card */}
+              <div className="mb-6 bg-white rounded-xl shadow-lg p-6 flex flex-col lg:flex-row items-center lg:items-start gap-6">
+                <div className="w-full lg:w-1/3">
+                  <Image
+                    src={imagePreview || getImageUrl(product.image)}
+                    alt={product?.name || "Product image"}
+                    width={400}
+                    height={400}
+                    className="rounded-lg object-cover w-full h-full"
+                  />
+                </div>
+                <div className="w-full lg:w-2/3">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-2">{formData.name || product.name}</h2>
+                  <p className="text-xl text-red-600 font-semibold mb-2">₱{parseFloat(formData.price || product.price as any || 0).toFixed(2)}</p>
+                  <p className="text-sm text-gray-600 mb-2">Quantity: <span className="font-medium">{formData.quantity || product.quantity} pcs</span></p>
+                </div>
+              </div>
+              <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                       <div className="lg:col-span-1">
                         <Label htmlFor="image" className="text-base font-medium text-gray-700">
@@ -321,7 +306,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                           <div className="w-full aspect-square max-w-xs mx-auto lg:mx-0 rounded-xl overflow-hidden border-2 border-dashed border-orange-300 bg-gradient-to-br from-orange-50 to-red-50 shadow-lg">
                             <Image
                               src={imagePreview || getImageUrl(product.image)}
-                              alt={product.name}
+                              alt={product?.name || "Product image"}
                               width={300}
                               height={300}
                               className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
@@ -368,7 +353,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                               onChange={handleFormChange}
                               required
                               disabled={saving}
-                              placeholder="e.g., Kimchi Fried Rice"
+                              placeholder="e.g., Premium Stainless Steel Tumbler"
                               className="mt-1 border-orange-200 focus:border-orange-400 focus:ring-orange-400"
                             />
                           </div>
@@ -393,21 +378,21 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                           </div>
 
                           <div>
-                            <Label htmlFor="category" className="text-gray-700 font-medium">
-                              Category *
+                            <Label htmlFor="quantity" className="text-gray-700 font-medium">
+                              Quantity *
                             </Label>
-                            <Select value={formData.category} onValueChange={handleCategoryChange} disabled={saving}>
-                              <SelectTrigger className="mt-1 border-orange-200 focus:border-orange-400 focus:ring-orange-400">
-                                <SelectValue placeholder="Select category" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categories.map((category) => (
-                                  <SelectItem key={category} value={category}>
-                                    {category}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <Input
+                              id="quantity"
+                              name="quantity"
+                              type="number"
+                              min="0"
+                              value={formData.quantity}
+                              onChange={handleFormChange}
+                              required
+                              disabled={saving}
+                              placeholder="0"
+                              className="mt-1 border-orange-200 focus:border-orange-400 focus:ring-orange-400"
+                            />
                           </div>
                         </div>
 
@@ -421,64 +406,11 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                             value={formData.description}
                             onChange={handleFormChange}
                             required
-                            rows={4}
+                            rows={3}
                             disabled={saving}
-                            placeholder="Describe the dish, ingredients, and preparation..."
+                            placeholder="Describe the product, material, features..."
                             className="mt-1 resize-none border-orange-200 focus:border-orange-400 focus:ring-orange-400"
                           />
-                        </div>
-
-                        <div className="space-y-4">
-                          <Label className="text-base font-medium text-gray-700">Properties</Label>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div className="flex items-center space-x-3 p-3 border-2 border-orange-200 rounded-lg bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 transition-all duration-200">
-                              <Switch
-                                id="is_featured"
-                                checked={formData.is_featured}
-                                onCheckedChange={(checked) => handleSwitchChange("is_featured", checked)}
-                                disabled={saving}
-                              />
-                              <Label
-                                htmlFor="is_featured"
-                                className="flex items-center gap-2 cursor-pointer text-gray-700 font-medium"
-                              >
-                                <Star className="w-4 h-4 text-yellow-500" />
-                                Featured
-                              </Label>
-                            </div>
-
-                            <div className="flex items-center space-x-3 p-3 border-2 border-orange-200 rounded-lg bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 transition-all duration-200">
-                              <Switch
-                                id="is_spicy"
-                                checked={formData.is_spicy}
-                                onCheckedChange={(checked) => handleSwitchChange("is_spicy", checked)}
-                                disabled={saving}
-                              />
-                              <Label
-                                htmlFor="is_spicy"
-                                className="flex items-center gap-2 cursor-pointer text-gray-700 font-medium"
-                              >
-                                <Flame className="w-4 h-4 text-red-500" />
-                                Spicy
-                              </Label>
-                            </div>
-
-                            <div className="flex items-center space-x-3 p-3 border-2 border-orange-200 rounded-lg bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 transition-all duration-200">
-                              <Switch
-                                id="is_vegetarian"
-                                checked={formData.is_vegetarian}
-                                onCheckedChange={(checked) => handleSwitchChange("is_vegetarian", checked)}
-                                disabled={saving}
-                              />
-                              <Label
-                                htmlFor="is_vegetarian"
-                                className="flex items-center gap-2 cursor-pointer text-gray-700 font-medium"
-                              >
-                                <Leaf className="w-4 h-4 text-green-500" />
-                                Vegetarian
-                              </Label>
-                            </div>
-                          </div>
                         </div>
                       </div>
                     </div>

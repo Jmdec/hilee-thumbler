@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const perPage = searchParams.get("per_page") || "50"
     const role = searchParams.get("role") || "customer"
     const search = searchParams.get("search") || ""
-    const status = searchParams.get("status") || "active"
+    const status = searchParams.get("status") // no default; backend decides
 
     console.log("[API] Query params:", { page, perPage, role, search, status })
 
@@ -28,8 +28,12 @@ export async function GET(request: NextRequest) {
       page,
       per_page: perPage,
       role,
-      status, // Filter by status
     })
+
+    // only include status if the client explicitly sent one
+    if (status) {
+      params.set("status", status)
+    }
 
     if (search) {
       params.append("search", search)

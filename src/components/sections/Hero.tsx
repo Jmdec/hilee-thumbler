@@ -27,7 +27,7 @@ export default function HeroSection() {
     const fetchAllProducts = async () => {
       try {
         // Fetch ALL products from the Next.js API route
-        const response = await fetch('/api/product?paginate=false')
+        const response = await fetch('/api/products?paginate=false')
         
         if (!response.ok) {
           throw new Error(`Failed to fetch products: ${response.status}`)

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { useAuthStore } from "@/store/authStore"
 import {
   MoreHorizontal,
   Eye,
@@ -150,10 +151,11 @@ export default function UsersAdminPage() {
   }, [])
 
   // Fetch users
+  const tokenFromStore = useAuthStore((state) => state.token)
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem("auth_token")
+      const token = tokenFromStore || localStorage.getItem("auth_token")
 
       if (!token) {
         toast({
@@ -165,11 +167,16 @@ export default function UsersAdminPage() {
         return
       }
 
-      let url = "/api/users?per_page=100&role=customer"
-
+      // build query params with search as needed
+      const params = new URLSearchParams({
+        per_page: "100",
+        role: "user",
+      })
       if (globalFilter) {
-        url += `&search=${encodeURIComponent(globalFilter)}`
+        params.set("search", globalFilter)
       }
+
+      const url = `/api/users?${params.toString()}`
 
       const response = await fetch(url, {
         headers: {
@@ -190,7 +197,8 @@ export default function UsersAdminPage() {
       const result = await response.json()
 
       if (result.success) {
-        const usersData = result.data || []
+        // result.data is a paginated object with 'data' property containing items
+        const usersData = (result.data && result.data.data) || result.data || []
         setUsers(Array.isArray(usersData) ? usersData : [])
       } else {
         throw new Error(result.message || "Failed to fetch users")
@@ -472,9 +480,9 @@ export default function UsersAdminPage() {
     {
       accessorKey: "role",
       header: "Role",
-      cell: ({ row }) => (
+      cell: () => (
         <Badge variant="outline" className="text-xs">
-          {row.original.role}
+          user
         </Badge>
       ),
     },
