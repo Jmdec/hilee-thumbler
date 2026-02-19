@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
-  
+
   // Get the login function from auth store
   const login = useAuthStore((state) => state.login)
 
@@ -59,7 +59,7 @@ export default function LoginPage() {
         if (token && user) {
           // Just call login - it handles all storage automatically (localStorage, cookies, Zustand)
           login({ ...user, token })
-          
+
           toast.success("Login Successful!", {
             description: "Welcome back to Izakaya Tori Ichizu!",
           })
@@ -75,6 +75,10 @@ export default function LoginPage() {
             redirectPath = "/"
           }
 
+          // 1. Save to localStorage FIRST
+          localStorage.setItem("auth_token", token)
+          localStorage.setItem("user_data", JSON.stringify(user))
+          document.cookie = `auth_token=${token}; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax`
           setTimeout(() => {
             router.push(redirectPath)
           }, 1500)

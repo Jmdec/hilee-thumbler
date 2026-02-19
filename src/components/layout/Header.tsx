@@ -12,6 +12,7 @@ import Image from "next/image"
 import EventBookingModal from "@/components/event-booking-modal"
 import GoogleTranslate from "@/components/googleTranslate"
 import { useCartStore } from "@/store/cartStore"
+import { useAuthStore } from "@/store/authStore"
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -105,9 +106,10 @@ const Header = () => {
     return null
   }
 
+  const logout = useAuthStore((state) => state.logout)
+
   const handleLogout = () => {
-    localStorage.removeItem("auth_token")
-    localStorage.removeItem("user_data")
+    logout() // handles localStorage cleanup + Zustand state
     setUser(null)
     window.dispatchEvent(new CustomEvent("userDataUpdated"))
     router.push("/login")
@@ -152,11 +154,10 @@ const Header = () => {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`p-2 rounded-lg transition-all duration-300 ${
-                  isActivePage(item.href)
-                    ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
-                    : "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
-                }`}
+                className={`p-2 rounded-lg transition-all duration-300 ${isActivePage(item.href)
+                  ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
+                  : "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
+                  }`}
                 title={item.name}
               >
                 <item.icon className="h-5 w-5" />
@@ -170,11 +171,10 @@ const Header = () => {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${
-                  isActivePage(item.href)
-                    ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
-                    : "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
-                }`}
+                className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${isActivePage(item.href)
+                  ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
+                  : "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
+                  }`}
               >
                 <item.icon className="h-4 w-4" />
                 <span>{item.name}</span>
@@ -265,11 +265,10 @@ const Header = () => {
                 </Button>
 
                 <div
-                  className={`absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-orange-100 py-2 z-50 transition-all duration-200 ${
-                    isDropdownOpen
-                      ? "opacity-100 visible"
-                      : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
-                  }`}
+                  className={`absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-orange-100 py-2 z-50 transition-all duration-200 ${isDropdownOpen
+                    ? "opacity-100 visible"
+                    : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
+                    }`}
                 >
                   {/* User Info */}
                   <div className="px-4 py-3 border-b border-gray-100">
@@ -400,11 +399,10 @@ const Header = () => {
                             key={item.name}
                             href={item.href}
                             onClick={() => setIsOpen(false)}
-                            className={`flex items-center space-x-3 w-full text-left px-3 py-3 text-base font-medium rounded-lg transition-all duration-300 ${
-                              isActivePage(item.href)
-                                ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
-                                : "text-gray-700 hover:bg-gray-50 hover:text-orange-600"
-                            }`}
+                            className={`flex items-center space-x-3 w-full text-left px-3 py-3 text-base font-medium rounded-lg transition-all duration-300 ${isActivePage(item.href)
+                              ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
+                              : "text-gray-700 hover:bg-gray-50 hover:text-orange-600"
+                              }`}
                           >
                             <item.icon className="h-5 w-5 flex-shrink-0" />
                             <span>{item.name}</span>
@@ -439,7 +437,7 @@ const Header = () => {
                             </div>
                           </div>
                         </Link>
-                        
+
                         {/* Events Link - Mobile */}
                         <Link href="/events-history" onClick={() => setIsOpen(false)}>
                           <div className="flex items-center space-x-3 px-3 py-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">

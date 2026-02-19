@@ -1,6 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
 
 const LARAVEL_API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+function getAuthToken(request: NextRequest): string | null {
+  const authHeader = request.headers.get("authorization")
+  // cookie may be stored under `token` or `auth_token` depending on login logic
+  const cookieToken = request.cookies.get("token")?.value || request.cookies.get("auth_token")?.value
+  return authHeader?.replace("Bearer ", "") || cookieToken || null
+}
+
 
 export async function GET(request: NextRequest) {
   try {
@@ -48,11 +55,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authToken = request.headers.get("Authorization")
+    const token = getAuthToken(request)
+    if (!token) return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
 
-    if (!authToken) {
-      return NextResponse.json({ success: false, message: "Authorization token required" }, { status: 401 })
-    }
 
     const body = await request.json()
 
@@ -79,9 +84,8 @@ export async function POST(request: NextRequest) {
     const response = await fetch(`${LARAVEL_API_BASE}/api/orders`, {
       method: "POST",
       headers: {
-        Authorization: authToken,
-        "Content-Type": "application/json",
         Accept: "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(orderData),
     })
