@@ -20,7 +20,8 @@ export default function MenuPage() {
   const [showInstallButton, setShowInstallButton] = useState(false)
 
   // Handle PWA install prompt
-  useEffect(() => {6
+  useEffect(() => {
+    6
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e)
@@ -122,7 +123,7 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-200 to-purple-100">
+    <div className="min-h-screen bg-purple-50">
       {/* Install Button - Mobile Only */}
       {/* Temporarily always show for testing - remove 'true ||' when PWA is properly configured */}
       {(true || showInstallButton) && (
@@ -196,13 +197,14 @@ export default function MenuPage() {
       )}
 
       <div className="max-w-7xl mx-auto p-4">
-        <div className="text-center my-2">
+        <div className="text-center my-6">
           <h1 className="text-4xl md:text-6xl font-bold text-purple-950 mb-4 drop-shadow-lg">Hilee Products</h1>
           <p className="text-purple-800 text-lg">Keep your drinks cold for 24 hours or hot for 12 — eco-friendly, reusable, and perfect for any lifestyle.</p>
         </div>
 
+        {/* 
         <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {/* {categories.map((category) => (
+          {categories.map((category) => (
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
@@ -215,8 +217,9 @@ export default function MenuPage() {
             >
               {category}
             </Button>
-          ))}*/}
+          ))}
         </div>
+        */}
 
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr mb-10">
           {products.map((product) => (

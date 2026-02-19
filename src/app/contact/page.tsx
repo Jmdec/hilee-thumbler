@@ -27,7 +27,6 @@ export default function Contact() {
   }
 
   const handlePhoneChange = (value: string) => {
-    // Only allow numbers and limit to 11 digits
     const numbersOnly = value.replace(/\D/g, "").slice(0, 11)
     setFormData((prev) => ({ ...prev, phone: numbersOnly }))
   }
@@ -44,7 +43,6 @@ export default function Contact() {
       return
     }
 
-    // Validate phone number if provided
     if (formData.phone && formData.phone.length !== 11) {
       toast({
         title: "Invalid Phone Number",
@@ -59,9 +57,7 @@ export default function Contact() {
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
 
@@ -70,7 +66,7 @@ export default function Contact() {
       if (data.success) {
         toast({
           title: "Message Sent!",
-          description: data.message || "Thank you for contacting us. We'll get back to you within 24 hours.",
+          description: data.message || "Thank you for contacting us. We'll respond within 24 hours.",
           action: <CheckCircle className="h-5 w-5 text-green-500" />,
         })
 
@@ -84,16 +80,15 @@ export default function Contact() {
       } else {
         toast({
           title: "Error",
-          description: data.message || "Failed to send message. Please try again.",
+          description: data.message || "Failed to send message.",
           variant: "destructive",
           action: <AlertCircle className="h-5 w-5 text-red-500" />,
         })
       }
     } catch (error) {
-      console.error("Contact form error:", error)
       toast({
         title: "Connection Error",
-        description: "Unable to send message. Please check your connection and try again.",
+        description: "Unable to send message. Please try again.",
         variant: "destructive",
         action: <AlertCircle className="h-5 w-5 text-red-500" />,
       })
@@ -103,262 +98,146 @@ export default function Contact() {
   }
 
   return (
-    <div className="min-h-screen py-8 bg-gradient-to-br from-black via-orange-900 to-yellow-900 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-10 left-10 w-32 h-32 border-2 border-yellow-400 rounded-full"></div>
-        <div className="absolute top-32 right-20 w-24 h-24 border-2 border-orange-400 rounded-full"></div>
-        <div className="absolute bottom-20 left-1/4 w-40 h-40 border-2 border-yellow-400 rounded-full"></div>
-        <div className="absolute bottom-32 right-10 w-28 h-28 border-2 border-orange-400 rounded-full"></div>
-      </div>
-
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-yellow-300">
-            {" "}
-            <span className="text-transparent bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text">Contact</span> Us
-          </h1>
-          <p className="text-xl text-yellow-200/80 max-w-2xl mx-auto leading-relaxed">
-            Have questions about our menu or want to make a reservation? We'd love to hear from you!
+    <div className="min-h-screen bg-purple-50">
+      <div className="max-w-7xl mx-auto p-4">
+        {/* HERO */}
+        <div className="text-center my-6">
+          <h1 className="text-4xl md:text-6xl font-bold text-purple-950 mb-4 drop-shadow-lg">Contact Us</h1>
+          <p className="text-purple-800 text-lg">
+            Have questions about our tumblers, customization, or orders? <br />We&apos;d love to help.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+          {/* INFO */}
           <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="group hover:shadow-lg transition-all duration-300 bg-black/50 backdrop-blur-sm border-orange-600/50 hover:border-orange-400">
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="bg-purple-200 border-purple-500">
                 <CardContent className="p-6 text-center">
-                  <MapPin className="w-8 h-8 text-yellow-400 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2 text-yellow-300">Visit Us</h3>
-                  <a
-                    href="https://maps.app.goo.gl/5NYrsNXawKobjQCf9"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-yellow-200/80 hover:text-yellow-300 hover:underline transition-colors"
-                  >
-                    1st Floor, PISO PAY.COM BLDG, #47 Polaris St, Bel-Air, Makati City
-                  </a>
+                  <MapPin className="w-8 h-8 text-purple-700 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2 text-purple-900">Showroom / Pickup</h3>
+                  <p className="text-sm text-purple-700">Pasig City, Philippines</p>
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-lg transition-all duration-300 bg-black/50 backdrop-blur-sm border-orange-600/50 hover:border-orange-400">
+              <Card className="bg-purple-200 border-purple-500">
                 <CardContent className="p-6 text-center">
-                  <Phone className="w-8 h-8 text-orange-400 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2 text-yellow-300">Call Us</h3>
-                  <a href="tel:+6283620676" className="text-sm text-yellow-200/80 hover:text-yellow-300 hover:underline transition-colors">
-                    (02) 8362 0676
-                  </a>
-                  <p className="text-sm text-yellow-200/80 mt-1">Available daily</p>
+                  <Phone className="w-8 h-8 text-purple-700 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2 text-purple-900">Call Us</h3>
+                  <p className="text-sm text-purple-700">0912 345 6789</p>
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-lg transition-all duration-300 bg-black/50 backdrop-blur-sm border-orange-600/50 hover:border-orange-400">
+              <Card className="bg-purple-200 border-purple-500">
                 <CardContent className="p-6 text-center">
-                  <Mail className="w-8 h-8 text-yellow-400 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2 text-yellow-300">Email Us</h3>
-                  <a
-                    href="mailto:ph.toriichizu01@gmail.com"
-                    className="text-sm text-yellow-200/80 hover:text-yellow-300 hover:underline transition-colors block"
-                  >
-                    ph.toriichizu01@gmail.com
-                  </a>
-                  <p className="text-sm text-yellow-200/80 mt-1">We respond within 24hrs</p>
+                  <Mail className="w-8 h-8 text-purple-700 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2 text-purple-900">Email</h3>
+                  <p className="text-sm text-purple-700">support@yourbrand.com</p>
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-lg transition-all duration-300 bg-black/50 backdrop-blur-sm border-orange-600/50 hover:border-orange-400">
+              <Card className="bg-purple-200 border-purple-500">
                 <CardContent className="p-6 text-center">
-                  <Clock className="w-8 h-8 text-orange-500 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2 text-yellow-300">Hours</h3>
-                  <p className="text-sm text-yellow-200/80">
-                    Monday-Thursday: 11AM-2AM
-                    <br />
-                    Friday-Sunday: 11AM-4AM
-                    <br />
-                  </p>
+                  <Clock className="w-8 h-8 text-purple-700 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2 text-purple-900">Hours</h3>
+                  <p className="text-sm text-purple-700">Mon-Sat • 9AM-6PM</p>
                 </CardContent>
               </Card>
             </div>
 
-            <Card className="bg-gradient-to-br from-orange-600/20 via-yellow-600/20 to-orange-600/20 backdrop-blur-sm border-orange-600/50">
+            {/* BUSINESS INFO */}
+            <Card className="bg-purple-200 border-purple-500/40">
               <CardHeader>
-                <CardTitle className="text-xl text-yellow-300">Reservations & Events</CardTitle>
+                <CardTitle className="text-xl text-purple-900">Custom Orders & Bulk Requests</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-yellow-400 mb-2">Table Reservations</h4>
-                  <p className="text-sm text-yellow-200/80">
-                    For parties of 6 or more, we recommend making a reservation. Call us at{" "}
-                    <a href="tel:+6283620676" className="text-orange-400 hover:text-orange-300 hover:underline transition-colors">
-                      (02) 8362 0676
-                    </a>{" "}
-                    or use our online booking system.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-orange-400 mb-2">Private Events</h4>
-                  <p className="text-sm text-yellow-200/80">
-                    We cater private events and parties! Contact us at{" "}
-                    <a href="mailto:ph.toriichizu01@gmail.com" className="text-yellow-400 hover:text-yellow-300 hover:underline transition-colors">
-                      ph.toriichizu01@gmail.com
-                    </a>{" "}
-                    for custom menu options and pricing for your special occasion.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-yellow-400 mb-2">Delivery & Takeout</h4>
-                  <p className="text-sm text-yellow-200/80">
-                    Order online for delivery or pickup. Delivery available within a 5-mile radius with a ₱500.00 minimum order.
-                  </p>
-                </div>
+              <CardContent className="space-y-3 text-sm text-purple-800">
+                <p>Create personalized tumblers for gifts, teams, or branding.</p>
+                <p>Bulk & corporate orders available for giveaways and events.</p>
+                <p>Nationwide shipping and pickup options supported.</p>
               </CardContent>
             </Card>
           </div>
 
-          <Card className="bg-black/50 backdrop-blur-sm border-orange-600/50 shadow-lg">
+          {/* FORM */}
+          <Card className="bg-purple-200 border-purple-500/40">
             <CardHeader>
-              <CardTitle className="text-xl text-yellow-300">Send Us a Message</CardTitle>
+              <CardTitle className="text-xl text-purple-900">Send Us a Message</CardTitle>
             </CardHeader>
-            <CardContent className="pb-4">
+            <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="name" className="text-yellow-200">
-                    Name
-                  </Label>
+                  <Label className="text-purple-800">Name</Label>
                   <Input
-                    id="name"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    placeholder="Your name"
+                    className="border-purple-400 bg-white/5 text-purple-800 placeholder:text-purple-600"
                     required
-                    className="border-orange-600/50 bg-black/50 text-yellow-100 placeholder:text-yellow-700 focus:border-orange-400 focus:ring-orange-400/20 h-12 text-base"
-                    disabled={isSubmitting}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="email" className="text-yellow-200">
-                    Email
-                  </Label>
+                  <Label className="text-purple-800">Email</Label>
                   <Input
-                    id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    placeholder="your@email.com"
+                    className="border-purple-400 bg-white/5 text-purple-800 placeholder:text-purple-600"
                     required
-                    className="border-orange-600/50 bg-black/50 text-yellow-100 placeholder:text-yellow-700 focus:border-orange-400 focus:ring-orange-400/20 h-12 text-base"
-                    disabled={isSubmitting}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="phone" className="text-yellow-200">
-                    Phone (Optional)
-                  </Label>
+                  <Label className="text-purple-800">Phone</Label>
                   <Input
-                    id="phone"
-                    type="tel"
                     value={formData.phone}
                     onChange={(e) => handlePhoneChange(e.target.value)}
-                    placeholder="09XXXXXXXXX (11 digits)"
-                    className="border-orange-600/50 bg-black/50 text-yellow-100 placeholder:text-yellow-700 focus:border-orange-400 focus:ring-orange-400/20 h-12 text-base"
-                    disabled={isSubmitting}
+                    className="border-purple-400 bg-white/5 text-purple-800 placeholder:text-purple-600"
                     maxLength={11}
                   />
-                  {formData.phone && formData.phone.length > 0 && formData.phone.length !== 11 && (
-                    <p className="text-xs text-red-400 mt-1">Must be exactly 11 digits</p>
-                  )}
                 </div>
 
                 <div>
-                  <Label htmlFor="subject" className="text-yellow-200">
-                    Subject
-                  </Label>
-                  <Select value={formData.subject} onValueChange={(value) => handleInputChange("subject", value)} disabled={isSubmitting}>
-                    <SelectTrigger className="border-orange-600/50 bg-black/50 text-yellow-100 focus:border-orange-400 focus:ring-orange-400/20 h-12 text-base">
-                      <SelectValue placeholder="Select a topic" />
+                  <Label className="text-purple-800">Subject</Label>
+                  <Select value={formData.subject} onValueChange={(v) => handleInputChange("subject", v)}>
+                    <SelectTrigger className="border-purple-400 bg-white/5 text-purple-800 placeholder:text-purple-600">
+                      <SelectValue placeholder="Select topic" />
                     </SelectTrigger>
-                    <SelectContent className="bg-black/95 border-orange-600/50">
-                      <SelectItem value="orders" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
-                        Online Orders & Delivery
-                      </SelectItem>
-                      <SelectItem value="payment" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
-                        Payment & Promotions
-                      </SelectItem>
-                      <SelectItem value="customer-service" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
-                        Customer Service
-                      </SelectItem>
-                      <SelectItem value="technical" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
-                        Website & Technical Support
-                      </SelectItem>
-                      <SelectItem value="careers" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
-                        Careers & Partnerships
-                      </SelectItem>
-                      <SelectItem value="others" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
-                        Others
-                      </SelectItem>
+                    <SelectContent>
+                      <SelectItem value="orders">Orders & Shipping</SelectItem>
+                      <SelectItem value="custom">Customization Request</SelectItem>
+                      <SelectItem value="bulk">Bulk / Corporate Order</SelectItem>
+                      <SelectItem value="product">Product Questions</SelectItem>
+                      <SelectItem value="support">Customer Support</SelectItem>
+                      <SelectItem value="others">Others</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
-                  <Label htmlFor="message" className="text-yellow-200">
-                    Message
-                  </Label>
+                  <Label className="text-purple-800">Message</Label>
                   <Textarea
-                    id="message"
                     value={formData.message}
                     onChange={(e) => handleInputChange("message", e.target.value)}
-                    placeholder="Tell us how we can help you..."
-                    rows={6}
+                    className="border-purple-400 bg-white/5 text-purple-800 placeholder:text-purple-600"
                     required
-                    className="border-orange-600/50 bg-black/50 text-yellow-100 placeholder:text-yellow-700 focus:border-orange-400 focus:ring-orange-400/20 resize-none text-base min-h-[200px]"
-                    disabled={isSubmitting}
                   />
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold py-3 h-12 shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  size="lg"
+                  className="w-full bg-gradient-to-r from-purple-500 to-purple-700 text-white"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? (
-                    <span className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
-                      Sending...
-                    </span>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      Send Message
-                    </>
-                  )}
+                  {isSubmitting ? "Sending..." : <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Message
+                  </>}
                 </Button>
               </form>
             </CardContent>
           </Card>
         </div>
-
-        <Card className="mt-12 bg-black/50 backdrop-blur-sm border-orange-600/50 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-yellow-300 text-center">Find Us</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-hidden rounded-lg border border-orange-600/50">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.645583101857!2d121.02661837681514!3d14.562248885919582!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c9004b934477%3A0x94f3274e9f6fd6c!2sIzakaya%20Tori-Ichizu!5e0!3m2!1sen!2sph!4v1761286308658!5m2!1sen!2sph"
-                width="1455"
-                height="550"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            </div>
-          </CardContent>
-        </Card>
       </div>
-    </div>
+    </div >
   )
 }

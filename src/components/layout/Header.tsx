@@ -127,7 +127,7 @@ const Header = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-orange-100 shadow-sm">
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-purple-200 border-b border-purple-300 shadow-sm">
       <div className="absolute inset-0 bg-gradient-to-r from-orange-50/50 via-purple-50/30 to-purple-50/50">
         <div className="absolute top-1 left-4 w-12 h-12 bg-gradient-to-br from-purple-200/40 to-purple-200/30 rounded-full blur-xl opacity-60"></div>
         <div className="absolute top-2 right-8 w-8 h-8 bg-gradient-to-br from-purple-200/40 to-purple-200/30 rounded-full blur-lg opacity-50"></div>
