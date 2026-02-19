@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff, LogIn, CircleChevronLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
-  
+
   // Get the login function from auth store
   const login = useAuthStore((state) => state.login)
 
@@ -59,7 +59,7 @@ export default function LoginPage() {
         if (token && user) {
           // Just call login - it handles all storage automatically (localStorage, cookies, Zustand)
           login({ ...user, token })
-          
+
           toast.success("Login Successful!", {
             description: "Welcome back to Izakaya Tori Ichizu!",
           })
@@ -96,26 +96,41 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="min-h-screen py-8 bg-gradient-to-br from-black via-orange-900 to-yellow-900 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-10 left-10 w-32 h-32 border-2 border-yellow-400 rounded-full"></div>
-          <div className="absolute top-32 right-20 w-24 h-24 border-2 border-orange-400 rounded-full"></div>
-          <div className="absolute bottom-20 left-1/4 w-40 h-40 border-2 border-yellow-400 rounded-full"></div>
-          <div className="absolute bottom-32 right-10 w-28 h-28 border-2 border-orange-400 rounded-full"></div>
-        </div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-b from-purple-800 via-purple-900 to-purple-800 overflow-hidden">
+        {/* Soft floating blobs */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-pink-300 rounded-full blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-purple-300 rounded-full blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-10 left-1/2 w-72 h-72 bg-blue-300 rounded-full blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+
+        <style>{`
+        @keyframes blob {
+          0%,100% { transform: translate(0,0) scale(1); }
+          33% { transform: translate(30px,-50px) scale(1.1); }
+          66% { transform: translate(-20px,20px) scale(0.9); }
+        }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+      `}</style>
 
         <div className="container mx-auto px-4 relative z-10 flex items-center justify-center min-h-screen">
-          <Card className="w-full max-w-md bg-white shadow-2xl border-4 border-orange-400 !p-0">
-            <CardHeader className="text-center bg-gradient-to-r from-orange-500 to-yellow-500 rounded-t-lg !p-0 px-6 py-4 !m-0">
-              <CardTitle className="text-3xl text-white mb-2 !mt-0">Izakaya Tori Ichizu</CardTitle>
-              <h2 className="text-2xl text-white font-bold">Login</h2>
+          <Card className="w-full max-w-md bg-white shadow-2xl border-4 border-purple-400 !p-0">
+            <CardHeader className="text-center bg-gradient-to-r from-purple-500 to-purple-500 rounded-t-lg px-6 py-4 !m-0 p-2">
+              <div className="relative flex items-center py-2">
+                <Link href="/" className="absolute left-0">
+                  <CircleChevronLeft className="w-7 h-7 text-white mx-5" />
+                </Link>
+                <h2 className="mx-auto text-3xl md:text-4xl text-white font-bold">
+                  Register
+                </h2>
+              </div>
               <p className="text-white/90 mt-2">Welcome back!</p>
             </CardHeader>
-            <CardContent className="pt-6 p-6">
+            <CardContent className="p-6">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <Label htmlFor="email" className="text-black font-semibold flex items-center gap-2 mb-2">
-                    <Mail className="w-4 h-4 text-orange-500" />
+                    <Mail className="w-4 h-4 text-purple-500" />
                     Email Address
                   </Label>
                   <Input
@@ -125,14 +140,14 @@ export default function LoginPage() {
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     placeholder="your@email.com"
                     required
-                    className="border-2 border-orange-300 bg-white text-black placeholder:text-gray-400 focus:border-orange-500 focus:ring-orange-400/30 h-12 text-base"
+                    className="border-2 border-purple-300 bg-white text-black placeholder:text-gray-400 focus:border-orange-500 focus:ring-orange-400/30 h-12 text-base"
                     disabled={isSubmitting}
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="password" className="text-black font-semibold flex items-center gap-2 mb-2">
-                    <Lock className="w-4 h-4 text-orange-500" />
+                    <Lock className="w-4 h-4 text-purple-500" />
                     Password
                   </Label>
                   <div className="relative">
@@ -143,13 +158,13 @@ export default function LoginPage() {
                       onChange={(e) => handleInputChange("password", e.target.value)}
                       placeholder="Enter your password"
                       required
-                      className="border-2 border-orange-300 bg-white text-black placeholder:text-gray-400 focus:border-orange-500 focus:ring-orange-400/30 h-12 text-base pr-10"
+                      className="border-2 border-purple-300 bg-white text-black placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-400/30 h-12 text-base pr-10"
                       disabled={isSubmitting}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500 hover:text-orange-700 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-purple-500 hover:text-purple-700 transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -158,7 +173,7 @@ export default function LoginPage() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold py-3 h-14 shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="w-full bg-gradient-to-r from-purple-500 to-purple-500 hover:from-purple-400 hover:to-purple-400 text-white/95 font-bold py-3 h-14 shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   size="lg"
                   disabled={isSubmitting}
                 >
@@ -177,10 +192,10 @@ export default function LoginPage() {
 
                 <div className="text-center pt-4">
                   <p className="text-black/80">
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?{" "}
                     <Link
                       href="/register"
-                      className="text-orange-600 hover:text-orange-700 font-semibold transition-colors"
+                      className="text-purple-600 hover:text-purple-700 font-semibold transition-colors"
                     >
                       Register here
                     </Link>
@@ -191,7 +206,6 @@ export default function LoginPage() {
           </Card>
         </div>
       </div>
-
       <Toaster />
     </>
   )
