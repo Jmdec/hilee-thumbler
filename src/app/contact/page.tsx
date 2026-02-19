@@ -115,10 +115,7 @@ export default function Contact() {
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-yellow-300">
             {" "}
-            <span className="text-transparent bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text">
-              Contact
-            </span>{" "}
-            Us
+            <span className="text-transparent bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text">Contact</span> Us
           </h1>
           <p className="text-xl text-yellow-200/80 max-w-2xl mx-auto leading-relaxed">
             Have questions about our menu or want to make a reservation? We'd love to hear from you!
@@ -132,9 +129,9 @@ export default function Contact() {
                 <CardContent className="p-6 text-center">
                   <MapPin className="w-8 h-8 text-yellow-400 mx-auto mb-3" />
                   <h3 className="font-semibold mb-2 text-yellow-300">Visit Us</h3>
-                  <a 
-                    href="https://maps.app.goo.gl/5NYrsNXawKobjQCf9" 
-                    target="_blank" 
+                  <a
+                    href="https://maps.app.goo.gl/5NYrsNXawKobjQCf9"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-yellow-200/80 hover:text-yellow-300 hover:underline transition-colors"
                   >
@@ -147,15 +144,10 @@ export default function Contact() {
                 <CardContent className="p-6 text-center">
                   <Phone className="w-8 h-8 text-orange-400 mx-auto mb-3" />
                   <h3 className="font-semibold mb-2 text-yellow-300">Call Us</h3>
-                  <a 
-                    href="tel:+6283620676" 
-                    className="text-sm text-yellow-200/80 hover:text-yellow-300 hover:underline transition-colors"
-                  >
-                   (02) 8362 0676
+                  <a href="tel:+6283620676" className="text-sm text-yellow-200/80 hover:text-yellow-300 hover:underline transition-colors">
+                    (02) 8362 0676
                   </a>
-                  <p className="text-sm text-yellow-200/80 mt-1">
-                    Available daily
-                  </p>
+                  <p className="text-sm text-yellow-200/80 mt-1">Available daily</p>
                 </CardContent>
               </Card>
 
@@ -163,15 +155,13 @@ export default function Contact() {
                 <CardContent className="p-6 text-center">
                   <Mail className="w-8 h-8 text-yellow-400 mx-auto mb-3" />
                   <h3 className="font-semibold mb-2 text-yellow-300">Email Us</h3>
-                  <a 
-                    href="mailto:ph.toriichizu01@gmail.com" 
+                  <a
+                    href="mailto:ph.toriichizu01@gmail.com"
                     className="text-sm text-yellow-200/80 hover:text-yellow-300 hover:underline transition-colors block"
                   >
-                   ph.toriichizu01@gmail.com
+                    ph.toriichizu01@gmail.com
                   </a>
-                  <p className="text-sm text-yellow-200/80 mt-1">
-                    We respond within 24hrs
-                  </p>
+                  <p className="text-sm text-yellow-200/80 mt-1">We respond within 24hrs</p>
                 </CardContent>
               </Card>
 
@@ -183,7 +173,7 @@ export default function Contact() {
                     Monday-Thursday: 11AM-2AM
                     <br />
                     Friday-Sunday: 11AM-4AM
-                    <br />                  
+                    <br />
                   </p>
                 </CardContent>
               </Card>
@@ -198,10 +188,7 @@ export default function Contact() {
                   <h4 className="font-semibold text-yellow-400 mb-2">Table Reservations</h4>
                   <p className="text-sm text-yellow-200/80">
                     For parties of 6 or more, we recommend making a reservation. Call us at{" "}
-                    <a 
-                      href="tel:+6283620676" 
-                      className="text-orange-400 hover:text-orange-300 hover:underline transition-colors"
-                    >
+                    <a href="tel:+6283620676" className="text-orange-400 hover:text-orange-300 hover:underline transition-colors">
                       (02) 8362 0676
                     </a>{" "}
                     or use our online booking system.
@@ -211,10 +198,7 @@ export default function Contact() {
                   <h4 className="font-semibold text-orange-400 mb-2">Private Events</h4>
                   <p className="text-sm text-yellow-200/80">
                     We cater private events and parties! Contact us at{" "}
-                    <a 
-                      href="mailto:ph.toriichizu01@gmail.com" 
-                      className="text-yellow-400 hover:text-yellow-300 hover:underline transition-colors"
-                    >
+                    <a href="mailto:ph.toriichizu01@gmail.com" className="text-yellow-400 hover:text-yellow-300 hover:underline transition-colors">
                       ph.toriichizu01@gmail.com
                     </a>{" "}
                     for custom menu options and pricing for your special occasion.
@@ -223,8 +207,7 @@ export default function Contact() {
                 <div>
                   <h4 className="font-semibold text-yellow-400 mb-2">Delivery & Takeout</h4>
                   <p className="text-sm text-yellow-200/80">
-                    Order online for delivery or pickup. Delivery available within a 5-mile radius with a ₱500.00
-                    minimum order.
+                    Order online for delivery or pickup. Delivery available within a 5-mile radius with a ₱500.00 minimum order.
                   </p>
                 </div>
               </CardContent>
@@ -291,29 +274,16 @@ export default function Contact() {
                   <Label htmlFor="subject" className="text-yellow-200">
                     Subject
                   </Label>
-                  <Select 
-                    value={formData.subject} 
-                    onValueChange={(value) => handleInputChange("subject", value)}
-                    disabled={isSubmitting}
-                  >
+                  <Select value={formData.subject} onValueChange={(value) => handleInputChange("subject", value)} disabled={isSubmitting}>
                     <SelectTrigger className="border-orange-600/50 bg-black/50 text-yellow-100 focus:border-orange-400 focus:ring-orange-400/20 h-12 text-base">
                       <SelectValue placeholder="Select a topic" />
                     </SelectTrigger>
                     <SelectContent className="bg-black/95 border-orange-600/50">
-                      <SelectItem value="reservations" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
-                        Reservations & Dining
-                      </SelectItem>
-                      <SelectItem value="menu" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
-                        Menu & Food Information
-                      </SelectItem>
                       <SelectItem value="orders" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
                         Online Orders & Delivery
                       </SelectItem>
                       <SelectItem value="payment" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
                         Payment & Promotions
-                      </SelectItem>
-                      <SelectItem value="events" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
-                        Events & Catering
                       </SelectItem>
                       <SelectItem value="customer-service" className="text-yellow-100 focus:bg-orange-600/30 focus:text-yellow-100">
                         Customer Service
@@ -390,4 +360,5 @@ export default function Contact() {
         </Card>
       </div>
     </div>
-  )};
+  )
+}

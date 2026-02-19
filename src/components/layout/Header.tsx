@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
-import { Menu, LogOut, Download, User, Home, Calendar, ChefHat, ShoppingCart, Package, BookOpen, Gift, MessageSquare, FolderClock } from "lucide-react"
+import { Menu, LogOut, Download, User, Home, Calendar, ShoppingCart, Package, MessageSquare, FolderClock } from "lucide-react"
 import Image from "next/image"
 import EventBookingModal from "@/components/event-booking-modal"
 import GoogleTranslate from "@/components/googleTranslate"
@@ -116,13 +116,9 @@ const Header = () => {
   }
 
   const allNav = [
-    { name: "Home", href: "/", icon: Home },
-    { name: "Menu", href: "/menu", icon: ChefHat },
-    { name: "Reservations", href: "/reservations", icon: Calendar },
-    { name: "Blog", href: "/blog", icon: BookOpen },
-    { name: "Promos", href: "/promos", icon: Gift },
-    { name: "Testimonials", href: "/testimonials", icon: MessageSquare },
-    { name: "Contact Us", href: "/contact", icon: MessageSquare },
+    { name: "Home", href: "/"},
+    { name: "Products", href: "/products"},
+    { name: "Contact Us", href: "/contact"},
   ]
 
   const isActivePage = (href: string) => {
@@ -134,17 +130,17 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-orange-100 shadow-sm">
-      <div className="absolute inset-0 bg-gradient-to-r from-orange-50/50 via-yellow-50/30 to-orange-50/50">
-        <div className="absolute top-1 left-4 w-12 h-12 bg-gradient-to-br from-orange-200/40 to-yellow-200/30 rounded-full blur-xl opacity-60"></div>
-        <div className="absolute top-2 right-8 w-8 h-8 bg-gradient-to-br from-yellow-200/40 to-orange-200/30 rounded-full blur-lg opacity-50"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-orange-50/50 via-purple-50/30 to-purple-50/50">
+        <div className="absolute top-1 left-4 w-12 h-12 bg-gradient-to-br from-purple-200/40 to-purple-200/30 rounded-full blur-xl opacity-60"></div>
+        <div className="absolute top-2 right-8 w-8 h-8 bg-gradient-to-br from-purple-200/40 to-purple-200/30 rounded-full blur-lg opacity-50"></div>
       </div>
 
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 relative z-10">
         <div className="flex items-center justify-between h-14 sm:h-16 md:h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group flex-shrink-0">
-            <div className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 overflow-hidden shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-              <Image src="/logonew.png" alt="Izakaya Tori Ichizu Logo" fill className="object-contain" />
+            <div className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 overflow-hidden rounded-full group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+              <Image src="/hilee-logo.jpg" alt="Hilee" fill className="object-contain" />
             </div>
           </Link>
 
@@ -155,12 +151,11 @@ const Header = () => {
                 key={item.name}
                 href={item.href}
                 className={`p-2 rounded-lg transition-all duration-300 ${isActivePage(item.href)
-                  ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
-                  : "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
+                    ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-400"
                   }`}
                 title={item.name}
               >
-                <item.icon className="h-5 w-5" />
               </Link>
             ))}
           </div>
@@ -172,11 +167,10 @@ const Header = () => {
                 key={item.name}
                 href={item.href}
                 className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${isActivePage(item.href)
-                  ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
-                  : "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
+                    ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-900"
                   }`}
               >
-                <item.icon className="h-4 w-4" />
                 <span>{item.name}</span>
               </Link>
             ))}
@@ -190,7 +184,7 @@ const Header = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleInstallApp}
-                className="hidden md:flex items-center space-x-1 border-orange-300 text-orange-600 hover:bg-orange-50 hover:text-orange-600 bg-transparent text-xs"
+                className="hidden md:flex items-center space-x-1 border-purple-300 text-purple-600 hover:bg-orange-50 hover:text-purple-600 bg-transparent text-xs"
               >
                 <Download className="h-3 w-3" />
                 <span>Install</span>
@@ -202,11 +196,6 @@ const Header = () => {
               <GoogleTranslate />
             </div>
 
-            {/* Event Booking - Desktop only - Positioned right of Google Translate */}
-            <div className="hidden md:block">
-              <EventBookingModal />
-            </div>
-
             {/* NEW: External Action Buttons - Desktop only, show when user is logged in */}
             {user && (
               <>
@@ -215,39 +204,15 @@ const Header = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="relative border-orange-300 text-orange-600 hover:bg-orange-50 hover:text-orange-700 transition-all duration-300 p-2 h-10 w-10"
+                    className="relative border-purple-300 text-purple-600 hover:bg-purple-50 hover:text-purple-700 transition-all duration-300 p-2 h-10 w-10"
                     title="Cart"
                   >
                     <ShoppingCart className="h-5 w-5" />
                     {itemCount > 0 && (
-                      <Badge className="absolute -top-2 -right-2 px-1.5 min-w-[18px] h-5 flex items-center justify-center text-xs bg-orange-600 text-white border-2 border-white shadow-md animate-pulse font-bold">
+                      <Badge className="absolute -top-2 -right-2 px-1.5 min-w-[18px] h-5 flex items-center justify-center text-xs bg-purple-600 text-white border-2 border-white shadow-md animate-pulse font-bold">
                         {itemCount}
                       </Badge>
                     )}
-                  </Button>
-                </Link>
-
-                {/* Events Button */}
-                <Link href="/events-history" className="hidden md:block">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-orange-300 text-orange-600 hover:bg-orange-50 hover:text-orange-700 transition-all duration-300 p-2 h-10 w-10"
-                    title="Events"
-                  >
-                    <FolderClock className="h-5 w-5" />
-                  </Button>
-                </Link>
-
-                {/* Reservations Button */}
-                <Link href="/reservation-history" className="hidden md:block">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-orange-300 text-orange-600 hover:bg-orange-50 hover:text-orange-700 transition-all duration-300 p-2 h-10 w-10"
-                    title="Reservations"
-                  >
-                    <Calendar className="h-5 w-5" />
                   </Button>
                 </Link>
               </>
@@ -259,15 +224,15 @@ const Header = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="relative bg-gradient-to-r from-orange-600 to-orange-700 border-orange-300 text-white hover:from-orange-700 hover:to-orange-800 transition-all duration-300 shadow-sm hover:shadow-md p-2 h-10 w-10 lg:hover:bg-gradient-to-r"
+                  className="relative bg-gradient-to-r from-purple-600 to-purple-700 border-purple-300 text-white hover:from-purple-700 hover:to-purple-800 transition-all duration-300 shadow-sm hover:shadow-md p-2 h-10 w-10 lg:hover:bg-gradient-to-r"
                 >
                   <User className="h-5 w-5" />
                 </Button>
 
                 <div
                   className={`absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-orange-100 py-2 z-50 transition-all duration-200 ${isDropdownOpen
-                    ? "opacity-100 visible"
-                    : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
+                      ? "opacity-100 visible"
+                      : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
                     }`}
                 >
                   {/* User Info */}
@@ -277,7 +242,7 @@ const Header = () => {
                   </div>
 
                   <Link href="/profile" onClick={() => setIsDropdownOpen(false)} className="block">
-                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer">
+                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-purple-600 transition-colors cursor-pointer">
                       <User className="h-4 w-4" />
                       <span className="text-sm font-medium">Profile</span>
                     </div>
@@ -285,37 +250,21 @@ const Header = () => {
 
                   {/* Menu Items */}
                   <Link href="/cart" onClick={() => setIsDropdownOpen(false)} className="block">
-                    <div className="flex items-center justify-between px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer">
+                    <div className="flex items-center justify-between px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-purple-600 transition-colors cursor-pointer">
                       <div className="flex items-center space-x-3">
                         <ShoppingCart className="h-4 w-4" />
                         <span className="text-sm font-medium">Cart</span>
                       </div>
                       {itemCount > 0 && (
-                        <Badge className="bg-orange-600 text-white px-2 py-0.5 text-xs">{itemCount}</Badge>
+                        <Badge className="bg-purple-600 text-white px-2 py-0.5 text-xs">{itemCount}</Badge>
                       )}
                     </div>
                   </Link>
 
                   <Link href="/orders" onClick={() => setIsDropdownOpen(false)} className="block">
-                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer">
+                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-purple-600 transition-colors cursor-pointer">
                       <Package className="h-4 w-4" />
                       <span className="text-sm font-medium">Orders</span>
-                    </div>
-                  </Link>
-
-                  {/* Events Link */}
-                  <Link href="/events-history" onClick={() => setIsDropdownOpen(false)} className="block">
-                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer">
-                      <FolderClock className="h-4 w-4" />
-                      <span className="text-sm font-medium">Events</span>
-                    </div>
-                  </Link>
-
-                  {/* Reservations Link */}
-                  <Link href="/reservation-history" onClick={() => setIsDropdownOpen(false)} className="block">
-                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer">
-                      <Calendar className="h-4 w-4" />
-                      <span className="text-sm font-medium">Reservations</span>
                     </div>
                   </Link>
 
@@ -325,7 +274,7 @@ const Header = () => {
                         handleLogout()
                         setIsDropdownOpen(false)
                       }}
-                      className="w-full flex items-center space-x-3 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                      className="w-full flex items-center space-x-3 px-4 py-2.5 text-purple-600 hover:bg-red-50 transition-colors cursor-pointer"
                     >
                       <LogOut className="h-4 w-4" />
                       <span className="text-sm font-medium">Logout</span>
@@ -338,7 +287,7 @@ const Header = () => {
                 <Button
                   variant="default"
                   size="sm"
-                  className="bg-gradient-to-r from-orange-600 to-orange-700 text-white text-xs px-3 py-1.5 h-8"
+                  className="bg-gradient-to-r from-purple-600 to-purple-700 text-white text-xs px-3 py-1.5 h-8"
                 >
                   Login
                 </Button>
@@ -365,7 +314,7 @@ const Header = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h2 className="font-bold text-gray-800 text-sm">Izakaya Tori Ichizu</h2>
-                      <p className="text-xs text-orange-600">Japanese Izakaya</p>
+                      <p className="text-xs text-purple-600">Japanese Izakaya</p>
                     </div>
                   </div>
 
@@ -376,7 +325,7 @@ const Header = () => {
                           handleInstallApp()
                           setIsOpen(false)
                         }}
-                        className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 py-3 rounded-lg transition-all duration-300 text-base font-semibold shadow-md hover:shadow-lg"
+                        className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 py-3 rounded-lg transition-all duration-300 text-base font-semibold shadow-md hover:shadow-lg"
                       >
                         <Download className="h-5 w-5" />
                         <span>Install App</span>
@@ -400,28 +349,15 @@ const Header = () => {
                             href={item.href}
                             onClick={() => setIsOpen(false)}
                             className={`flex items-center space-x-3 w-full text-left px-3 py-3 text-base font-medium rounded-lg transition-all duration-300 ${isActivePage(item.href)
-                              ? "bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-md"
-                              : "text-gray-700 hover:bg-gray-50 hover:text-orange-600"
+                                ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md"
+                                : "text-gray-700 hover:bg-gray-50 hover:text-purple-600"
                               }`}
                           >
-                            <item.icon className="h-5 w-5 flex-shrink-0" />
                             <span>{item.name}</span>
                           </Link>
                         ))}
                       </div>
                     </nav>
-
-                    {/* Quick Actions */}
-                    <div className="py-4 border-t border-gray-100">
-                      <h3 className="text-xs font-semibold text-gray-600 mb-3 px-4 uppercase tracking-wide">
-                        Quick Actions
-                      </h3>
-                      <div className="space-y-2 px-2">
-                        <div className="px-3 py-3">
-                          <EventBookingModal />
-                        </div>
-                      </div>
-                    </div>
                   </div>
 
                   {/* Mobile Menu Footer */}
@@ -438,28 +374,6 @@ const Header = () => {
                           </div>
                         </Link>
 
-                        {/* Events Link - Mobile */}
-                        <Link href="/events-history" onClick={() => setIsOpen(false)}>
-                          <div className="flex items-center space-x-3 px-3 py-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                            <FolderClock className="h-5 w-5 text-gray-600 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-800">Events</p>
-                              <p className="text-xs text-gray-500">View your events</p>
-                            </div>
-                          </div>
-                        </Link>
-
-                        {/* Reservations Link - Mobile */}
-                        <Link href="/reservation-history" onClick={() => setIsOpen(false)}>
-                          <div className="flex items-center space-x-3 px-3 py-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                            <Calendar className="h-5 w-5 text-gray-600 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-800">Reservations</p>
-                              <p className="text-xs text-gray-500">View your reservations</p>
-                            </div>
-                          </div>
-                        </Link>
-
                         <Link href="/cart" onClick={() => setIsOpen(false)}>
                           <div className="flex items-center justify-between px-3 py-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                             <div className="flex items-center space-x-3">
@@ -470,7 +384,7 @@ const Header = () => {
                               </div>
                             </div>
                             {itemCount > 0 && (
-                              <Badge className="bg-orange-600 text-white px-2 py-1 text-xs">{itemCount}</Badge>
+                              <Badge className="bg-purple-600 text-white px-2 py-1 text-xs">{itemCount}</Badge>
                             )}
                           </div>
                         </Link>
@@ -485,7 +399,7 @@ const Header = () => {
                             handleLogout()
                             setIsOpen(false)
                           }}
-                          className="flex items-center justify-center space-x-2 w-full border-red-300 text-red-600 hover:bg-red-50 py-2.5 text-sm font-medium"
+                          className="flex items-center justify-center space-x-2 w-full border-purple-300 text-purple-600 hover:bg-purple-50 py-2.5 text-sm font-medium"
                         >
                           <LogOut className="h-4 w-4" />
                           <span>Logout</span>
@@ -496,7 +410,7 @@ const Header = () => {
                         <Button
                           variant="default"
                           size="sm"
-                          className="w-full bg-gradient-to-r from-orange-600 to-orange-700 text-white py-2.5 font-semibold text-sm"
+                          className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-2.5 font-semibold text-sm"
                         >
                           Login
                         </Button>

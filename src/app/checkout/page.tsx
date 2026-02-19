@@ -54,6 +54,7 @@ const Checkout = () => {
     paymentMethod: "cash",
     notes: "",
   })
+
   const [receiptFile, setReceiptFile] = useState<string | null>(null)
   const user = localStorage.getItem("user_data")
   const token = localStorage.getItem("auth_token")
@@ -254,29 +255,36 @@ const Checkout = () => {
 
     console.log("Token in   localStorage:", localStorage.getItem("auth_token"))
 
+    items: items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      description: item.description || "",
+      price: item.price,
+      quantity: item.quantity,
+      image: typeof item.image === "string" ? item.image : 'placeholder.svg',
+    })),
 
+      // if (!token) {
+      //   toast({
+      //     title: "Authentication Required",
+      //     description: "Please log in to place an order.",
+      //     variant: "destructive",
+      //   })
+      //   router.push("/login")
+      //   return
+      // }
 
-    // if (!token) {
-    //   toast({
-    //     title: "Authentication Required",
-    //     description: "Please log in to place an order.",
-    //     variant: "destructive",
-    //   })
-    //   router.push("/login")
-    //   return
-    // }
-
-    setIsProcessing(true)
+      setIsProcessing(true)
 
     try {
       const orderData = {
         items: items.map((item) => ({
+          id: item.id,
           name: item.name,
           description: item.description || "",
           price: item.price,
           quantity: item.quantity,
-          image: item.image,
-
+          image: typeof item.image === "string" ? item.image : 'placeholder.svg',
         })),
         payment_method: checkoutInfo.paymentMethod,
         delivery_address: checkoutInfo.address,
@@ -288,11 +296,12 @@ const Checkout = () => {
         notes: checkoutInfo.notes || "",
         receipt_file: receiptFile || null,
       }
-
+      console.log("orderData", orderData)
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json"
         },
         body: JSON.stringify(orderData),
       })

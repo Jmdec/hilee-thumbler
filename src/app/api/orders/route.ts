@@ -8,7 +8,6 @@ function getAuthToken(request: NextRequest): string | null {
   return authHeader?.replace("Bearer ", "") || cookieToken || null
 }
 
-
 export async function GET(request: NextRequest) {
   try {
     const authToken = request.headers.get("Authorization")
@@ -58,10 +57,9 @@ export async function POST(request: NextRequest) {
     const token = getAuthToken(request)
     if (!token) return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
 
-
     const body = await request.json()
 
-    console.log("[API] Order request received")
+    console.log("[API] Order request received",body)
     console.log("[API] Has receipt_file:", !!body.receipt_file)
     console.log("[v0] Receipt file size:", body.receipt_file?.length || 0)
 
@@ -85,6 +83,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: {
         Accept: "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(orderData),

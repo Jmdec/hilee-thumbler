@@ -63,7 +63,7 @@ const GoogleTranslate = () => {
   return (
     <div className="relative">
       <button 
-        className="flex items-center space-x-1 px-2 py-1.5 h-8 rounded-lg cursor-pointer border border-orange-300 text-orange-600 text-xs font-medium shadow-sm transition-all duration-300 hover:bg-orange-50 hover:border-orange-400 hover:shadow-md bg-transparent"
+        className="flex items-center space-x-1 px-2 py-1.5 h-8 rounded-lg cursor-pointer border border-purple-300 text-purple-700 text-xs font-medium shadow-sm transition-all duration-300 hover:bg-purple-50 hover:border-purple-400 hover:shadow-md bg-transparent"
         onClick={handleTranslateClick}
         disabled={!isLoaded}
       >

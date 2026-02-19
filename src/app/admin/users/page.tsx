@@ -34,14 +34,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -126,6 +119,7 @@ export default function UsersAdminPage() {
   const [userOrders, setUserOrders] = useState<Order[]>([])
   const [loadingOrders, setLoadingOrders] = useState(false)
   const [showOrdersDialog, setShowOrdersDialog] = useState(false)
+  const [showUserDialog, setShowUserDialog] = useState(false)
   const [showEmailDialog, setShowEmailDialog] = useState(false)
   const [emailSubject, setEmailSubject] = useState("")
   const [emailMessage, setEmailMessage] = useState("")
@@ -278,6 +272,11 @@ export default function UsersAdminPage() {
     }
   }
 
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user)
+    setShowUserDialog(true)
+  }
+
   const handleViewOrders = (user: User) => {
     setSelectedUser(user)
     setShowOrdersDialog(true)
@@ -375,7 +374,7 @@ export default function UsersAdminPage() {
         return
       }
 
-      const response = await fetch(`/api/users/${userToDeactivate.id}`, {
+      const response = await fetch(`/api/users/${userToDeactivate.id}/deactivate`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -416,32 +415,9 @@ export default function UsersAdminPage() {
   // Define columns for DataTable
   const columns: ColumnDef<User>[] = [
     {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
       accessorKey: "id",
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 h-auto font-normal"
-        >
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="p-0 h-auto font-normal">
           ID
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
@@ -451,11 +427,7 @@ export default function UsersAdminPage() {
     {
       accessorKey: "name",
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 h-auto font-normal"
-        >
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="p-0 h-auto font-normal">
           Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
@@ -482,7 +454,7 @@ export default function UsersAdminPage() {
       header: "Role",
       cell: () => (
         <Badge variant="outline" className="text-xs">
-          user
+          User
         </Badge>
       ),
     },
@@ -515,86 +487,87 @@ export default function UsersAdminPage() {
         const user = row.original
         return (
           <div className="flex items-center gap-1">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedUser(user)}
-                  className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-2"
-                >
+            <Dialog
+              open={showUserDialog} // only open for this row
+              onOpenChange={(open) => !open && setShowUserDialog(false)}
+            >
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm" onClick={() => handleViewUser(user)} className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-2">
                   <Eye className="h-4 w-4" />
                   <span className="ml-1 sr-only sm:not-sr-only hidden sm:inline">View</span>
                 </Button>
-              </SheetTrigger>
-              <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
-                {selectedUser && (
-                  <>
-                    <SheetHeader>
-                      <SheetTitle>User Details - {selectedUser.name}</SheetTitle>
-                      <SheetDescription>Complete information for this user</SheetDescription>
-                    </SheetHeader>
-                    <div className="mt-6 space-y-6">
-                      {/* User Info Card */}
-                      <Card>
-                        <CardHeader className="pb-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-t-lg">
-                          <h3 className="font-semibold text-lg flex items-center gap-2">
-                            <UserCheck className="w-5 h-5" />
-                            Personal Information
-                          </h3>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="text-sm font-medium text-gray-500">Full Name</p>
-                              <p className="font-medium">{selectedUser.name}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-500">Role</p>
-                              <Badge variant="outline">{selectedUser.role}</Badge>
-                            </div>
+              </DialogTrigger>
+
+              {selectedUser?.id === user.id && (
+                <DialogContent className="w-full sm:max-w-2xl overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>User Details - {selectedUser.name}</DialogTitle>
+                    <DialogDescription>Complete information for this user</DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-6">
+                    <Card className="gap-0 p-0">
+                      <CardHeader className="p-3 bg-gradient-to-r from-violet-500 to-red-500 text-white rounded-t-lg">
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
+                          <UserCheck className="w-5 h-5" />
+                          Personal Information
+                        </h3>
+                      </CardHeader>
+                      <CardContent className="space-y-4 pt-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm font-medium text-gray-500">Full Name</p>
+                            <p className="font-medium">{selectedUser.name}</p>
                           </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-500">Role</p>
+                            <Badge variant="outline">{selectedUser.role}</Badge>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-sm">
+                          <Mail className="w-4 h-4 text-gray-400" />
+                          <p>{selectedUser.email}</p>
+                        </div>
+
+                        {selectedUser.phone && (
                           <div className="flex items-center gap-2 text-sm">
-                            <Mail className="w-4 h-4 text-gray-400" />
-                            <p>{selectedUser.email}</p>
+                            <Phone className="w-4 h-4 text-gray-400" />
+                            <p>{selectedUser.phone}</p>
                           </div>
-                          {selectedUser.phone && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <Phone className="w-4 h-4 text-gray-400" />
-                              <p>{selectedUser.phone}</p>
+                        )}
+
+                        {selectedUser.address && (
+                          <div className="flex items-start gap-2 text-sm">
+                            <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                            <div>
+                              <p>{selectedUser.address}</p>
+                              {selectedUser.city && selectedUser.zip_code && (
+                                <p className="text-gray-500">
+                                  {selectedUser.city}, {selectedUser.zip_code}
+                                </p>
+                              )}
                             </div>
-                          )}
-                          {selectedUser.address && (
-                            <div className="flex items-start gap-2 text-sm">
-                              <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-                              <div>
-                                <p>{selectedUser.address}</p>
-                                {selectedUser.city && selectedUser.zip_code && (
-                                  <p className="text-gray-500">
-                                    {selectedUser.city}, {selectedUser.zip_code}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2 text-sm pt-2 border-t">
-                            <Calendar className="w-4 h-4 text-gray-400" />
-                            <p className="text-gray-600">
-                              Joined on{" "}
-                              {new Date(selectedUser.created_at).toLocaleDateString("en-US", {
-                                month: "long",
-                                day: "2-digit",
-                                year: "numeric",
-                              })}
-                            </p>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </>
-                )}
-              </SheetContent>
-            </Sheet>
+                        )}
+
+                        <div className="mb-4 flex items-center gap-2 text-sm pt-2 border-t">
+                          <Calendar className="w-4 h-4 text-gray-400" />
+                          <p className="text-gray-600">
+                            Joined on{" "}
+                            {new Date(selectedUser.created_at).toLocaleDateString("en-US", {
+                              month: "long",
+                              day: "2-digit",
+                              year: "numeric",
+                            })}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </DialogContent>
+              )}
+            </Dialog>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -646,12 +619,12 @@ export default function UsersAdminPage() {
   if (loading) {
     return (
       <SidebarProvider defaultOpen={!isMobile}>
-        <div className="flex min-h-screen w-full bg-gradient-to-br from-orange-50 to-red-50">
+        <div className="flex min-h-screen w-full bg-gradient-to-br from-violet-50 to-red-50">
           <AppSidebar />
           <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-72"}`}>
             <div className="flex items-center justify-center min-h-screen w-full">
               <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-xl shadow-lg">
-                <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
+                <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
                 <span className="text-gray-700 font-medium">Loading users...</span>
               </div>
             </div>
@@ -663,42 +636,38 @@ export default function UsersAdminPage() {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-orange-50 to-red-50">
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-violet-50 to-red-50">
         <AppSidebar />
         <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-72"}`}>
           {isMobile && (
             <div className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b bg-white/90 backdrop-blur-sm px-4 md:hidden shadow-sm">
               <SidebarTrigger className="-ml-1" />
-              <span className="text-sm font-semibold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                Users
-              </span>
+              <span className="text-sm font-semibold bg-gradient-to-r from-violet-600 to-red-600 bg-clip-text text-transparent">Users</span>
             </div>
           )}
           <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
             <div className="max-w-full space-y-4 sm:space-y-6">
               {/* Header */}
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-orange-100">
-                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                     Users
-                  </h1>
+                <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-violet-100">
+                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-violet-600 to-red-600 bg-clip-text text-transparent">Users</h1>
                   <p className="text-sm sm:text-base text-gray-600 mt-1">Manage customer accounts and information</p>
                 </div>
-                <div className="flex items-center gap-4 bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-orange-100">
+                <div className="flex items-center gap-4 bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-violet-100">
                   <div className="flex items-center gap-2 text-sm">
-                    <UsersIcon className="w-5 h-5 text-orange-500" />
+                    <UsersIcon className="w-5 h-5 text-violet-500" />
                     <span className="text-gray-600 font-medium">Total Customers:</span>
-                    <span className="font-bold text-orange-600 text-lg">{users.length}</span>
+                    <span className="font-bold text-violet-600 text-lg">{users.length}</span>
                   </div>
                 </div>
               </div>
 
               {/* Filters and Search */}
-              <Card className="bg-white/70 backdrop-blur-sm shadow-xl border-orange-100">
-                <CardHeader className="pb-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-t-lg">
+              <Card className="gap-0 p-0 bg-white/70 backdrop-blur-sm shadow-xl border-violet-100">
+                <CardHeader className="pb-3 bg-gradient-to-r from-violet-500 to-red-500 text-white rounded-t-lg">
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-                      <div className="relative flex-1 max-w-sm">
+                      <div className="mt-4 relative flex-1 max-w-sm">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
                         <Input
                           placeholder="Search users..."
@@ -710,22 +679,19 @@ export default function UsersAdminPage() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="bg-white">
-                  <div className="text-sm text-gray-600 mb-4 font-medium">
+                <CardContent className="bg-white rounded-b-lg">
+                  <div className="mt-4 text-sm text-gray-600 mb-4 font-medium">
                     Showing {table.getFilteredRowModel().rows.length} of {users.length} users
                   </div>
-                  <div className="w-full">
-                    <div className="rounded-lg border border-orange-200 overflow-hidden shadow-lg">
+                  <div className="w-full mb-5">
+                    <div className="rounded-lg border border-violet-200 overflow-hidden shadow-lg">
                       <div className="overflow-x-auto">
                         <table className="w-full min-w-[800px]">
-                          <thead className="bg-gradient-to-r from-orange-100 to-red-100">
-                            <tr className="border-b border-orange-200">
+                          <thead className="bg-gradient-to-r from-violet-100 to-red-100">
+                            <tr className="border-b border-violet-200">
                               {table.getHeaderGroups().map((headerGroup) =>
                                 headerGroup.headers.map((header) => (
-                                  <th
-                                    key={header.id}
-                                    className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700"
-                                  >
+                                  <th key={header.id} className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700">
                                     {header.isPlaceholder ? null : (
                                       <div>
                                         {typeof header.column.columnDef.header === "function"
@@ -742,7 +708,7 @@ export default function UsersAdminPage() {
                             {table.getRowModel().rows.map((row, index) => (
                               <tr
                                 key={row.id}
-                                className={`border-b border-orange-100 hover:bg-gradient-to-r hover:from-orange-50 hover:to-red-50 transition-all duration-200 ${index % 2 === 0 ? "bg-white" : "bg-orange-25"}`}
+                                className={`border-b border-violet-100 hover:bg-gradient-to-r hover:from-violet-50 hover:to-red-50 transition-all duration-200 ${index % 2 === 0 ? "bg-white" : "bg-violet-25"}`}
                               >
                                 {row.getVisibleCells().map((cell) => (
                                   <td key={cell.id} className="p-2 sm:p-3 text-xs sm:text-sm">
@@ -758,9 +724,9 @@ export default function UsersAdminPage() {
                       </div>
                     </div>
                     {table.getRowModel().rows.length === 0 && (
-                      <div className="text-center py-12 text-gray-500 bg-white rounded-lg border border-orange-200 mt-4">
-                        <div className="bg-gradient-to-r from-orange-100 to-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <UsersIcon className="w-8 h-8 text-orange-500" />
+                      <div className="text-center py-12 text-gray-500 bg-white rounded-lg border border-violet-200 mt-4">
+                        <div className="bg-gradient-to-r from-violet-100 to-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <UsersIcon className="w-8 h-8 text-violet-500" />
                         </div>
                         <p className="text-lg font-medium text-gray-700">No users found</p>
                         {globalFilter && <p className="text-sm mt-1 text-gray-500">Try adjusting your search terms</p>}
@@ -783,7 +749,7 @@ export default function UsersAdminPage() {
           <div className="mt-4">
             {loadingOrders ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
+                <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
                 <span className="ml-2 text-gray-600">Loading orders...</span>
               </div>
             ) : userOrders.length === 0 ? (
@@ -794,21 +760,13 @@ export default function UsersAdminPage() {
             ) : (
               <div className="space-y-4">
                 {userOrders.map((order) => (
-                  <Card key={order.id} className="border-orange-200">
+                  <Card key={order.id} className="border-violet-200">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <p className="font-semibold text-lg">Order #{order.order_number}</p>
-                            <Badge
-                              variant={
-                                order.status === "delivered"
-                                  ? "default"
-                                  : order.status === "cancelled"
-                                    ? "destructive"
-                                    : "outline"
-                              }
-                            >
+                            <Badge variant={order.status === "delivered" ? "default" : order.status === "cancelled" ? "destructive" : "outline"}>
                               {order.status}
                             </Badge>
                           </div>
@@ -841,7 +799,7 @@ export default function UsersAdminPage() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-xl text-orange-600">₱{order.total_amount.toFixed(2)}</p>
+                          <p className="font-bold text-xl text-violet-600">₱{order.total_amount.toFixed(2)}</p>
                           <p className="text-xs text-gray-500 mt-1">Subtotal: ₱{order.subtotal.toFixed(2)}</p>
                           <p className="text-xs text-gray-500">Delivery: ₱{order.delivery_fee.toFixed(2)}</p>
                           <Badge variant="outline" className="mt-2 text-xs">
@@ -852,11 +810,11 @@ export default function UsersAdminPage() {
 
                       {/* Order Items */}
                       {order.items && order.items.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-orange-100">
+                        <div className="mt-4 pt-4 border-t border-violet-100">
                           <p className="text-sm font-semibold mb-2 text-gray-700">Order Items ({order.items.length})</p>
                           <div className="space-y-2">
                             {order.items.map((item, index) => (
-                              <div key={index} className="flex items-center gap-3 text-sm bg-orange-50 p-2 rounded">
+                              <div key={index} className="flex items-center gap-3 text-sm bg-violet-50 p-2 rounded">
                                 <div className="flex-1">
                                   <p className="font-medium">{item.name}</p>
                                   <p className="text-xs text-gray-600">{item.description}</p>
@@ -879,9 +837,7 @@ export default function UsersAdminPage() {
                                 <div className="text-right">
                                   <p className="font-medium">₱{item.price.toFixed(2)}</p>
                                   <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
-                                  <p className="font-semibold text-orange-600">
-                                    ₱{(item.price * item.quantity).toFixed(2)}
-                                  </p>
+                                  <p className="font-semibold text-violet-600">₱{(item.price * item.quantity).toFixed(2)}</p>
                                 </div>
                               </div>
                             ))}
@@ -891,7 +847,7 @@ export default function UsersAdminPage() {
 
                       {/* Special Notes */}
                       {order.notes && (
-                        <div className="mt-4 pt-4 border-t border-orange-100">
+                        <div className="mt-4 pt-4 border-t border-violet-100">
                           <p className="text-sm font-semibold mb-1 text-gray-700">Special Notes:</p>
                           <p className="text-sm text-gray-600 bg-yellow-50 p-2 rounded">{order.notes}</p>
                         </div>
@@ -941,7 +897,16 @@ export default function UsersAdminPage() {
             <Button variant="outline" onClick={() => setShowEmailDialog(false)} disabled={sendingEmail}>
               Cancel
             </Button>
-            <Button onClick={sendEmail} disabled={sendingEmail || !emailSubject || !emailMessage}>
+            <Button
+              onClick={sendEmail}
+              disabled={sendingEmail || !emailSubject || !emailMessage}
+              className={`bg-gradient-to-r from-purple-400 to-purple-700 
+              text-white font-semibold 
+              py-2 px-4 rounded-lg 
+              transition duration-300 
+              disabled:opacity-50 disabled:cursor-not-allowed
+              hover:from-purple-500 hover:to-purple-800`}
+            >
               {sendingEmail ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -963,18 +928,13 @@ export default function UsersAdminPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will deactivate the user account for <strong>{userToDeactivate?.name}</strong>. The user will no
-              longer be able to access their account, but their data will be preserved. You can reactivate this user
-              later if needed.
+              This will deactivate the user account for <strong>{userToDeactivate?.name}</strong>. The user will no longer be able to access their
+              account, but their data will be preserved.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deactivatingUser}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={deactivateUser}
-              disabled={deactivatingUser}
-              className="bg-red-600 hover:bg-red-700"
-            >
+            <AlertDialogAction onClick={deactivateUser} disabled={deactivatingUser} className="bg-red-600 hover:bg-red-700">
               {deactivatingUser ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
