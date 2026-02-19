@@ -36,19 +36,19 @@ export default function FeaturedMenu() {
   if (loading) {
     return (
       <section className="relative py-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-yellow-50 to-white">
-          <div className="absolute top-20 left-16 w-64 h-64 bg-gradient-to-br from-orange-400/30 to-yellow-400/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute top-40 right-24 w-48 h-48 bg-gradient-to-br from-orange-500/25 to-yellow-500/25 rounded-full blur-2xl animate-pulse delay-1000"></div>
-          <div className="absolute bottom-32 left-1/4 w-80 h-80 bg-gradient-to-br from-orange-300/20 to-yellow-300/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-          <div className="absolute bottom-20 right-1/3 w-56 h-56 bg-gradient-to-br from-orange-400/30 to-yellow-400/30 rounded-full blur-2xl animate-pulse delay-700"></div>
-          <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-gradient-to-br from-orange-400/15 to-yellow-400/15 rounded-full blur-3xl animate-pulse delay-300"></div>
-          <div className="absolute top-10 right-10 w-40 h-40 bg-gradient-to-br from-orange-500/35 to-yellow-500/35 rounded-full blur-xl animate-pulse delay-200"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-purple-50 to-white">
+          <div className="absolute top-20 left-16 w-64 h-64 bg-gradient-to-br from-purple-400/30 to-purple-400/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-40 right-24 w-48 h-48 bg-gradient-to-br from-purple-500/25 to-purple-500/25 rounded-full blur-2xl animate-pulse delay-1000"></div>
+          <div className="absolute bottom-32 left-1/4 w-80 h-80 bg-gradient-to-br from-purple-300/20 to-purple-300/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+          <div className="absolute bottom-20 right-1/3 w-56 h-56 bg-gradient-to-br from-purple-400/30 to-purple-400/30 rounded-full blur-2xl animate-pulse delay-700"></div>
+          <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-gradient-to-br from-purple-400/15 to-purple-400/15 rounded-full blur-3xl animate-pulse delay-300"></div>
+          <div className="absolute top-10 right-10 w-40 h-40 bg-gradient-to-br from-purple-500/35 to-purple-500/35 rounded-full blur-xl animate-pulse delay-200"></div>
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4 text-gray-900 drop-shadow-sm">
-              Featured <span className="text-orange-700 drop-shadow-sm">Dishes</span>
+              Featured <span className="text-purple-700 drop-shadow-sm">Dishes</span>
             </h2>
             <p className="text-xl text-gray-700 max-w-2xl mx-auto drop-shadow-sm">
               Loading our most popular Japanese dishes...
@@ -75,11 +75,11 @@ export default function FeaturedMenu() {
   if (error) {
     return (
       <section className="relative py-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-yellow-50 to-white"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-purple-50 to-white"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
             <h2 className="text-4xl font-bold mb-4 text-gray-900">
-              Featured <span className="text-orange-700">Dishes</span>
+              Featured <span className="text-purple-700">Dishes</span>
             </h2>
             <p className="text-xl text-red-600 max-w-2xl mx-auto">{error}</p>
           </div>
@@ -91,11 +91,11 @@ export default function FeaturedMenu() {
   if (featuredItems.length === 0) {
     return (
       <section className="relative py-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-yellow-50 to-white"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-purple-50 to-white"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
             <h2 className="text-4xl font-bold mb-4 text-gray-900">
-              Featured <span className="text-orange-700">Dishes</span>
+              Featured <span className="text-purple-700">Dishes</span>
             </h2>
             <p className="text-xl text-gray-700 max-w-2xl mx-auto">No featured dishes available at the moment.</p>
           </div>
@@ -106,19 +106,19 @@ export default function FeaturedMenu() {
 
   return (
     <section className="relative py-16 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-yellow-50 to-white">
-        <div className="absolute top-20 left-16 w-64 h-64 bg-gradient-to-br from-orange-400/30 to-yellow-400/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-40 right-24 w-48 h-48 bg-gradient-to-br from-orange-500/25 to-yellow-500/25 rounded-full blur-2xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-32 left-1/4 w-80 h-80 bg-gradient-to-br from-orange-300/20 to-yellow-300/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-        <div className="absolute bottom-20 right-1/3 w-56 h-56 bg-gradient-to-br from-orange-400/30 to-yellow-400/30 rounded-full blur-2xl animate-pulse delay-700"></div>
-        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-gradient-to-br from-orange-400/15 to-yellow-400/15 rounded-full blur-3xl animate-pulse delay-300"></div>
-        <div className="absolute top-10 right-10 w-40 h-40 bg-gradient-to-br from-orange-500/35 to-yellow-500/35 rounded-full blur-xl animate-pulse delay-200"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-purple-50 to-white">
+        <div className="absolute top-20 left-16 w-64 h-64 bg-gradient-to-br from-purple-400/30 to-purple-400/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-40 right-24 w-48 h-48 bg-gradient-to-br from-purple-500/25 to-purple-500/25 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-32 left-1/4 w-80 h-80 bg-gradient-to-br from-purple-300/20 to-purple-300/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute bottom-20 right-1/3 w-56 h-56 bg-gradient-to-br from-purple-400/30 to-purple-400/30 rounded-full blur-2xl animate-pulse delay-700"></div>
+        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-gradient-to-br from-purple-400/15 to-purple-400/15 rounded-full blur-3xl animate-pulse delay-300"></div>
+        <div className="absolute top-10 right-10 w-40 h-40 bg-gradient-to-br from-purple-500/35 to-purple-500/35 rounded-full blur-xl animate-pulse delay-200"></div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4 text-gray-900 drop-shadow-sm">
-            Featured <span className="text-orange-700 drop-shadow-sm">Dishes</span>
+            Featured <span className="text-purple-700 drop-shadow-sm">Dishes</span>
           </h2>
           <p className="text-xl text-gray-700 max-w-2xl mx-auto drop-shadow-sm">
             Discover our most popular Japanese dishes, crafted with authentic flavors and fresh ingredients
@@ -141,7 +141,7 @@ export default function FeaturedMenu() {
           <div className="inline-block backdrop-blur-md bg-white/20 rounded-2xl p-2 border border-white/30 shadow-xl">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-orange-600 via-yellow-600 to-orange-600 hover:from-orange-700 hover:via-yellow-700 hover:to-orange-700 px-12 py-6 shadow-2xl text-white font-semibold rounded-xl border-0 backdrop-blur-sm hover:shadow-orange-500/25 transition-all duration-300 hover:scale-105"
+              className="bg-gradient-to-r from-purple-600 via-purple-600 to-purple-600 hover:from-purple-700 hover:via-purple-700 hover:to-purple-700 px-12 py-6 shadow-2xl text-white font-semibold rounded-xl border-0 backdrop-blur-sm hover:shadow-purple-500/25 transition-all duration-300 hover:scale-105"
             >
               <a href="/menu" className="flex items-center gap-2">
                 View Full Menu

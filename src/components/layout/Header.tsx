@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
-import { Menu, LogOut, Download, User, Home, Calendar, ChefHat, ShoppingCart, Package, BookOpen, Gift, MessageSquare, FolderClock } from "lucide-react"
+import { Menu, LogOut, Download, User, Home, Calendar, ShoppingCart, Package, MessageSquare, FolderClock } from "lucide-react"
 import Image from "next/image"
 import EventBookingModal from "@/components/event-booking-modal"
 import GoogleTranslate from "@/components/googleTranslate"
@@ -375,18 +375,6 @@ const Header = () => {
                         ))}
                       </div>
                     </nav>
-
-                    {/* Quick Actions */}
-                    <div className="py-4 border-t border-gray-100">
-                      <h3 className="text-xs font-semibold text-gray-600 mb-3 px-4 uppercase tracking-wide">
-                        Quick Actions
-                      </h3>
-                      <div className="space-y-2 px-2">
-                        <div className="px-3 py-3">
-                          <EventBookingModal />
-                        </div>
-                      </div>
-                    </div>
                   </div>
 
                   {/* Mobile Menu Footer */}

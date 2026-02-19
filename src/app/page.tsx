@@ -17,7 +17,7 @@ export default function Home() {
       {/* Featured Menu Section */}
       <FeaturedMenu />
       <TestimonialsSection />
-           <BlogSection />
+          <BlogSection />
       {/* About Preview Section */}
       <AboutPreview />
 
