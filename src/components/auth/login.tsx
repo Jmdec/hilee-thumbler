@@ -22,6 +22,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
 
+
   // Get the login function from auth store
   const login = useAuthStore((state) => state.login)
 
@@ -60,8 +61,9 @@ export default function LoginPage() {
           // Just call login - it handles all storage automatically (localStorage, cookies, Zustand)
           login({ ...user, token })
 
+
           toast.success("Login Successful!", {
-            description: "Welcome back to Izakaya Tori Ichizu!",
+            description: "Welcome back to Hilee!",
           })
 
           const userRole = user?.role?.toLowerCase?.() || user?.role || ""
@@ -192,10 +194,10 @@ export default function LoginPage() {
 
                 <div className="text-center pt-4">
                   <p className="text-black/80">
-                    Don&apos;t have an account?{" "}
+                    Don't have an account?{" "}
                     <Link
                       href="/register"
-                      className="text-purple-600 hover:text-purple-700 font-semibold transition-colors"
+                      className="text-orange-600 hover:text-orange-700 font-semibold transition-colors"
                     >
                       Register here
                     </Link>
