@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import Image from "next/image"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -333,9 +334,9 @@ const Checkout = () => {
 
   if (isLoadingUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-purple-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-orange-300 border-t-orange-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-8 h-8 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-700">Loading checkout...</p>
         </div>
       </div>
@@ -343,12 +344,12 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-white">
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-orange-100/20 to-amber-200/10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-orange-100/15 to-amber-200/10 rounded-full blur-lg animate-pulse delay-1000"></div>
-        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-gradient-to-br from-orange-100/10 to-amber-200/5 rounded-full blur-2xl animate-pulse delay-2000"></div>
-        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-gradient-to-br from-orange-100/15 to-amber-200/10 rounded-full blur-xl animate-pulse delay-500"></div>
+    <div className="min-h-screen relative overflow-hidden bg-purple-50">
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-purple-50 to-amber-50">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-purple-100/20 to-amber-200/10 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-purple-100/15 to-amber-200/10 rounded-full blur-lg animate-pulse delay-1000"></div>
+        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-gradient-to-br from-purple-100/10 to-amber-200/5 rounded-full blur-2xl animate-pulse delay-2000"></div>
+        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-gradient-to-br from-purple-100/15 to-amber-200/10 rounded-full blur-xl animate-pulse delay-500"></div>
       </div>
 
       <div className="relative z-10 py-8">
@@ -356,15 +357,15 @@ const Checkout = () => {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900">Checkout</h1>
             {userInfo && (
-              <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm rounded-lg px-4 py-2 border border-orange-200 shadow-md">
-                <LogIn className="w-4 h-4 text-orange-600" />
+              <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm rounded-lg px-4 py-2 border border-purple-200 shadow-md">
+                <LogIn className="w-4 h-4 text-purple-600" />
                 <span className="text-gray-700 font-medium">Welcome, {userInfo.name}!</span>
               </div>
             )}
           </div>
 
           {!userInfo && (
-            <Card className="mb-8 bg-white/95 backdrop-blur-sm border-orange-200 rounded-2xl shadow-lg">
+            <Card className="mb-8 bg-white/95 backdrop-blur-sm border-purple-200 rounded-2xl shadow-lg">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -373,13 +374,13 @@ const Checkout = () => {
                   </div>
                   <div className="flex gap-2">
                     <Link href="/login">
-                      <Button variant="outline" className="border-orange-300 text-gray-700 hover:bg-orange-50 bg-white">
+                      <Button variant="outline" className="border-purple-300 text-gray-700 hover:bg-purple-50 bg-white">
                         <LogIn className="w-4 h-4 mr-2" />
                         Login
                       </Button>
                     </Link>
                     <Link href="/register">
-                      <Button className="bg-orange-600 hover:bg-orange-700 text-white font-bold shadow-md">
+                      <Button className="bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md">
                         <LogIn className="w-4 h-4 mr-2" />
                         Register
                       </Button>
@@ -391,14 +392,14 @@ const Checkout = () => {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="bg-white/98 backdrop-blur-md border-orange-200 shadow-lg rounded-2xl overflow-hidden p-0">
-              <div className="border-b border-orange-200 bg-orange-600 text-white px-6 py-4">
+            <Card className="bg-white/98 backdrop-blur-md border-purple-200 shadow-lg rounded-2xl overflow-hidden p-0">
+              <div className="border-b border-purple-200 bg-purple-600 text-white px-6 py-4">
                 <h2 className="text-xl font-semibold">Delivery & Payment Information</h2>
               </div>
               <CardContent className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg text-gray-900 border-b border-orange-200 pb-2">
+                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">
                       Personal Information
                     </h3>
 
@@ -413,7 +414,7 @@ const Checkout = () => {
                           onChange={(e) => handleInputChange("name", e.target.value)}
                           placeholder="Enter your full name"
                           required
-                          className="bg-white border-orange-300 text-gray-900 placeholder:text-gray-400 focus:border-orange-500 focus:ring-orange-500/20"
+                          className="bg-white border-purple-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20"
                         />
                       </div>
                       <div>
@@ -427,7 +428,7 @@ const Checkout = () => {
                           onChange={(e) => handleInputChange("email", e.target.value)}
                           placeholder="Enter your email"
                           required
-                          className="bg-white border-orange-300 text-gray-900 placeholder:text-gray-400 focus:border-orange-500 focus:ring-orange-500/20"
+                          className="bg-white border-purple-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20"
                         />
                       </div>
                     </div>
@@ -443,15 +444,15 @@ const Checkout = () => {
                         onChange={(e) => handleInputChange("phone", e.target.value)}
                         placeholder="Enter your phone number"
                         required
-                        className="bg-white border-orange-300 text-gray-900 placeholder:text-gray-400 focus:border-orange-500 focus:ring-orange-500/20"
+                        className="bg-white border-purple-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20"
                       />
                     </div>
                   </div>
 
-                  <Separator className="bg-orange-200" />
+                  <Separator className="bg-purple-200" />
 
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg text-gray-900 border-b border-orange-200 pb-2">
+                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">
                       Delivery Address
                     </h3>
 
@@ -465,7 +466,7 @@ const Checkout = () => {
                         onChange={(e) => handleInputChange("address", e.target.value)}
                         placeholder="Enter your street address"
                         required
-                        className="bg-white border-orange-300 text-gray-900 placeholder:text-gray-400 focus:border-orange-500 focus:ring-orange-500/20"
+                        className="bg-white border-purple-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20"
                       />
                     </div>
 
@@ -480,7 +481,7 @@ const Checkout = () => {
                           onChange={(e) => handleInputChange("city", e.target.value)}
                           placeholder="Enter your city"
                           required
-                          className="bg-white border-orange-300 text-gray-900 placeholder:text-gray-400 focus:border-orange-500 focus:ring-orange-500/20"
+                          className="bg-white border-purple-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20"
                         />
                       </div>
                       <div>
@@ -493,16 +494,16 @@ const Checkout = () => {
                           onChange={(e) => handleInputChange("zipCode", e.target.value)}
                           placeholder="Enter ZIP code"
                           required
-                          className="bg-white border-orange-300 text-gray-900 placeholder:text-gray-400 focus:border-orange-500 focus:ring-orange-500/20"
+                          className="bg-white border-purple-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <Separator className="bg-orange-200" />
+                  <Separator className="bg-purple-200" />
 
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg text-gray-900 border-b border-orange-200 pb-2">
+                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">
                       Payment Method
                     </h3>
 
@@ -519,8 +520,8 @@ const Checkout = () => {
                         className={`p-4 rounded-lg border-2 transition-all ${total > 1000
                             ? "bg-gray-100 border-gray-300 cursor-not-allowed opacity-60"
                             : checkoutInfo.paymentMethod === "cash"
-                              ? "bg-orange-50 border-orange-500 cursor-pointer"
-                              : "bg-white border-orange-200 hover:border-orange-300 cursor-pointer"
+                              ? "bg-purple-50 border-purple-500 cursor-pointer"
+                              : "bg-white border-purple-200 hover:border-purple-300 cursor-pointer"
                           }`}
                         onClick={() => {
                           if (total <= 1000) {
@@ -546,8 +547,8 @@ const Checkout = () => {
 
                       <div
                         className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "gcash"
-                            ? "bg-orange-50 border-orange-500"
-                            : "bg-white border-orange-200 hover:border-orange-300"
+                            ? "bg-purple-50 border-purple-500"
+                            : "bg-white border-purple-200 hover:border-purple-300"
                           }`}
                         onClick={() => handleInputChange("paymentMethod", "gcash")}
                       >
@@ -562,8 +563,8 @@ const Checkout = () => {
 
                       <div
                         className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "security_bank"
-                            ? "bg-orange-50 border-orange-500"
-                            : "bg-white border-orange-200 hover:border-orange-300"
+                            ? "bg-purple-50 border-purple-500"
+                            : "bg-white border-purple-200 hover:border-purple-300"
                           }`}
                         onClick={() => handleInputChange("paymentMethod", "security_bank")}
                       >
@@ -651,7 +652,7 @@ const Checkout = () => {
                               />
                               <label
                                 htmlFor="receipt"
-                                className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-orange-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all"
+                                className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-purple-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all"
                               >
                                 <Upload className="w-5 h-5 text-gray-600" />
                                 <span className="text-gray-700">Click to upload receipt</span>
@@ -768,7 +769,7 @@ const Checkout = () => {
                               />
                               <label
                                 htmlFor="receipt"
-                                className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-orange-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all"
+                                className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-purple-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all"
                               >
                                 <Upload className="w-5 h-5 text-gray-600" />
                                 <span className="text-gray-700">Click to upload receipt</span>
@@ -801,9 +802,11 @@ const Checkout = () => {
                                   <X className="w-5 h-5" />
                                 </button>
                               </div>
-                              <img
+                              <Image
                                 src={receiptFile}
                                 alt="Receipt"
+                                width={100}
+                                height={100}
                                 className="mt-3 max-h-40 rounded-lg border border-gray-300"
                               />
                             </div>
@@ -814,10 +817,10 @@ const Checkout = () => {
                     )}
                   </div>
 
-                  <Separator className="bg-orange-200" />
+                  <Separator className="bg-purple-200" />
 
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg text-gray-900 border-b border-orange-200 pb-2">
+                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">
                       Additional Notes
                     </h3>
                     <div>
@@ -829,14 +832,14 @@ const Checkout = () => {
                         value={checkoutInfo.notes}
                         onChange={(e) => handleInputChange("notes", e.target.value)}
                         placeholder="Any special requests or delivery instructions..."
-                        className="bg-white border-orange-300 text-gray-900 placeholder:text-gray-400 focus:border-orange-500 focus:ring-orange-500/20"
+                        className="bg-white border-purple-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20"
                       />
                     </div>
                   </div>
 
                   <Button
                     type="submit"
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
                     size="lg"
                     disabled={isProcessing}
                   >
@@ -853,8 +856,8 @@ const Checkout = () => {
               </CardContent>
             </Card>
 
-            <Card className="h-fit bg-white/98 backdrop-blur-md border-orange-200 shadow-lg rounded-2xl sticky top-24 overflow-hidden p-0">
-              <div className="border-b border-orange-200 bg-orange-600 text-white px-6 py-4">
+            <Card className="h-fit bg-white/98 backdrop-blur-md border-purple-200 shadow-lg rounded-2xl sticky top-24 overflow-hidden p-0">
+              <div className="border-b border-purple-200 bg-purple-600 text-white px-6 py-4">
                 <h2 className="text-xl font-semibold">Order Summary</h2>
               </div>
               <CardContent className="space-y-4 p-6">
@@ -866,7 +869,7 @@ const Checkout = () => {
                     return (
                       <div
                         key={item.id}
-                        className="flex justify-between items-center p-3 rounded-lg bg-orange-50 border border-orange-200"
+                        className="flex justify-between items-center p-3 rounded-lg bg-purple-50 border border-purple-200"
                       >
                         <div className="flex-1">
                           <div className="font-medium text-sm text-gray-900">{item.name}</div>
@@ -880,7 +883,7 @@ const Checkout = () => {
                   })}
                 </div>
 
-                <Separator className="bg-orange-200" />
+                <Separator className="bg-purple-200" />
 
                 <div className="space-y-2">
                   <div className="flex justify-between font-semibold text-lg">
