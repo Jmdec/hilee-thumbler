@@ -84,19 +84,6 @@ export default function ContactsAdminPage() {
 
   const columns: ColumnDef<Contact>[] = [
     {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" />,
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
       accessorKey: "name",
       header: "Name",
       cell: ({ row }) => <div className="font-semibold text-gray-900 text-sm">{row.original.name}</div>,
@@ -172,12 +159,12 @@ export default function ContactsAdminPage() {
   if (loading) {
     return (
       <SidebarProvider defaultOpen={!isMobile}>
-        <div className="flex min-h-screen w-full bg-gradient-to-br from-orange-50 to-red-50">
+        <div className="flex min-h-screen w-full bg-gradient-to-br from-violet-50 to-red-50">
           <AppSidebar />
           <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-72"}`}>
             <div className="flex items-center justify-center min-h-screen w-full">
               <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-xl shadow-lg">
-                <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
+                <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
                 <span className="text-gray-700 font-medium">Loading contacts...</span>
               </div>
             </div>
@@ -189,27 +176,27 @@ export default function ContactsAdminPage() {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-orange-50 to-red-50">
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-violet-50 to-red-50">
         <AppSidebar />
         <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-72"}`}>
           {isMobile && (
             <div className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b bg-white/90 backdrop-blur-sm px-4 md:hidden shadow-sm">
               <SidebarTrigger className="-ml-1" />
-              <span className="text-sm font-semibold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">Contacts</span>
+              <span className="text-sm font-semibold bg-gradient-to-r from-violet-600 to-red-600 bg-clip-text text-transparent">Contacts</span>
             </div>
           )}
           <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
             <div className="max-w-full space-y-4 sm:space-y-6">
-              <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-orange-100">
-                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                  Contacts Management
+              <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-violet-100">
+                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-violet-600 to-red-600 bg-clip-text text-transparent">
+                  Inbox Management
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your messages/inquires.</p>
+                <p className="text-sm sm:text-base text-gray-600 mt-1">Streamline all incoming contacts.</p>
               </div>
 
-              <Card className="gap-0 p-0 bg-white/70 backdrop-blur-sm shadow-xl border-orange-100">
-                {/* Card Header — original orange gradient, search + Add button */}
-                <CardHeader className="pb-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-t-lg">
+              <Card className="gap-0 p-0 bg-white/70 backdrop-blur-sm shadow-xl border-violet-100">
+                {/* Card Header — original violet gradient, search + Add button */}
+                <CardHeader className="pb-3 bg-gradient-to-r from-violet-500 to-red-500 text-white rounded-t-lg">
                   <div className="mt-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
                     <div className="relative flex-1 max-w-sm">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
@@ -237,7 +224,7 @@ export default function ContactsAdminPage() {
                     <div className="flex items-center gap-2">
                       <Label className="text-sm text-gray-600 whitespace-nowrap">Items per page:</Label>
                       <Select value={itemsPerPage === -1 ? "all" : itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-                        <SelectTrigger className="w-24 h-9 border-gray-200 focus:border-orange-400 text-sm">
+                        <SelectTrigger className="w-24 h-9 border-gray-200 focus:border-violet-400 text-sm">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -255,7 +242,7 @@ export default function ContactsAdminPage() {
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[600px]">
                       <thead>
-                        <tr className="bg-gradient-to-r from-orange-100 to-red-100 border-b border-orange-200">
+                        <tr className="bg-gradient-to-r from-violet-100 to-red-100 border-b border-violet-200">
                           {table.getHeaderGroups().map((headerGroup) =>
                             headerGroup.headers.map((header) => (
                               <th key={header.id} className="text-left px-4 py-3 text-sm font-semibold text-gray-700 tracking-wide">
@@ -274,8 +261,8 @@ export default function ContactsAdminPage() {
                           <tr>
                             <td colSpan={columns.length} className="px-4 py-16 text-center">
                               <div className="flex flex-col items-center gap-3">
-                                <div className="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center">
-                                  <Package className="w-8 h-8 text-orange-300" />
+                                <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center">
+                                  <Package className="w-8 h-8 text-violet-300" />
                                 </div>
                                 <div>
                                   <p className="font-semibold text-gray-700">No inquiries found</p>
@@ -288,7 +275,7 @@ export default function ContactsAdminPage() {
                           paginatedRows.map((row, index) => (
                             <tr
                               key={row.id}
-                              className={`border-b border-orange-100 hover:bg-gradient-to-r hover:from-orange-50 hover:to-red-50 transition-all duration-200 ${index % 2 === 0 ? "bg-white" : "bg-orange-50/30"}`}
+                              className={`border-b border-violet-100 hover:bg-gradient-to-r hover:from-violet-50 hover:to-red-50 transition-all duration-200 ${index % 2 === 0 ? "bg-white" : "bg-violet-50/30"}`}
                             >
                               {row.getVisibleCells().map((cell) => (
                                 <td key={cell.id} className="px-4 py-3.5 text-sm align-middle">
@@ -315,14 +302,14 @@ export default function ContactsAdminPage() {
                         <button
                           onClick={() => setCurrentPage(1)}
                           disabled={currentPage === 1}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-white hover:text-orange-600 hover:border hover:border-orange-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-semibold"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-white hover:text-violet-600 hover:border hover:border-violet-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-semibold"
                         >
                           «
                         </button>
                         <button
                           onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                           disabled={currentPage === 1}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-white hover:text-orange-600 hover:border hover:border-orange-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-white hover:text-violet-600 hover:border hover:border-violet-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
                           <ChevronLeft className="w-4 h-4" />
                         </button>
@@ -338,8 +325,8 @@ export default function ContactsAdminPage() {
                               onClick={() => setCurrentPage(page)}
                               className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold transition-all ${
                                 currentPage === page
-                                  ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md shadow-orange-200"
-                                  : "text-gray-600 hover:bg-white hover:text-orange-600 hover:border hover:border-orange-200"
+                                  ? "bg-gradient-to-r from-violet-500 to-red-500 text-white shadow-md shadow-violet-200"
+                                  : "text-gray-600 hover:bg-white hover:text-violet-600 hover:border hover:border-violet-200"
                               }`}
                             >
                               {page}
@@ -349,14 +336,14 @@ export default function ContactsAdminPage() {
                         <button
                           onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                           disabled={currentPage === totalPages}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-white hover:text-orange-600 hover:border hover:border-orange-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-white hover:text-violet-600 hover:border hover:border-violet-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
                           <ChevronRight className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => setCurrentPage(totalPages)}
                           disabled={currentPage === totalPages}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-white hover:text-orange-600 hover:border hover:border-orange-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-semibold"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-white hover:text-violet-600 hover:border hover:border-violet-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-semibold"
                         >
                           »
                         </button>

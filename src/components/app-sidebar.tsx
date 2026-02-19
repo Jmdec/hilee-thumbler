@@ -2,7 +2,6 @@
 import {
   Home,
   Package,
-  Megaphone,
   Users,
   ShoppingCart,
   BarChart3,
@@ -11,8 +10,7 @@ import {
   ChevronDown,
   Flame,
   TrendingUp,
-  ChefHat,
-  Contact,
+  Mail,
 } from "lucide-react"
 
 import {
@@ -62,9 +60,9 @@ const items = [
     bgColor: "hover:bg-gradient-to-r hover:from-amber-50 hover:to-green-50",
   },
   {
-    title: "Contacts",
+    title: "Inbox",
     url: "/admin/contacts",
-    icon: Contact,
+    icon: Mail,
     color: "text-purple-600",
     bgColor: "hover:bg-gradient-to-r hover:from-purple-50 hover:to-amber-50",
   },
