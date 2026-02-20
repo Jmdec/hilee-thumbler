@@ -109,7 +109,7 @@ export function AppSidebar() {
                 <Flame className="w-6 h-6 text-white" />
               </div>
               <div>
-                <SidebarGroupLabel className="text-white font-bold text-lg">Restaurant Admin</SidebarGroupLabel>
+                <SidebarGroupLabel className="text-white font-bold text-lg">Hilee Admin</SidebarGroupLabel>
                 <p className="text-green-100 text-xs">Management Portal</p>
               </div>
             </div>

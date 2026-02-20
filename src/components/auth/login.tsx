@@ -61,7 +61,7 @@ export default function LoginPage() {
           login({ ...user, token })
 
           toast.success("Login Successful!", {
-            description: "Welcome back to Hilee!",
+            description: "Welcome back to Izakaya Tori Ichizu!",
           })
 
           const userRole = user?.role?.toLowerCase?.() || user?.role || ""
@@ -196,10 +196,10 @@ export default function LoginPage() {
 
                 <div className="text-center pt-4">
                   <p className="text-black/80">
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?{" "}
                     <Link
                       href="/register"
-                      className="text-orange-600 hover:text-orange-700 font-semibold transition-colors"
+                      className="text-purple-600 hover:text-purple-700 font-semibold transition-colors"
                     >
                       Register here
                     </Link>

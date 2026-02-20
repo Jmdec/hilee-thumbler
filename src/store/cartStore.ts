@@ -18,26 +18,7 @@ export const useCartStore = create<CartStore>()(
       items: [],
 
       addItem: (item: MenuItem) => {
-        // Check auth status from the auth store
-        if (typeof window !== "undefined") {
-          const auth_token = localStorage.getItem("auth_token")
-          let isLoggedIn = false
-          
-          if (auth_token) {
-            try {
-              const authState = JSON.parse(auth_token)
-              isLoggedIn = authState.state?.isLoggedIn || false
-            } catch (e) {
-              console.error("Failed to parse auth state:", e)
-            }
-          }
-          
-          // Prevent adding to cart if not logged in
-          if (!isLoggedIn) {
-            console.warn("❌ Cannot add to cart: User not logged in")
-            return
-          }
-        }
+
 
         const items = get().items
         const existingItem = items.find((cartItem) => cartItem.id === item.id)

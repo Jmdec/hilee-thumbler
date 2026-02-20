@@ -71,17 +71,17 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ success: false, message: "Invalid status value" }, { status: 400 })
     }
 
-    const laravelUrl = `${LARAVEL_API_BASE}/api/orders/${id}`
+    const laravelUrl = `${LARAVEL_API_BASE}/api/orders/${id}/status`
     const requestHeaders = {
       Authorization: authToken,
       "Content-Type": "application/json",
       Accept: "application/json",
       "X-Admin-Request": "true",
     }
-    const requestPayload = { order_status: body.status }
+    const requestPayload = { status: body.status }
 
-    console.log(`[v0] PATCH /api/orders/${id}: Full Laravel URL:`, laravelUrl)
-    console.log(`[v0] PATCH /api/orders/${id}: Request payload:`, requestPayload)
+    console.log(`[v0] PATCH /api/orders / ${id}: Full Laravel URL: `, laravelUrl)
+    console.log(`[v0] PATCH / api / orders / ${id}: Request payload: `, requestPayload)
 
     let response
     let fetchError = null
@@ -90,7 +90,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 30000)
 
-      console.log(`[v0] PATCH /api/orders/${id}: Making fetch request...`)
+      console.log(`[v0] PATCH / api / orders / ${id}: Making fetch request...`)
 
       response = await fetch(laravelUrl, {
         method: "PATCH",
@@ -100,11 +100,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       })
 
       clearTimeout(timeoutId)
-      console.log(`[v0] PATCH /api/orders/${id}: Fetch completed successfully`)
+      console.log(`[v0] PATCH / api / orders / ${id}: Fetch completed successfully`)
     } catch (error) {
       fetchError = error
       const err = error as Error
-      console.error(`[v0] PATCH /api/orders/${id}: Fetch failed with error:`, {
+      console.error(`[v0] PATCH / api / orders / ${id}: Fetch failed with error: `, {
         name: err.name,
         message: err.message,
       })
@@ -134,14 +134,14 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json(
         {
           success: false,
-          message: `Network error: ${err.message}`,
+          message: `Network error: ${err.message} `,
           error: "NETWORK_ERROR",
         },
         { status: 503 },
       )
     }
 
-    console.log(`[v0] PATCH /api/orders/${id}: Response received:`, {
+    console.log(`[v0] PATCH / api / orders / ${id}: Response received: `, {
       status: response.status,
       statusText: response.statusText,
       ok: response.ok,
@@ -150,7 +150,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     let data
     try {
       const responseText = await response.text()
-      console.log(`[v0] PATCH /api/orders/${id}: Raw response text:`, responseText)
+      console.log(`[v0] PATCH / api / orders / ${id}: Raw response text: `, responseText)
 
       if (!responseText) {
         return NextResponse.json(
@@ -164,9 +164,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       }
 
       data = JSON.parse(responseText)
-      console.log(`[v0] PATCH /api/orders/${id}: Parsed response data:`, data)
+      console.log(`[v0] PATCH / api / orders / ${id}: Parsed response data: `, data)
     } catch (parseError) {
-      console.error(`[v0] PATCH /api/orders/${id}: Failed to parse Laravel response`)
+      console.error(`[v0] PATCH / api / orders / ${id}: Failed to parse Laravel response`)
       return NextResponse.json(
         {
           success: false,
@@ -178,7 +178,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 
     if (!response.ok) {
-      console.error(`[v0] PATCH /api/orders/${id}: Laravel API returned error:`, data)
+      console.error(`[v0] PATCH / api / orders / ${id}: Laravel API returned error: `, data)
       return NextResponse.json(
         {
           success: false,
@@ -190,11 +190,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       )
     }
 
-    console.log(`[v0] PATCH /api/orders/${id}: Successfully updated order`)
+    console.log(`[v0] PATCH / api / orders / ${id}: Successfully updated order`)
     return NextResponse.json(data, { status: 200 })
   } catch (error) {
     const err = error as Error
-    console.error(`[v0] PATCH /api/orders/[id]: Unexpected error in handler:`, {
+    console.error(`[v0] PATCH / api / orders / [id]: Unexpected error in handler: `, {
       name: err.name,
       message: err.message,
     })
@@ -212,3 +212,5 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   return PATCH(request, { params })
 }
+
+

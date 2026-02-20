@@ -116,9 +116,9 @@ const Header = () => {
   }
 
   const allNav = [
-    { name: "Home", href: "/"},
-    { name: "Products", href: "/products"},
-    { name: "Contact Us", href: "/contact"},
+    { name: "Home", href: "/" },
+    { name: "Products", href: "/products" },
+    { name: "Contact Us", href: "/contact" },
   ]
 
   const isActivePage = (href: string) => {
@@ -130,7 +130,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-purple-200 border-b border-purple-300 shadow-sm">
-      <div className="absolute inset-0 bg-gradient-to-r from-orange-50/50 via-purple-50/30 to-purple-50/50">
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-50/50 via-purple-50/30 to-purple-50/50">
         <div className="absolute top-1 left-4 w-12 h-12 bg-gradient-to-br from-purple-200/40 to-purple-200/30 rounded-full blur-xl opacity-60"></div>
         <div className="absolute top-2 right-8 w-8 h-8 bg-gradient-to-br from-purple-200/40 to-purple-200/30 rounded-full blur-lg opacity-50"></div>
       </div>
@@ -151,8 +151,8 @@ const Header = () => {
                 key={item.name}
                 href={item.href}
                 className={`p-2 rounded-lg transition-all duration-300 ${isActivePage(item.href)
-                    ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md"
-                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-400"
+                  ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md"
+                  : "text-gray-700 hover:bg-purple-50 hover:text-purple-400"
                   }`}
                 title={item.name}
               >
@@ -161,20 +161,23 @@ const Header = () => {
           </div>
 
           {/* Desktop Navigation - All buttons displayed */}
-          <nav className="hidden lg:flex items-center space-x-1">
-            {allNav.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${isActivePage(item.href)
-                    ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md"
-                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-900"
-                  }`}
-              >
-                <span>{item.name}</span>
-              </Link>
-            ))}
-          </nav>
+          <div className="hidden lg:flex items-center gap-3 ml-auto">
+            <nav className="flex items-center space-x-1">
+              {allNav.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`px-3 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${isActivePage(item.href)
+                      ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md"
+                      : "text-gray-700 hover:bg-purple-50 hover:text-purple-900"
+                    }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
 
           {/* Right side actions - Simplified for mobile */}
           <div className="flex items-center gap-2 sm:gap-3">
@@ -184,7 +187,7 @@ const Header = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleInstallApp}
-                className="hidden md:flex items-center space-x-1 border-purple-300 text-purple-600 hover:bg-orange-50 hover:text-purple-600 bg-transparent text-xs"
+                className="hidden md:flex items-center space-x-1 border-purple-300 text-purple-600 hover:bg-purple-50 hover:text-purple-600 bg-transparent text-xs"
               >
                 <Download className="h-3 w-3" />
                 <span>Install</span>
@@ -230,9 +233,9 @@ const Header = () => {
                 </Button>
 
                 <div
-                  className={`absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-orange-100 py-2 z-50 transition-all duration-200 ${isDropdownOpen
-                      ? "opacity-100 visible"
-                      : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
+                  className={`absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-purple-100 py-2 z-50 transition-all duration-200 ${isDropdownOpen
+                    ? "opacity-100 visible"
+                    : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
                     }`}
                 >
                   {/* User Info */}
@@ -242,7 +245,7 @@ const Header = () => {
                   </div>
 
                   <Link href="/profile" onClick={() => setIsDropdownOpen(false)} className="block">
-                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-purple-600 transition-colors cursor-pointer">
+                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors cursor-pointer">
                       <User className="h-4 w-4" />
                       <span className="text-sm font-medium">Profile</span>
                     </div>
@@ -250,7 +253,7 @@ const Header = () => {
 
                   {/* Menu Items */}
                   <Link href="/cart" onClick={() => setIsDropdownOpen(false)} className="block">
-                    <div className="flex items-center justify-between px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-purple-600 transition-colors cursor-pointer">
+                    <div className="flex items-center justify-between px-4 py-2.5 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors cursor-pointer">
                       <div className="flex items-center space-x-3">
                         <ShoppingCart className="h-4 w-4" />
                         <span className="text-sm font-medium">Cart</span>
@@ -262,7 +265,7 @@ const Header = () => {
                   </Link>
 
                   <Link href="/orders" onClick={() => setIsDropdownOpen(false)} className="block">
-                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-purple-600 transition-colors cursor-pointer">
+                    <div className="flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors cursor-pointer">
                       <Package className="h-4 w-4" />
                       <span className="text-sm font-medium">Orders</span>
                     </div>
@@ -319,7 +322,7 @@ const Header = () => {
                   </div>
 
                   {showInstallButton && (
-                    <div className="px-4 py-3 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-orange-100">
+                    <div className="px-4 py-3 bg-gradient-to-r from-purple-50 to-yellow-50 border-b border-purple-100">
                       <Button
                         onClick={() => {
                           handleInstallApp()
@@ -349,8 +352,8 @@ const Header = () => {
                             href={item.href}
                             onClick={() => setIsOpen(false)}
                             className={`flex items-center space-x-3 w-full text-left px-3 py-3 text-base font-medium rounded-lg transition-all duration-300 ${isActivePage(item.href)
-                                ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md"
-                                : "text-gray-700 hover:bg-gray-50 hover:text-purple-600"
+                              ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md"
+                              : "text-gray-700 hover:bg-gray-50 hover:text-purple-600"
                               }`}
                           >
                             <span>{item.name}</span>
