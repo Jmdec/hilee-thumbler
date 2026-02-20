@@ -545,7 +545,7 @@ export default function ProductsAdminPage() {
                             </SheetTrigger>
                             <ProductDetailSheet
                                 product={selectedProduct?.id === product.id ? selectedProduct : null}
-                                onEdit={(id) => router.push(`/admin/products/${id}/edit`)}
+                                onEdit={(id) => router.push(`/admin/product/${id}/edit`)}
                             />
                         </Sheet>
 
@@ -561,7 +561,7 @@ export default function ProductsAdminPage() {
                                 <DropdownMenuLabel className="text-purple-700 text-xs font-bold uppercase tracking-wide">Actions</DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-purple-100" />
                                 <DropdownMenuItem
-                                    onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+                                    onClick={() => router.push(`/admin/product/${product.id}/edit`)}
                                     className="cursor-pointer gap-2 focus:bg-purple-50 focus:text-purple-900"
                                 >
                                     <Edit className="h-4 w-4 text-purple-400" /> Edit Product
