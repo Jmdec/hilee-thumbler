@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
   try {
+    console.log("[reports] GET request received")
+
     const { searchParams } = new URL(request.url)
     const range = searchParams.get("range") ?? "week"
     const token = request.headers.get("authorization")
 
+    console.log("[reports] Range:", range)
+    console.log("[reports] Authorization token present:", !!token)
+    
     if (!token) {
+      console.warn("[reports] Unauthorized access attempt")
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 })
     }
 
@@ -15,16 +21,21 @@ export async function GET(request: NextRequest) {
       process.env.API_URL ??
       "http://localhost:8000"
 
+    console.log("[reports] Backend URL:", backendUrl)
+
     const res = await fetch(`${backendUrl}/api/reports?range=${range}`, {
       headers: {
-        Authorization:  token,
+        Authorization: token,
         "Content-Type": "application/json",
-        Accept:         "application/json",
+        Accept: "application/json",
       },
     })
 
+    console.log("[reports] Backend response status:", res.status)
+
     // Always read raw text first — never lose the error body
     const rawText = await res.text()
+    console.log("[reports] Raw response length:", rawText)
 
     if (!res.ok) {
       let laravelMessage = rawText
@@ -50,8 +61,10 @@ export async function GET(request: NextRequest) {
 
     try {
       const data = JSON.parse(rawText)
+      console.log("[reports] Parsed JSON successfully:", Object.keys(data))
       return NextResponse.json(data)
-    } catch {
+    } catch (jsonErr) {
+      console.error("[reports] JSON parse error:", jsonErr)
       return NextResponse.json(
         { success: false, message: "Invalid JSON from backend", raw: rawText.slice(0, 500) },
         { status: 502 }
