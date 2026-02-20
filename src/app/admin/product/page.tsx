@@ -678,9 +678,8 @@ export default function ProductsAdminPage() {
           <main className="flex-1 overflow-auto p-4 sm:p-6 md:p-8">
             <div className="max-w-full space-y-6">
 
-              {/* ── Page header ── */}
+              {/* Header */}
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-stretch justify-between">
-                {/* Title card */}
                 <div
                   className="rounded-2xl px-7 py-6 shadow-xl relative overflow-hidden"
                   style={{ background: purpleGrad }}

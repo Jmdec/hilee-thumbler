@@ -16,6 +16,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import OppaLoader from "@/components/oppa-loader"
 
 interface OrderItem {
   id: number
@@ -87,8 +88,8 @@ const Orders = () => {
               : Number(order.total ?? order.total_amount ?? 0),
             subtotal: Number(order.subtotal ?? 0),
             delivery_fee: Number(order.delivery_fee ?? 0),
-            items: Array.isArray(order.items)
-              ? order.items.map((item: any) => ({
+            items: Array.isArray(order.order_items)
+              ? order.order_items.map((item: any) => ({
                 ...item,
                 price: Number(item.price ?? 0),
                 quantity: Number(item.quantity ?? 0), subtotal: Number(item.subtotal ?? (item.price * item.quantity)),
@@ -189,13 +190,18 @@ const Orders = () => {
   const getCount = (status: string) =>
     status === "all" ? orders.length : orders.filter((o) => o.status === status).length
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 2000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-10 via-purple-50 to-purple-80 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-700 font-semibold text-lg">Loading your orders...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <OppaLoader />
       </div>
     )
   }
@@ -497,7 +503,7 @@ const Orders = () => {
             asChild
             className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-6 px-10 text-lg shadow-lg rounded-2xl"
           >
-            <Link href="/menu">Order More Thumbler</Link>
+            <Link href="/menu">Order More Tumbler</Link>
           </Button>
         </div>
       </div>

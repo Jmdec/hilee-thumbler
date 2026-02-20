@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, Search, Loader2, Package, ChevronLeft, ChevronRight } from "lucide-react"
+import { Eye, Search, Loader2, Package, ChevronLeft, ChevronRight, Mail } from "lucide-react"
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog"
 import { useState, useEffect, useRef, type FormEvent } from "react"
@@ -26,15 +26,27 @@ import {
 } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
 
+const purpleGrad = "linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)"
+
 // Contact data type
 interface Contact {
   id: number
   name: string
   email: string
   phone?: string
+  subject?: string
   message?: string
   created_at: string
   updated_at: string
+}
+
+const subjectLabels: Record<string, string> = {
+  orders: "Orders & Shipping",
+  custom: "Customization Request",
+  bulk: "Bulk / Corporate Order",
+  product: "Product Questions",
+  support: "Customer Support",
+  others: "Others",
 }
 
 export default function ContactsAdminPage() {
@@ -97,6 +109,16 @@ export default function ContactsAdminPage() {
       accessorKey: "phone",
       header: "Phone",
       cell: ({ row }) => <div className="text-sm text-gray-700">{row.original.phone || "-"}</div>,
+    },
+    {
+      accessorKey: "subject",
+      header: "Subject",
+      cell: ({ row }) => {
+        const value = row.original.subject ?? ""
+        const label = subjectLabels[value] ?? "-"
+
+        return <div className="text-sm text-gray-700 truncate max-w-[200px]">{label}</div>
+      },
     },
     {
       accessorKey: "message",
@@ -176,27 +198,48 @@ export default function ContactsAdminPage() {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-violet-50 to-red-50">
+      <div
+        className="flex min-h-screen w-full"
+        style={{ background: "linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 50%, #f3e8ff 100%)" }}
+      >
         <AppSidebar />
-        <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-72"}`}>
+        <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-64"}`}>
+
+          {/* Mobile topbar */}
           {isMobile && (
-            <div className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b bg-white/90 backdrop-blur-sm px-4 md:hidden shadow-sm">
-              <SidebarTrigger className="-ml-1" />
-              <span className="text-sm font-semibold bg-gradient-to-r from-violet-600 to-red-600 bg-clip-text text-transparent">Contacts</span>
+            <div
+              className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b px-4 shadow-sm"
+              style={{ background: "rgba(124,58,237,0.97)", borderColor: "rgba(168,85,247,0.3)" }}
+            >
+              <SidebarTrigger className="-ml-1 text-white" />
+              <span className="text-sm font-bold text-white">Inbox</span>
             </div>
           )}
+
           <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
             <div className="max-w-full space-y-4 sm:space-y-6">
-              <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-violet-100">
-                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-violet-600 to-red-600 bg-clip-text text-transparent">
-                  Inbox Management
-                </h1>
-                <p className="text-sm sm:text-base text-gray-600 mt-1">Streamline all incoming contacts.</p>
+
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-stretch justify-between">
+                <div
+                  className="rounded-2xl px-7 py-6 shadow-xl relative overflow-hidden"
+                  style={{ background: purpleGrad }}
+                >
+                  <div className="absolute right-4 top-4 w-20 h-20 rounded-full opacity-10 pointer-events-none"
+                    style={{ background: "radial-gradient(circle, white, transparent)" }} />
+                  <div className="flex items-center gap-3">
+                    <Mail className="w-7 h-7 text-white opacity-90" />
+                    <div>
+                      <h1 className="text-2xl font-bold text-white tracking-tight">Messages Management</h1>
+                      <p className="text-violet-200 text-sm mt-0.5">Manage customer inquiries</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <Card className="gap-0 p-0 bg-white/70 backdrop-blur-sm shadow-xl border-violet-100">
                 {/* Card Header — original violet gradient, search + Add button */}
-                <CardHeader className="pb-3 bg-gradient-to-r from-violet-500 to-red-500 text-white rounded-t-lg">
+                <CardHeader className="pb-3 bg-gradient-to-r from-violet-500 to-purple-300 text-white rounded-t-lg">
                   <div className="mt-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
                     <div className="relative flex-1 max-w-sm">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
@@ -323,11 +366,10 @@ export default function ContactsAdminPage() {
                             <button
                               key={page}
                               onClick={() => setCurrentPage(page)}
-                              className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold transition-all ${
-                                currentPage === page
+                              className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold transition-all ${currentPage === page
                                   ? "bg-gradient-to-r from-violet-500 to-red-500 text-white shadow-md shadow-violet-200"
                                   : "text-gray-600 hover:bg-white hover:text-violet-600 hover:border hover:border-violet-200"
-                              }`}
+                                }`}
                             >
                               {page}
                             </button>

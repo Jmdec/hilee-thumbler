@@ -7,9 +7,8 @@ import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
-import { Menu, LogOut, Download, User, Home, Calendar, ShoppingCart, Package, MessageSquare, FolderClock } from "lucide-react"
+import { Menu, LogOut, Download, User, ShoppingCart, Package } from "lucide-react"
 import Image from "next/image"
-import EventBookingModal from "@/components/event-booking-modal"
 import GoogleTranslate from "@/components/googleTranslate"
 import { useCartStore } from "@/store/cartStore"
 import { useAuthStore } from "@/store/authStore"
@@ -19,11 +18,16 @@ const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+
   const [user, setUser] = useState<{ id?: string | number; name?: string; email?: string; token?: string } | null>(null)
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [showInstallButton, setShowInstallButton] = useState(false)
+
   const { getItemCount } = useCartStore()
   const itemCount = getItemCount()
+
+  // ✅ FIX — hook must be called before any return
+  const logout = useAuthStore((state) => state.logout)
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -52,9 +56,7 @@ const Header = () => {
     deferredPrompt.prompt()
     const { outcome } = await deferredPrompt.userChoice
 
-    if (outcome === "accepted") {
-      setShowInstallButton(false)
-    }
+    if (outcome === "accepted") setShowInstallButton(false)
 
     setDeferredPrompt(null)
   }
@@ -67,13 +69,10 @@ const Header = () => {
       if (storedUser && storedToken) {
         const parsedUser = JSON.parse(storedUser)
         setUser({ ...parsedUser, token: storedToken })
-        console.log("[Header] User loaded from storage:", parsedUser)
       } else {
         setUser(null)
-        console.log("[Header] No user data or token found")
       }
-    } catch (error) {
-      console.error("[Header] Error loading user from storage:", error)
+    } catch {
       setUser(null)
     }
   }, [])
@@ -81,14 +80,10 @@ const Header = () => {
   useEffect(() => {
     loadUserFromStorage()
 
-    const handleUserUpdate = () => {
-      console.log("[Header] User update event received")
-      loadUserFromStorage()
-    }
+    const handleUserUpdate = () => loadUserFromStorage()
 
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "user_data" || e.key === "auth_token") {
-        console.log("[Header] Storage change detected for:", e.key)
         loadUserFromStorage()
       }
     }
@@ -102,14 +97,11 @@ const Header = () => {
     }
   }, [loadUserFromStorage])
 
-  if (pathname.startsWith("/admin")) {
-    return null
-  }
-
-  const logout = useAuthStore((state) => state.logout)
+  // ✅ safe now (all hooks already called)
+  if (pathname.startsWith("/admin")) return null
 
   const handleLogout = () => {
-    logout() // handles localStorage cleanup + Zustand state
+    logout()
     setUser(null)
     window.dispatchEvent(new CustomEvent("userDataUpdated"))
     router.push("/login")
@@ -118,16 +110,14 @@ const Header = () => {
   const allNav = [
     { name: "Home", href: "/" },
     { name: "Products", href: "/products" },
-    { name: "Contact Us", href: "/contact" },
+    { name: "Contact", href: "/contact" },
   ]
 
   const isActivePage = (href: string) => {
-    if (href === "/") {
-      return pathname === "/"
-    }
+    if (href === "/") return pathname === "/"
     return pathname.startsWith(href)
   }
-
+  
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-purple-200 border-b border-purple-300 shadow-sm">
       <div className="absolute inset-0 bg-gradient-to-r from-purple-50/50 via-purple-50/30 to-purple-50/50">
@@ -161,7 +151,7 @@ const Header = () => {
           </div>
 
           {/* Desktop Navigation - All buttons displayed */}
-          <div className="hidden lg:flex items-center gap-3 ml-auto">
+          <div className="hidden lg:flex items-center gap-8 ml-auto mr-5">
             <nav className="flex items-center space-x-1">
               {allNav.map((item) => (
                 <Link

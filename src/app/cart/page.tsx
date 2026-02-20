@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -8,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Minus, Plus, X, ShoppingBag } from "lucide-react"
 import { useCartStore } from "@/store/cartStore"
 import { toast } from "@/hooks/use-toast"
-
+import OppaLoader from "@/components/oppa-loader"
 
 const formatPrice = (price: number): string => {
   return price.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -46,6 +47,24 @@ const Cart = () => {
     })
   }
 
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 2000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <OppaLoader />
+      </div>
+    )
+  }
+
   if (items.length === 0) {
     return (
       <div className="min-h-screen relative overflow-hidden bg-white">
@@ -65,15 +84,15 @@ const Cart = () => {
                   <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center"></div>
                 </div>
                 <h1 className="text-3xl font-bold mb-4 text-gray-900 text-balance">Your Cart is Empty</h1>
-                <p className="text-xl text-gray-700 mb-8 text-pretty"> 
-                  Looks like you haven&apos;t added any delicious Japanese dishes yet!
+                <p className="text-xl text-gray-700 mb-8 text-pretty">
+                  Looks like you haven&apos;t added any products yet!
                 </p>
                 <Button
                   asChild
                   size="lg"
                   className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-bold"
                 >
-                  <Link href="/menu">Browse Our Menu</Link>
+                  <Link href="/products">Browse Our Products</Link>
                 </Button>
               </div>
             </div>
@@ -154,19 +173,8 @@ const Cart = () => {
                             </div>
 
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Badge
-                                  variant="outline"
-                                  className="text-xs bg-purple-50 border-purple-300 text-gray-700"
-                                >
-                                  {item.category}
-                                </Badge>
-                                {item.isSpicy && <Badge className="text-xs bg-red-500 text-white">🌶️ Spicy</Badge>}
-                                {item.isVegetarian && (
-                                  <Badge className="text-xs bg-green-600 text-white">🌱 Veggie</Badge>
-                                )}
-                              </div>
-
+                              <div className="flex items-center gap-2"/>
+                               
                               <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-2 bg-purple-100 rounded-full p-1 border border-purple-300">
                                   <Button
@@ -206,7 +214,7 @@ const Cart = () => {
             <div className="lg:w-96">
               <Card className="sticky top-24 backdrop-blur-sm bg-white/98 border-purple-200 rounded-2xl shadow-lg overflow-hidden p-0">
                 <div className="bg-purple-600 text-white px-6 py-4">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">🍱 Order Summary</h2>
+                  <h2 className="text-xl font-semibold flex items-center gap-2">Order Summary</h2>
                 </div>
                 <CardContent className="space-y-4 p-6">
                   <div className="space-y-2">
@@ -239,7 +247,7 @@ const Cart = () => {
                   </Button>
 
                   <div className="text-xs text-gray-600 text-center bg-purple-50 rounded-lg p-2 border border-purple-200">
-                    🔒 Secure checkout • 日本料理 ❤️
+                    🔒 Secure checkout 
                   </div>
                 </CardContent>
               </Card>

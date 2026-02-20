@@ -24,6 +24,8 @@ import {
   ShoppingBag,
   UserX,
   Send,
+  User,
+  Users,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -94,7 +96,7 @@ interface Order {
   status: "pending" | "confirmed" | "preparing" | "ready" | "delivered" | "cancelled"
   subtotal: number
   delivery_fee: number
-  total_amount: number
+  total: number
   notes?: string
   receipt_file?: string
   items: OrderItem[]
@@ -113,6 +115,8 @@ interface OrderItem {
   is_vegetarian: boolean
   image_url: string
 }
+
+const purpleGrad = "linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)"
 
 export default function UsersAdminPage() {
   const [users, setUsers] = useState<User[]>([])
@@ -464,16 +468,21 @@ export default function UsersAdminPage() {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="flex min-h-screen w-full" style={{ background: "linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 50%, #f3e8ff 100%)" }}>
+      <div
+        className="flex min-h-screen w-full"
+        style={{ background: "linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 50%, #f3e8ff 100%)" }}
+      >
         <AppSidebar />
-        <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-72"}`}>
+        <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-64"}`}>
+
+          {/* Mobile topbar */}
           {isMobile && (
             <div
               className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b px-4 shadow-sm"
-              style={{ background: "rgba(30,10,60,0.97)", borderColor: "rgba(168,85,247,0.3)" }}
+              style={{ background: "rgba(124,58,237,0.97)", borderColor: "rgba(168,85,247,0.3)" }}
             >
-              <SidebarTrigger className="-ml-1 text-purple-300" />
-              <span className="text-sm font-bold text-purple-200 tracking-wide">Users</span>
+              <SidebarTrigger className="-ml-1 text-white" />
+              <span className="text-sm font-bold text-white">Users</span>
             </div>
           )}
 
@@ -483,25 +492,29 @@ export default function UsersAdminPage() {
               {/* Header */}
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-stretch justify-between">
                 <div
-                  className="rounded-2xl px-7 py-6 shadow-xl relative overflow-hidden flex-1"
-                  style={purpleBg}
+                  className="rounded-2xl px-7 py-6 shadow-xl relative overflow-hidden"
+                  style={{ background: purpleGrad }}
                 >
-                  {/* Decorative orb */}
-                  <div className="absolute right-4 top-4 w-24 h-24 rounded-full opacity-10 pointer-events-none"
-                    style={{ background: "radial-gradient(circle, #c026d3, transparent)" }} />
-                  <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Users</h1>
-                  <p className="text-purple-300 text-sm mt-1">Manage customer accounts and information</p>
+                  <div className="absolute right-4 top-4 w-20 h-20 rounded-full opacity-10 pointer-events-none"
+                    style={{ background: "radial-gradient(circle, white, transparent)" }} />
+                  <div className="flex items-center gap-3">
+                    <User className="w-7 h-7 text-white opacity-90" />
+                    <div>
+                      <h1 className="text-2xl font-bold text-white tracking-tight">User Management</h1>
+                      <p className="text-violet-200 text-sm mt-0.5">Manage customer accounts and information</p>
+                    </div>
+                  </div>
                 </div>
 
                 <div
-                  className="rounded-2xl px-6 py-5 shadow-xl flex items-center gap-4 border"
-                  style={{ background: "rgba(255,255,255,0.85)", borderColor: "rgba(168,85,247,0.25)" }}
+                  className="rounded-2xl px-6 py-5 shadow-xl flex items-center gap-4 bg-white/90 border"
+                  style={{ borderColor: "rgba(139,92,246,0.15)" }}
                 >
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
-                    style={{ background: "linear-gradient(135deg, #7c3aed, #a21caf)" }}
+                    style={{ background: purpleGrad }}
                   >
-                    <UsersIcon className="w-6 h-6 text-white" />
+                    <Users className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-purple-500 uppercase tracking-widest">Total Customers</p>
@@ -657,9 +670,9 @@ export default function UsersAdminPage() {
                           </div>
                         </div>
                         <div className="text-right ml-4">
-                          <p className="font-bold text-2xl text-purple-700">₱{order.total_amount.toFixed(2)}</p>
-                          <p className="text-xs text-gray-400 mt-1">Subtotal: ₱{order.subtotal.toFixed(2)}</p>
-                          <p className="text-xs text-gray-400">Delivery: ₱{order.delivery_fee.toFixed(2)}</p>
+                          <p className="font-bold text-2xl text-purple-700"> ₱{Number(order.total || 0).toFixed(2)}</p>
+                          <p className="text-xs text-gray-400 mt-1">Subtotal: ₱{Number(order.subtotal || 0).toFixed(2)}</p>
+                          <p className="text-xs text-gray-400">Delivery: ₱{Number(order.delivery_fee || 0).toFixed(2)}</p>
                           <Badge className="mt-2 text-xs bg-purple-50 text-purple-600 border-purple-200">{order.payment_method}</Badge>
                         </div>
                       </div>

@@ -6,7 +6,7 @@ import MenuItemCard from "@/components/ui/menu-item-card"
 import { Button } from "@/components/ui/button"
 import { Loader2, Download, X } from "lucide-react"
 import Image from "next/image"
-import IzakayaLoader from "@/components/oppa-loader"
+import OppaLoader from "@/components/oppa-loader"
 
 export default function MenuPage() {
   const [products, setProducts] = useState<MenuItem[]>([])
@@ -106,7 +106,7 @@ export default function MenuPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <IzakayaLoader />
+        <OppaLoader />
       </div>
     )
   }

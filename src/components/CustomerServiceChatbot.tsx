@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname } from "next/navigation"
 import { useState, useEffect, useRef } from "react"
 import { MessageCircle, X, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -21,12 +22,12 @@ const FAQ_DATA = [
   },
   {
     question: "What are your operating hours?",
-    answer: "Our operating hours are Monday to Thursday from 11:00 AM to 2:00 AM, Friday to Sunday from 11:00 AM to 4:00 AM, and on holidays from 11:00 AM to 4:00 AM. Visit us at 1st Floor, PISO PAY.COM BLDG, #47 Polaris St, Bel-Air, Makati City.",
+    answer:
+      "Our operating hours are Monday to Thursday from 11:00 AM to 2:00 AM, Friday to Sunday from 11:00 AM to 4:00 AM, and on holidays from 11:00 AM to 4:00 AM. Visit us at 1st Floor, PISO PAY.COM BLDG, #47 Polaris St, Bel-Air, Makati City.",
   },
   {
     question: "Do you offer vegetarian or vegan options?",
-    answer:
-      "Yes! We offer vegetarian and vegan options including vegetable yakitori, edamame, and traditional Japanese vegetable dishes.",
+    answer: "Yes! We offer vegetarian and vegan options including vegetable yakitori, edamame, and traditional Japanese vegetable dishes.",
   },
   {
     question: "What makes Izakaya Tori Ichizu special?",
@@ -50,6 +51,7 @@ export default function CustomerServiceChatbot() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const pathname = usePathname()
 
   useEffect(() => {
     if (isOpen && messages.length === 0 && !isChatEnded) {
@@ -82,13 +84,7 @@ export default function CustomerServiceChatbot() {
     let currentIndex = 0
     const typingInterval = setInterval(() => {
       if (currentIndex < text.length) {
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === messageId
-              ? { ...msg, text: text.substring(0, currentIndex + 1) }
-              : msg
-          )
-        )
+        setMessages((prev) => prev.map((msg) => (msg.id === messageId ? { ...msg, text: text.substring(0, currentIndex + 1) } : msg)))
         currentIndex++
       } else {
         clearInterval(typingInterval)
@@ -133,6 +129,12 @@ export default function CustomerServiceChatbot() {
     }, 2000)
   }
 
+    // Only show on homepage and /user
+  if (pathname !== "/" && pathname !== "/user") {
+    return null
+  }
+  if (pathname.startsWith("/admin")) return null
+
   return (
     <>
       {/* Floating Button */}
@@ -163,12 +165,7 @@ export default function CustomerServiceChatbot() {
                 </p>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(false)}
-              className="text-white hover:bg-white/20 rounded-full"
-            >
+            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-white hover:bg-white/20 rounded-full">
               <X className="h-5 w-5" />
             </Button>
           </CardHeader>
@@ -179,23 +176,15 @@ export default function CustomerServiceChatbot() {
               <ScrollArea ref={scrollAreaRef} className="h-full px-4 py-3">
                 <div className="space-y-3 pb-2">
                   {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                    >
+                    <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
                       <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-2.5 shadow-sm ${
-                          message.sender === "user"
+                        className={`max-w-[85%] rounded-2xl px-4 py-2.5 shadow-sm ${message.sender === "user"
                             ? "bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-tr-sm"
                             : "bg-white text-gray-800 border border-gray-200 rounded-tl-sm"
-                        }`}
+                          }`}
                       >
                         <p className="text-sm leading-relaxed">{message.text}</p>
-                        <p
-                          className={`text-[10px] mt-1.5 ${
-                            message.sender === "user" ? "text-white/80" : "text-gray-400"
-                          }`}
-                        >
+                        <p className={`text-[10px] mt-1.5 ${message.sender === "user" ? "text-white/80" : "text-gray-400"}`}>
                           {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
@@ -206,18 +195,9 @@ export default function CustomerServiceChatbot() {
                     <div className="flex justify-start">
                       <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-200">
                         <div className="flex gap-1">
-                          <div
-                            className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
-                            style={{ animationDelay: "0ms" }}
-                          ></div>
-                          <div
-                            className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
-                            style={{ animationDelay: "150ms" }}
-                          ></div>
-                          <div
-                            className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
-                            style={{ animationDelay: "300ms" }}
-                          ></div>
+                          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
+                          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
+                          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
                         </div>
                       </div>
                     </div>
