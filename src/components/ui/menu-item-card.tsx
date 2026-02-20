@@ -35,7 +35,13 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
     const numPrice = typeof price === "number" ? price : Number.parseFloat(String(price))
     return numPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }
-
+  const getImageUrl = (imagePath: string): string => {
+    if (!imagePath) return "/placeholder.svg"
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) return imagePath
+    const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+    const fullPath = imagePath.startsWith("images/products/") ? imagePath : `images/products/${imagePath}`
+    return `${BASE}/${fullPath}`
+  }
   const handleAddToCart = () => {
     if (!isLoggedIn) {
       toast({
@@ -71,7 +77,7 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
           <div className="flex justify-center flex-shrink-0">
             <div className="w-full h-48 sm:h-56 md:h-64 overflow-hidden">
               <Image
-                src={item.image || "/placeholder.svg"}
+                src={getImageUrl(item.image) || "/placeholder.svg"}
                 alt={item.name}
                 width={300}
                 height={180}
@@ -130,7 +136,7 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
                     {item.image && (
                       <div className="relative w-full h-64 sm:h-full rounded-lg overflow-hidden">
                         <Image
-                          src={item.image}
+                          src={getImageUrl(item.image)}
                           alt={item.name}
                           fill
                           className="object-contain rounded-lg"

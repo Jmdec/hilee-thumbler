@@ -74,11 +74,9 @@ export default function MenuPage() {
         const response = await fetch("/api/products?paginate=false")
         const data = await response.json()
 
-
         console.log("response", response);
 
         if (!response.ok) throw new Error("Failed to fetch products")
-
 
         const transformedProducts: MenuItem[] = data.map((product: any) => ({
           id: product.id,

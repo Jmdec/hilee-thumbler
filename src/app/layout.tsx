@@ -1,9 +1,8 @@
-import React from "react"
+import type React from "react"
 import type { Metadata } from "next"
-import { AuthProvider } from "@/context/AuthContext"
 import ClientLayout from "./ClientLayout"
 import ServiceWorkerProvider from "@/components/ServiceWorkerProvider"
-import { Toaster } from "sonner"
+
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
 
   title: {
     default: "Hilee — Premium Everyday Tumblers",
-    template: "%s | Hilee",
+    template: "%s | Hilee"
   },
 
   description:
@@ -28,7 +27,7 @@ export const metadata: Metadata = {
     "Shopee tumbler Philippines",
     "TikTok tumbler Philippines",
     "Aquaflask alternative",
-    "aesthetic tumbler PH",
+    "aesthetic tumbler PH"
   ],
 
   authors: [{ name: "Hilee" }],
@@ -58,7 +57,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Hilee — Premium Everyday Tumblers",
-    description: "Stylish insulated tumblers designed for everyday life.",
+    description:
+      "Stylish insulated tumblers designed for everyday life.",
     images: ["https://hilee.ph/hilee-logo.jpg"],
   },
 
@@ -87,9 +87,27 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Brand",
+    "@id": "https://hilee.ph/#brand",
+    name: "Hilee",
+    url: "https://hilee.ph",
+    logo: "https://hilee.ph/hilee-logo.jpg",
+    image: "https://hilee.ph/hilee-logo.jpg",
+    description:
+      "Hilee is a drinkware brand offering stylish insulated tumblers designed for everyday use.",
+    sameAs: [
+      "https://www.tiktok.com/@hilee",
+      "https://www.instagram.com/hilee",
+      "https://www.facebook.com/hilee"
+    ]
+  }
+
   return (
     <html lang="en-PH">
       <head>
+        {/* Organization / Brand Schema */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -102,14 +120,11 @@ export default function RootLayout({
               image: "https://hilee.ph/hilee-logo.jpg",
               description:
                 "Hilee offers stylish insulated tumblers designed for everyday life.",
-              sameAs: [
-                "https://www.tiktok.com/@hilee",
-                "https://www.instagram.com/hilee",
-                "https://www.facebook.com/hilee",
-              ],
             }),
           }}
         />
+
+        {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Hilee — Premium Everyday Tumblers" />
         <meta
@@ -123,6 +138,8 @@ export default function RootLayout({
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="Hilee Tumblers" />
+
+        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Hilee — Premium Everyday Tumblers" />
         <meta
@@ -130,22 +147,24 @@ export default function RootLayout({
           content="Stylish insulated tumblers designed for everyday life."
         />
         <meta name="twitter:image" content="https://hilee.ph/hilee-logo.jpg" />
+
+        {/* Canonical */}
         <link rel="canonical" href="https://hilee.ph" />
+
+        {/* Performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* Basic meta */}
         <meta name="format-detection" content="telephone=no" />
         <meta name="language" content="English" />
         <meta name="distribution" content="global" />
         <meta name="rating" content="general" />
       </head>
-      <body className="font-sans antialiased">
-        <AuthProvider>
-          <Toaster richColors position="top-right" />
-          <div className="min-h-screen bg-background">
-            <ServiceWorkerProvider />
-            <ClientLayout>{children}</ClientLayout>
-          </div>
-        </AuthProvider>
+
+      <body>
+        <ServiceWorkerProvider />
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   )
