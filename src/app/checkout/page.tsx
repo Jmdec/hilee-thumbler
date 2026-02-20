@@ -843,10 +843,7 @@ const Checkout = () => {
                   <div className="flex items-center justify-center gap-2 text-gray-600">
                     <Lock className="w-4 h-4" /> <span>Your payment information is secure</span>
                   </div>
-                  <div className="flex items-center justify-center gap-2 text-gray-600">
-                    <Package className="w-4 h-4" /> <span>Estimated delivery: 30-45 minutes</span>
-                  </div>
-                  <div className="text-gray-700 font-medium">Thank you for your order! 🍱</div>
+                  <div className="text-gray-700 font-medium">Thank you for your order!</div>
                 </div>
               </CardContent>
             </Card>

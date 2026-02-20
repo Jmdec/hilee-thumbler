@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle, AlertCircle } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
-import IzakayaLoader from "@/components/oppa-loader"
+import OppaLoader from "@/components/oppa-loader"
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -110,7 +110,7 @@ export default function Contact() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <IzakayaLoader />
+        <OppaLoader />
       </div>
     )
   }

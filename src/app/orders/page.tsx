@@ -16,7 +16,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import IzakayaLoader from "@/components/oppa-loader"
+import OppaLoader from "@/components/oppa-loader"
 
 interface OrderItem {
   id: number
@@ -88,8 +88,8 @@ const Orders = () => {
               : Number(order.total ?? order.total_amount ?? 0),
             subtotal: Number(order.subtotal ?? 0),
             delivery_fee: Number(order.delivery_fee ?? 0),
-            items: Array.isArray(order.items)
-              ? order.items.map((item: any) => ({
+            items: Array.isArray(order.order_items)
+              ? order.order_items.map((item: any) => ({
                 ...item,
                 price: Number(item.price ?? 0),
                 quantity: Number(item.quantity ?? 0), subtotal: Number(item.subtotal ?? (item.price * item.quantity)),
@@ -201,7 +201,7 @@ const Orders = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <IzakayaLoader />
+        <OppaLoader />
       </div>
     )
   }

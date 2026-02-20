@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import IzakayaLoader from "@/components/oppa-loader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { Settings, Shield, Globe } from "lucide-react"
+import OppaLoader from "@/components/oppa-loader"
 
 export default function AccountSettingsPage() {
   const { toast } = useToast()
@@ -97,7 +97,7 @@ export default function AccountSettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <IzakayaLoader />
+        <OppaLoader />
       </div>
     )
   }
