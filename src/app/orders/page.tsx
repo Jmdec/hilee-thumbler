@@ -6,66 +6,56 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import {
-  Package,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Truck,
-  User,
-  LogIn,
-  Calendar,
-  Users,
-  Mail,
-  Phone,
-  MapPin,
-  CreditCard,
-  ChefHat,
-  MessageSquare,
-  Eye,
-  Filter,
-  Utensils,
-  AlertCircle,
+  Package, Clock, CheckCircle, XCircle, User, LogIn,
+  MapPin, CreditCard, ChefHat, Eye, Filter, AlertCircle,
 } from "lucide-react"
 import Link from "next/link"
 import { apiClient } from "@/lib/api"
-import type { Order } from "@/types"
 import { toast } from "@/hooks/use-toast"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-interface Event {
+interface OrderItem {
   id: number
   name: string
-  email: string
-  userId?: number
-  eventType: string
-  guests: number
-  preferredDate: string
-  preferredTime: string
-  venueArea: string
-  status?: string
+  description: string
+  price: number
+  quantity: number
+  category: string
+  is_spicy: boolean
+  is_vegetarian: boolean
+  image_url: string
+  subtotal?: number
+}
+
+interface Order {
+  id: number
+  order_number: string
+  customer_name: string
+  customer_email: string
+  customer_phone: string
+  delivery_address: string
+  delivery_city: string
+  delivery_zip_code: string
+  payment_method: string
+  status: "pending" | "confirmed" | "preparing" | "ready" | "delivered" | "cancelled"
+  subtotal: number
+  delivery_fee: number
+  total_amount: number
+  notes?: string
+  receipt_file?: string
+  items: OrderItem[]
   created_at: string
-  updated_at?: string
+  updated_at: string
 }
 
 const Orders = () => {
   const [orders, setOrders] = useState<Order[]>([])
-  const [events, setEvents] = useState<Event[]>([])
-  const [reservations, setReservations] = useState<any[]>([])
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
-  const [filteredReservations, setFilteredReservations] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
-  const [activeTab, setActiveTab] = useState<"orders" | "events" | "reservations">("orders")
   const [activeFilter, setActiveFilter] = useState<string>("all")
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [cancellingOrderId, setCancellingOrderId] = useState<number | null>(null)
@@ -73,232 +63,138 @@ const Orders = () => {
   const [orderToCancel, setOrderToCancel] = useState<Order | null>(null)
 
   useEffect(() => {
-    const checkAuthAndFetchData = async () => {
+    const fetchData = async () => {
       const token = localStorage.getItem("auth_token")
       const userData = localStorage.getItem("user_data")
 
-      if (!token) {
-        setLoading(false)
-        return
-      }
+      if (!token) { setLoading(false); return }
 
       if (userData) {
-        try {
-          setUser(JSON.parse(userData))
-        } catch (error) {
-          console.error("Error parsing user data:", error)
-        }
+        try { setUser(JSON.parse(userData)) } catch (e) { console.error(e) }
       }
 
       try {
         const ordersResponse = await apiClient.getOrders()
         if (ordersResponse.success && ordersResponse.data) {
-          const ordersData = Array.isArray(ordersResponse.data)
+          const raw = Array.isArray(ordersResponse.data)
             ? ordersResponse.data
             : ordersResponse.data.data || ordersResponse.data.orders || []
-          setOrders(ordersData)
-          setFilteredOrders(ordersData)
-        }
 
-        try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL
-          const userData = JSON.parse(localStorage.getItem("user_data") || "{}")
-          const userId = userData?.id
+          const validated = raw.map((order: any) => ({
+            ...order,
+            total_amount: typeof order.total_amount === "number"
+              ? order.total_amount
+              : Number(order.total ?? order.total_amount ?? 0),
+            subtotal: Number(order.subtotal ?? 0),
+            delivery_fee: Number(order.delivery_fee ?? 0),
+            items: Array.isArray(order.items)
+              ? order.items.map((item: any) => ({
+                ...item,
+                price: Number(item.price ?? 0),
+                quantity: Number(item.quantity ?? 0), subtotal: Number(item.subtotal ?? (item.price * item.quantity)),
+              }))
+              : [],
+          }))
 
-          const eventsUrl = userId ? `${apiUrl}/api/events?user_id=${userId}` : `${apiUrl}/api/events`
-
-          const eventsResponse = await fetch(eventsUrl, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          if (eventsResponse.ok) {
-            const eventsData = await eventsResponse.json()
-            const eventsList = Array.isArray(eventsData) ? eventsData : eventsData.data || []
-            setEvents(eventsList)
-            setFilteredEvents(eventsList)
-          }
-        } catch (error) {
-          console.error("Error fetching events:", error)
-        }
-
-        try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL
-          const reservationsResponse = await fetch(`${apiUrl}/api/reservations`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          if (reservationsResponse.ok) {
-            const reservationsData = await reservationsResponse.json()
-            const resData = Array.isArray(reservationsData) ? reservationsData : reservationsData.data || []
-            setReservations(resData)
-            setFilteredReservations(resData)
-          }
-        } catch (error) {
-          console.error("Error fetching reservations:", error)
+          setOrders(validated)
+          setFilteredOrders(validated)
         }
       } catch (error) {
-        console.error("Error fetching data:", error)
-        toast({
-          title: "Error",
-          description: "Failed to load data. Please try again.",
-          variant: "destructive",
-        })
+        toast({ title: "Error", description: "Failed to load orders.", variant: "destructive" })
       } finally {
         setLoading(false)
       }
     }
-
-    checkAuthAndFetchData()
+    fetchData()
   }, [])
 
   useEffect(() => {
-    if (activeTab === "orders") {
-      if (activeFilter === "all") {
-        setFilteredOrders(orders)
-      } else {
-        setFilteredOrders(orders.filter((order) => order.order_status === activeFilter))
-      }
-    } else if (activeTab === "events") {
-      if (activeFilter === "all") {
-        setFilteredEvents(events)
-      } else {
-        setFilteredEvents(events.filter((event) => event.status === activeFilter))
-      }
-    } else {
-      if (activeFilter === "all") {
-        setFilteredReservations(reservations)
-      } else {
-        setFilteredReservations(reservations.filter((res) => res.status === activeFilter))
-      }
-    }
-  }, [activeFilter, orders, events, reservations, activeTab])
+    setFilteredOrders(
+      activeFilter === "all" ? orders : orders.filter((o) => o.status === activeFilter)
+    )
+  }, [activeFilter, orders])
 
-  const canCancelOrder = (order: Order) => {
-    const cancellableStatuses = ["pending", "confirmed"]
-    return cancellableStatuses.includes(order.order_status)
-  }
+  const canCancelOrder = (order: Order) =>
+    ["pending", "confirmed"].includes(order.status)
 
   const handleCancelClick = (order: Order) => {
     setOrderToCancel(order)
     setShowCancelDialog(true)
   }
 
-const handleCancelOrder = async () => {
-  if (!orderToCancel) return
+  const handleCancelOrder = async () => {
+    if (!orderToCancel) return
+    setCancellingOrderId(orderToCancel.id)
+    setShowCancelDialog(false)
+    try {
+      const token = localStorage.getItem("auth_token")
 
-  setCancellingOrderId(orderToCancel.id)
-  setShowCancelDialog(false)
-
-  try {
-    const token = localStorage.getItem("auth_token")
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL
-
-    const response = await fetch(`${apiUrl}/api/orders/${orderToCancel.id}/cancel`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
-
-    const data = await response.json()
-
-    if (response.ok && data.success) {
-      const updatedOrders = orders.map((order) =>
-        order.id === orderToCancel.id 
-          ? { ...order, order_status: "cancelled" as const } // Add 'as const' here
-          : order
-      )
-      setOrders(updatedOrders)
-      setFilteredOrders(
-        activeFilter === "all"
-          ? updatedOrders
-          : updatedOrders.filter((order) => order.order_status === activeFilter)
-      )
-
-      toast({
-        title: "Order Cancelled",
-        description: "Your order has been cancelled successfully.",
+      // Use Next.js proxy route, not NEXT_PUBLIC_API_URL directly
+      const response = await fetch(`/api/orders/${orderToCancel.id}/cancel`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       })
-    } else {
-      throw new Error(data.message || "Failed to cancel order")
+
+      // Guard against HTML error pages before parsing JSON
+      const contentType = response.headers.get("content-type")
+      if (!contentType?.includes("application/json")) {
+        throw new Error("Server returned an unexpected response. Please try again.")
+      }
+
+      const data = await response.json()
+      if (response.ok && data.success) {
+        const updated = orders.map((o) =>
+          o.id === orderToCancel.id ? { ...o, status: "cancelled" as const } : o
+        )
+        setOrders(updated)
+        toast({ title: "Order Cancelled", description: "Your order has been cancelled." })
+      } else {
+        throw new Error(data.message || "Failed to cancel order")
+      }
+    } catch (error: any) {
+      toast({ title: "Cancellation Failed", description: error.message, variant: "destructive" })
+    } finally {
+      setCancellingOrderId(null)
+      setOrderToCancel(null)
     }
-  } catch (error: any) {
-    console.error("Error cancelling order:", error)
-    toast({
-      title: "Cancellation Failed",
-      description: error.message || "Failed to cancel order. Please try again.",
-      variant: "destructive",
-    })
-  } finally {
-    setCancellingOrderId(null)
-    setOrderToCancel(null)
   }
-}
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "pending":
-        return <Clock className="w-4 h-4" />
+      case "pending": return <Clock className="w-4 h-4" />
       case "confirmed":
-      case "preparing":
-        return <ChefHat className="w-4 h-4" />
-      case "ready":
-        return <Package className="w-4 h-4" />
-      case "out_for_delivery":
-        return <Truck className="w-4 h-4" />
-      case "delivered":
-      case "completed":
-        return <CheckCircle className="w-4 h-4" />
-      case "cancelled":
-        return <XCircle className="w-4 h-4" />
-      default:
-        return <Clock className="w-4 h-4" />
+      case "preparing": return <ChefHat className="w-4 h-4" />
+      case "ready": return <Package className="w-4 h-4" />
+      case "delivered": return <CheckCircle className="w-4 h-4" />
+      case "cancelled": return <XCircle className="w-4 h-4" />
+      default: return <Clock className="w-4 h-4" />
     }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending":
-        return "bg-amber-100 text-amber-800 border-amber-300"
+      case "pending": return "bg-purple-100 text-purple-800 border-purple-300"
       case "confirmed":
-      case "preparing":
-        return "bg-blue-100 text-blue-800 border-blue-300"
-      case "ready":
-        return "bg-violet-100 text-violet-800 border-violet-300"
-      case "out_for_delivery":
-        return "bg-purple-100 text-purple-800 border-purple-300"
-      case "delivered":
-      case "completed":
-        return "bg-emerald-100 text-emerald-800 border-emerald-300"
-      case "cancelled":
-        return "bg-red-100 text-red-800 border-red-300"
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-300"
+      case "preparing": return "bg-blue-100 text-blue-800 border-blue-300"
+      case "ready": return "bg-violet-100 text-violet-800 border-violet-300"
+      case "delivered": return "bg-emerald-100 text-emerald-800 border-emerald-300"
+      case "cancelled": return "bg-red-100 text-red-800 border-red-300"
+      default: return "bg-gray-100 text-gray-800 border-gray-300"
     }
   }
 
-  const getStatusCount = (status: string) => {
-    if (activeTab === "orders") {
-      if (status === "all") return orders.length
-      return orders.filter((order) => order.order_status === status).length
-    } else if (activeTab === "events") {
-      if (status === "all") return events.length
-      return events.filter((event) => event.status === status).length
-    } else {
-      if (status === "all") return reservations.length
-      return reservations.filter((res) => res.status === status).length
-    }
-  }
+  const getCount = (status: string) =>
+    status === "all" ? orders.length : orders.filter((o) => o.status === status).length
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-10 via-purple-50 to-purple-80 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-700 font-semibold text-lg">Loading your history...</p>
+          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-700 font-semibold text-lg">Loading your orders...</p>
         </div>
       </div>
     )
@@ -306,26 +202,22 @@ const handleCancelOrder = async () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-purple-10 via-purple-50 to-purple-80 flex items-center justify-center p-4">
         <Card className="max-w-md w-full bg-white shadow-2xl border-0">
           <CardContent className="p-10 text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-800 rounded-full flex items-center justify-center mx-auto mb-6">
               <User className="w-10 h-10 text-white" />
             </div>
             <h1 className="text-3xl font-black text-gray-900 mb-3">Welcome Back</h1>
-            <p className="text-gray-600 mb-8">Please log in to view your order history, events, and reservations.</p>
+            <p className="text-gray-600 mb-8">Please log in to view your order history.</p>
             <div className="flex flex-col gap-3">
               <Link href="/login" className="w-full">
-                <Button className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold py-6 text-lg shadow-lg">
-                  <LogIn className="w-5 h-5 mr-2" />
-                  Login to Continue
+                <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-6 text-lg shadow-lg">
+                  <LogIn className="w-5 h-5 mr-2" /> Login to Continue
                 </Button>
               </Link>
               <Link href="/register" className="w-full">
-                <Button
-                  variant="outline"
-                  className="w-full border-2 border-orange-300 text-orange-600 hover:bg-orange-50 font-semibold py-6 text-lg bg-transparent"
-                >
+                <Button variant="outline" className="w-full border-2 border-purple-300 text-purple-600 hover:bg-purple-50 font-semibold py-6 text-lg bg-transparent">
                   Create Account
                 </Button>
               </Link>
@@ -336,24 +228,19 @@ const handleCancelOrder = async () => {
     )
   }
 
-  const currentData =
-    activeTab === "orders" ? filteredOrders : activeTab === "events" ? filteredEvents : filteredReservations
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-10 via-purple-50 to-purple-80 py-8 px-4">
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
         <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-xl">
-              <AlertCircle className="w-6 h-6 text-orange-600" />
-              Cancel Order?
+              <AlertCircle className="w-6 h-6 text-purple-600" /> Cancel Order?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-base pt-2">
               Are you sure you want to cancel order{" "}
               <strong className="text-gray-900">{orderToCancel?.order_number}</strong>?
-              <br />
-              <br />
-              This action cannot be undone and you will need to place a new order if you change your mind.
+              <br /><br />
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2 sm:gap-0">
@@ -369,617 +256,248 @@ const handleCancelOrder = async () => {
       </AlertDialog>
 
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        {/* Header */}
+        <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-2">
+              Your{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800">
+                Orders
+              </span>
+            </h1>
+            <p className="text-gray-600 text-lg">Track and manage your orders</p>
+          </div>
+          <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-2xl shadow-lg border border-purple-100">
+            <User className="w-5 h-5 text-purple-600" />
             <div>
-              <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-2">
-                Your{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600">
-                  History
-                </span>
-              </h1>
-              <p className="text-gray-600 text-lg">Track your orders, events, and reservations</p>
-            </div>
-            <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-2xl shadow-lg border border-orange-100">
-              <User className="w-5 h-5 text-orange-600" />
-              <div>
-                <p className="text-xs text-gray-500">Welcome back,</p>
-                <p className="font-bold text-gray-900">{user.name}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-3 mb-6 flex-wrap">
-            <button
-              onClick={() => {
-                setActiveTab("orders")
-                setActiveFilter("all")
-              }}
-              className={`flex-1 min-w-fit py-4 px-6 rounded-2xl font-bold text-lg transition-all ${
-                activeTab === "orders"
-                  ? "bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-xl scale-105"
-                  : "bg-white text-gray-600 hover:bg-gray-50 shadow-md"
-              }`}
-            >
-              <Package className="w-5 h-5 inline-block mr-2 mb-1" />
-              Orders ({orders.length})
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab("events")
-                setActiveFilter("all")
-              }}
-              className={`flex-1 min-w-fit py-4 px-6 rounded-2xl font-bold text-lg transition-all ${
-                activeTab === "events"
-                  ? "bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-xl scale-105"
-                  : "bg-white text-gray-600 hover:bg-gray-50 shadow-md"
-              }`}
-            >
-              <Utensils className="w-5 h-5 inline-block mr-2 mb-1" />
-              Events ({events.length})
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab("reservations")
-                setActiveFilter("all")
-              }}
-              className={`flex-1 min-w-fit py-4 px-6 rounded-2xl font-bold text-lg transition-all ${
-                activeTab === "reservations"
-                  ? "bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-xl scale-105"
-                  : "bg-white text-gray-600 hover:bg-gray-50 shadow-md"
-              }`}
-            >
-              <Calendar className="w-5 h-5 inline-block mr-2 mb-1" />
-              Reservations ({reservations.length})
-            </button>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-lg p-4 border border-orange-100">
-            <div className="flex items-center gap-2 mb-3">
-              <Filter className="w-4 h-4 text-orange-600" />
-              <span className="text-sm font-semibold text-gray-700">Filter by Status</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setActiveFilter("all")}
-                className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                  activeFilter === "all"
-                    ? "bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                All ({getStatusCount("all")})
-              </button>
-              {activeTab === "orders" ? (
-                <>
-                  <button
-                    onClick={() => setActiveFilter("pending")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "pending"
-                        ? "bg-amber-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Pending ({getStatusCount("pending")})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter("confirmed")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "confirmed"
-                        ? "bg-blue-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Confirmed ({getStatusCount("confirmed")})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter("preparing")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "preparing"
-                        ? "bg-blue-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Preparing ({getStatusCount("preparing")})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter("ready")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "ready"
-                        ? "bg-violet-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Ready ({getStatusCount("ready")})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter("out_for_delivery")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "out_for_delivery"
-                        ? "bg-purple-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Delivery ({getStatusCount("out_for_delivery")})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter("delivered")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "delivered"
-                        ? "bg-emerald-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Delivered ({getStatusCount("delivered")})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter("cancelled")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "cancelled"
-                        ? "bg-red-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Cancelled ({getStatusCount("cancelled")})
-                  </button>
-                </>
-              ) : activeTab === "events" ? (
-                <>
-                  <button
-                    onClick={() => setActiveFilter("pending")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "pending"
-                        ? "bg-amber-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Pending ({getStatusCount("pending")})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter("confirmed")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "confirmed"
-                        ? "bg-blue-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Confirmed ({getStatusCount("confirmed")})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter("completed")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "completed"
-                        ? "bg-emerald-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Completed ({getStatusCount("completed")})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter("cancelled")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "cancelled"
-                        ? "bg-red-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Cancelled ({getStatusCount("cancelled")})
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => setActiveFilter("confirmed")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "confirmed"
-                        ? "bg-blue-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Confirmed ({getStatusCount("confirmed")})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter("completed")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "completed"
-                        ? "bg-emerald-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Completed ({getStatusCount("completed")})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter("cancelled")}
-                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                      activeFilter === "cancelled"
-                        ? "bg-red-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Cancelled ({getStatusCount("cancelled")})
-                  </button>
-                </>
-              )}
+              <p className="text-xs text-gray-500">Welcome back,</p>
+              <p className="font-bold text-gray-900">{user.name}</p>
             </div>
           </div>
         </div>
 
-        {currentData.length === 0 ? (
+        {/* Filter */}
+        <div className="bg-white rounded-2xl shadow-lg p-4 border border-purple-100 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Filter className="w-4 h-4 text-purple-600" />
+            <span className="text-sm font-semibold text-gray-700">Filter by Status</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { key: "all", label: "All", color: "bg-gradient-to-r from-purple-600 to-purple-800" },
+              { key: "pending", label: "Pending", color: "bg-purple-500" },
+              { key: "confirmed", label: "Confirmed", color: "bg-blue-500" },
+              { key: "preparing", label: "Preparing", color: "bg-blue-400" },
+              { key: "ready", label: "On The Way", color: "bg-violet-500" },
+              { key: "delivered", label: "Delivered", color: "bg-emerald-500" },
+              { key: "cancelled", label: "Cancelled", color: "bg-red-500" },
+            ].map(({ key, label, color }) => (
+              <button
+                key={key}
+                onClick={() => setActiveFilter(key)}
+                className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${activeFilter === key
+                  ? `${color} text-white shadow-md`
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+              >
+                {label} ({getCount(key)})
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Orders Grid */}
+        {filteredOrders.length === 0 ? (
           <div className="flex items-center justify-center py-16">
             <Card className="max-w-lg w-full bg-white shadow-2xl border-0">
               <CardContent className="p-12 text-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  {activeTab === "orders" ? (
-                    <Package className="w-12 h-12 text-orange-600" />
-                  ) : activeTab === "events" ? (
-                    <Utensils className="w-12 h-12 text-orange-600" />
-                  ) : (
-                    <Calendar className="w-12 h-12 text-orange-600" />
-                  )}
+                <div className="w-24 h-24 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Package className="w-12 h-12 text-purple-600" />
                 </div>
-                <h2 className="text-3xl font-black text-gray-900 mb-3">
-                  {activeTab === "orders"
-                    ? "No Orders Yet"
-                    : activeTab === "events"
-                      ? "No Events Yet"
-                      : "No Reservations Yet"}
-                </h2>
+                <h2 className="text-3xl font-black text-gray-900 mb-3">No Orders Found</h2>
                 <p className="text-gray-600 mb-8 text-lg">
-                  {activeTab === "orders"
-                    ? "Start exploring our delicious menu and place your first order!"
-                    : activeTab === "events"
-                      ? "Book your first event and celebrate with us!"
-                      : "Make your first reservation and enjoy our authentic Japanese cuisine!"}
+                  {activeFilter === "all"
+                    ? "Start exploring our menu and place your first order!"
+                    : `No ${activeFilter} orders found. Try a different filter.`}
                 </p>
                 <Button
                   asChild
-                  className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold py-6 px-8 text-lg shadow-lg"
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-6 px-8 text-lg shadow-lg"
                 >
-                  <Link href={activeTab === "orders" ? "/menu" : activeTab === "events" ? "/events" : "/reservations"}>
-                    {activeTab === "orders"
-                      ? "Browse Menu"
-                      : activeTab === "events"
-                        ? "Book Event"
-                        : "Make Reservation"}
-                  </Link>
+                  <Link href="/menu">Browse Menu</Link>
                 </Button>
               </CardContent>
             </Card>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {activeTab === "orders"
-              ? filteredOrders.map((order) => {
-                  const orderStatus = order.order_status || "pending"
-                  const orderItems = order.order_items || []
-                  const isExpanded = expandedOrder === order.order_number
-                  const isCancelling = cancellingOrderId === order.id
+            {filteredOrders.map((order) => {
+              const orderStatus = order.status || "pending"
+              const orderItems = order.items || []
+              const isExpanded = expandedOrder === order.order_number
+              const isCancelling = cancellingOrderId === order.id
 
-                  return (
-                    <Card
-                      key={order.id}
-                      className="bg-white shadow-xl py-0 hover:shadow-2xl transition-all border-0 overflow-hidden flex flex-col"
-                    >
-                      <div className="bg-gradient-to-r from-orange-600 to-amber-600 p-4">
-                        <div className="flex justify-between items-start gap-3">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-white font-black text-lg truncate">{order.order_number}</h3>
-                            <p className="text-orange-100 text-sm">
-                              {new Date(order.created_at).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </p>
-                          </div>
-                          <Badge className={`${getStatusColor(orderStatus)} flex items-center gap-1.5 px-3 py-1.5 border whitespace-nowrap flex-shrink-0`}>
-                            {getStatusIcon(orderStatus)}
-                            <span className="capitalize font-semibold text-xs">{orderStatus.replace("_", " ")}</span>
-                          </Badge>
-                        </div>
+              return (
+                <Card
+                  key={order.id}
+                  className="bg-white shadow-xl py-0 hover:shadow-2xl transition-all border-0 overflow-hidden flex flex-col"
+                >
+                  {/* Card Header */}
+                  <div className="bg-gradient-to-r from-purple-600 to-purple-800 p-4">
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-white font-black text-lg truncate">
+                          {order.order_number}
+                        </h3>
+                        <p className="text-purple-100 text-sm">
+                          {new Date(order.created_at).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
                       </div>
+                      <Badge
+                        className={`${getStatusColor(orderStatus)} flex items-center gap-1.5 px-3 py-1.5 border whitespace-nowrap flex-shrink-0`}
+                      >
+                        {getStatusIcon(orderStatus)}
+                        <span className="capitalize font-semibold text-xs">
+                          {orderStatus.replace("_", " ")}
+                        </span>
+                      </Badge>
+                    </div>
+                  </div>
 
-                      <CardContent className="p-6 flex-1 flex flex-col">
-                        <div className="mb-4 flex-1">
-                          <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                            <Package className="w-5 h-5 text-orange-600" />
-                            Items ({orderItems.length})
-                          </h4>
-                          <div className="border border-gray-200 rounded-lg overflow-hidden">
-                            <table className="w-full">
-                              <thead className="bg-gray-50">
-                                <tr>
-                                  <th className="text-left py-2 px-3 text-sm font-semibold text-gray-700">Item</th>
-                                  <th className="text-center py-2 px-3 text-sm font-semibold text-gray-700">Qty</th>
-                                  <th className="text-right py-2 px-3 text-sm font-semibold text-gray-700">Price</th>
-                                  <th className="text-right py-2 px-3 text-sm font-semibold text-gray-700">Subtotal</th>
+                  <CardContent className="p-6 flex-1 flex flex-col">
+                    {/* Items Table */}
+                    <div className="mb-4 flex-1">
+                      <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                        <Package className="w-5 h-5 text-purple-600" />
+                        Items ({orderItems.length})
+                      </h4>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden">
+                        <table className="w-full">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="text-left py-2 px-3 text-sm font-semibold text-gray-700">Item</th>
+                              <th className="text-center py-2 px-3 text-sm font-semibold text-gray-700">Qty</th>
+                              <th className="text-right py-2 px-3 text-sm font-semibold text-gray-700">Price</th>
+                              <th className="text-right py-2 px-3 text-sm font-semibold text-gray-700">Subtotal</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(isExpanded ? orderItems : orderItems.slice(0, 2)).map(
+                              (item: OrderItem, index: number) => (
+                                <tr
+                                  key={item.id ?? index}
+                                  className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                                >
+                                  <td className="py-2 px-3 text-gray-900 font-medium">{item.name}</td>
+                                  <td className="py-2 px-3 text-center text-gray-700">{item.quantity}</td>
+                                  <td className="py-2 px-3 text-right text-gray-700">
+                                    ₱{Number(item.price).toFixed(2)}
+                                  </td>
+                                  <td className="py-2 px-3 text-right text-purple-600 font-bold">
+                                    ₱{(item.subtotal ?? item.price * item.quantity).toFixed(2)}
+                                  </td>
                                 </tr>
-                              </thead>
-                              <tbody>
-                                {(isExpanded ? orderItems : orderItems.slice(0, 2)).map((item: any, index: number) => (
-                                  <tr key={item.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                                    <td className="py-2 px-3 text-gray-900 font-medium">{item.name}</td>
-                                    <td className="py-2 px-3 text-center text-gray-700">{item.quantity}</td>
-                                    <td className="py-2 px-3 text-right text-gray-700">₱{item.price}</td>
-                                    <td className="py-2 px-3 text-right text-orange-600 font-bold">
-                                      ₱{item.subtotal || item.price * item.quantity}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                          <div className="mt-2">
-                            {!isExpanded && orderItems.length > 2 && (
-                              <button
-                                onClick={() => setExpandedOrder(order.order_number)}
-                                className="text-orange-600 font-semibold text-sm hover:text-orange-700 flex items-center gap-1"
-                              >
-                                <Eye className="w-4 h-4" />
-                                View {orderItems.length - 2} more items
-                              </button>
+                              )
                             )}
-                            {isExpanded && orderItems.length > 2 && (
-                              <button
-                                onClick={() => setExpandedOrder(null)}
-                                className="text-orange-600 font-semibold text-sm hover:text-orange-700"
-                              >
-                                Show less
-                              </button>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="bg-gray-50 rounded-xl p-4 mb-4 space-y-2">
-                          <div className="flex items-center gap-2 text-sm">
-                            <CreditCard className="w-4 h-4 text-gray-500" />
-                            <span className="text-gray-600">Payment:</span>
-                            <span className="font-semibold text-gray-900 capitalize">{order.payment_method}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <MapPin className="w-4 h-4 text-gray-500" />
-                            <span className="text-gray-600">Delivery:</span>
-                            <span className="font-semibold text-gray-900">{order.delivery_city}</span>
-                          </div>
-                        </div>
-
-                        <Separator className="my-4" />
-
-                        <div className="flex justify-between items-center text-xl font-black mb-4">
-                          <span className="text-gray-900">Total:</span>
-                          <span className="text-orange-600">₱{order.total_amount}</span>
-                        </div>
-
-                        {canCancelOrder(order) && (
-                          <Button
-                            onClick={() => handleCancelClick(order)}
-                            disabled={isCancelling}
-                            variant="destructive"
-                            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3"
-                          >
-                            {isCancelling ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                Cancelling...
-                              </>
-                            ) : (
-                              <>
-                                <XCircle className="w-4 h-4 mr-2" />
-                                Cancel Order
-                              </>
-                            )}
-                          </Button>
-                        )}
-
-                        {!canCancelOrder(order) && orderStatus !== "cancelled" && (
-                          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
-                            <p className="text-sm text-amber-800 font-medium flex items-center justify-center gap-2">
-                              <AlertCircle className="w-4 h-4" />
-                              Order cannot be cancelled at this stage
-                            </p>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )
-                })
-              : activeTab === "events"
-                ? filteredEvents.map((event) => (
-                    <Card
-                      key={event.id}
-                      className="bg-white shadow-xl hover:shadow-2xl py-0 transition-all border-0 overflow-hidden"
-                    >
-                      <div className="bg-gradient-to-r from-orange-600 to-amber-600 p-4">
-                        <div className="flex justify-between items-start gap-3">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-white font-black text-lg truncate">Event #{event.id}</h3>
-                            <p className="text-orange-100 text-sm">
-                              {new Date(event.created_at).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })}
-                            </p>
-                          </div>
-                          <Badge
-                            className={`${getStatusColor(event.status || "pending")} flex items-center gap-1.5 px-3 py-1.5 border whitespace-nowrap flex-shrink-0`}
-                          >
-                            {getStatusIcon(event.status || "pending")}
-                            <span className="capitalize font-semibold text-xs">
-                              {(event.status || "pending").replace("_", " ")}
-                            </span>
-                          </Badge>
-                        </div>
+                          </tbody>
+                        </table>
                       </div>
 
-                      <CardContent className="p-6">
-                        <div className="space-y-4">
-                          <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <Calendar className="w-4 h-4 text-orange-600" />
-                                  <span className="text-xs text-gray-600 font-semibold">Date</span>
-                                </div>
-                                <p className="font-bold text-gray-900">
-                                  {new Date(event.preferredDate).toLocaleDateString("en-US", {
-                                    month: "long",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  })}
-                                </p>
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <Clock className="w-4 h-4 text-orange-600" />
-                                  <span className="text-xs text-gray-600 font-semibold">Time</span>
-                                </div>
-                                <p className="font-bold text-gray-900">{event.preferredTime}</p>
-                              </div>
-                            </div>
-                          </div>
+                      {!isExpanded && orderItems.length > 2 && (
+                        <button
+                          onClick={() => setExpandedOrder(order.order_number)}
+                          className="mt-2 text-purple-600 font-semibold text-sm hover:text-purple-700 flex items-center gap-1"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View {orderItems.length - 2} more items
+                        </button>
+                      )}
+                      {isExpanded && orderItems.length > 2 && (
+                        <button
+                          onClick={() => setExpandedOrder(null)}
+                          className="mt-2 text-purple-600 font-semibold text-sm hover:text-purple-700"
+                        >
+                          Show less
+                        </button>
+                      )}
+                    </div>
 
-                          <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                            <div className="flex items-center gap-2">
-                              <Users className="w-5 h-5 text-gray-500" />
-                              <span className="text-gray-600">Guests:</span>
-                              <span className="font-bold text-gray-900">{event.guests} people</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Utensils className="w-5 h-5 text-gray-500" />
-                              <span className="text-gray-600">Event Type:</span>
-                              <span className="font-bold text-gray-900 capitalize">{event.eventType}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <MapPin className="w-5 h-5 text-gray-500" />
-                              <span className="text-gray-600">Venue:</span>
-                              <span className="font-bold text-gray-900 capitalize">
-                                {event.venueArea ? event.venueArea.replace("_", " ") : "Not specified"}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <User className="w-5 h-5 text-gray-500" />
-                              <span className="text-gray-600">Name:</span>
-                              <span className="font-bold text-gray-900">{event.name}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Mail className="w-5 h-5 text-gray-500" />
-                              <span className="text-gray-600">Email:</span>
-                              <span className="font-semibold text-gray-900">{event.email}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                : filteredReservations.map((reservation) => (
-                    <Card
-                      key={reservation.id}
-                      className="bg-white shadow-xl hover:shadow-2xl py-0 transition-all border-0 overflow-hidden"
-                    >
-                      <div className="bg-gradient-to-r from-orange-600 to-amber-600 p-4">
-                        <div className="flex justify-between items-start gap-3">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-white font-black text-lg truncate">Reservation #{reservation.id}</h3>
-                            <p className="text-orange-100 text-sm">
-                              {new Date(reservation.created_at).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })}
-                            </p>
-                          </div>
-                          <Badge
-                            className={`${getStatusColor(reservation.status)} flex items-center gap-1.5 px-3 py-1.5 border whitespace-nowrap flex-shrink-0`}
-                          >
-                            {getStatusIcon(reservation.status)}
-                            <span className="capitalize font-semibold text-xs">{reservation.status}</span>
-                          </Badge>
-                        </div>
+                    {/* Order Info */}
+                    <div className="bg-gray-50 rounded-xl p-4 mb-4 space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <CreditCard className="w-4 h-4 text-gray-500" />
+                        <span className="text-gray-600">Payment:</span>
+                        <span className="font-semibold text-gray-900 capitalize">
+                          {order.payment_method}
+                        </span>
                       </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="w-4 h-4 text-gray-500" />
+                        <span className="text-gray-600">Delivery:</span>
+                        <span className="font-semibold text-gray-900">{order.delivery_city}</span>
+                      </div>
+                    </div>
 
-                      <CardContent className="p-6">
-                        <div className="space-y-4">
-                          <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <Calendar className="w-4 h-4 text-orange-600" />
-                                  <span className="text-xs text-gray-600 font-semibold">Date</span>
-                                </div>
-                                <p className="font-bold text-gray-900">
-                                  {new Date(reservation.date).toLocaleDateString("en-US", {
-                                    month: "long",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  })}
-                                </p>
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <Clock className="w-4 h-4 text-orange-600" />
-                                  <span className="text-xs text-gray-600 font-semibold">Time</span>
-                                </div>
-                                <p className="font-bold text-gray-900">{reservation.time}</p>
-                              </div>
-                            </div>
-                          </div>
+                    <Separator className="my-4" />
 
-                          <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                            <div className="flex items-center gap-2">
-                              <Users className="w-5 h-5 text-gray-500" />
-                              <span className="text-gray-600">Guests:</span>
-                              <span className="font-bold text-gray-900">{reservation.guests} people</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <User className="w-5 h-5 text-gray-500" />
-                              <span className="text-gray-600">Name:</span>
-                              <span className="font-bold text-gray-900">{reservation.name}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Mail className="w-5 h-5 text-gray-500" />
-                              <span className="text-gray-600">Email:</span>
-                              <span className="font-semibold text-gray-900">{reservation.email}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Phone className="w-5 h-5 text-gray-500" />
-                              <span className="text-gray-600">Phone:</span>
-                              <span className="font-semibold text-gray-900">{reservation.phone}</span>
-                            </div>
-                          </div>
+                    {/* Total */}
+                    <div className="flex justify-between items-center text-xl font-black mb-4">
+                      <span className="text-gray-900">Total:</span>
+                      <span className="text-purple-600">
+                        ₱{Number(order.total_amount).toFixed(2)}
+                      </span>
+                    </div>
 
-                          {reservation.special_requests && (
-                            <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
-                              <div className="flex items-start gap-2">
-                                <MessageSquare className="w-5 h-5 text-amber-600 mt-1 flex-shrink-0" />
-                                <div>
-                                  <p className="text-xs text-gray-600 font-semibold mb-1">Special Requests</p>
-                                  <p className="text-gray-900">{reservation.special_requests}</p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                    {/* Cancel Button */}
+                    {canCancelOrder(order) && (
+                      <Button
+                        onClick={() => handleCancelClick(order)}
+                        disabled={isCancelling}
+                        variant="destructive"
+                        className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3"
+                      >
+                        {isCancelling ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                            Cancelling...
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Cancel Order
+                          </>
+                        )}
+                      </Button>
+                    )}
+
+                    {!canCancelOrder(order) && orderStatus !== "cancelled" && (
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-center">
+                        <p className="text-sm text-purple-800 font-medium flex items-center justify-center gap-2">
+                          <AlertCircle className="w-4 h-4" />
+                          Order cannot be cancelled at this stage
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
 
+        {/* Bottom CTA */}
         <div className="mt-12 text-center">
           <Button
             asChild
-            className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold py-6 px-10 text-lg shadow-lg rounded-2xl"
+            className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-6 px-10 text-lg shadow-lg rounded-2xl"
           >
-            <Link href={activeTab === "orders" ? "/menu" : activeTab === "events" ? "/events" : "/reservations"}>
-              {activeTab === "orders"
-                ? "Order More Food"
-                : activeTab === "events"
-                  ? "Book New Event"
-                  : "Make New Reservation"}
-            </Link>
+            <Link href="/menu">Order More Thumbler</Link>
           </Button>
         </div>
       </div>

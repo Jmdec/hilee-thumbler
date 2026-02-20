@@ -33,8 +33,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,9 +66,7 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
 } from "@tanstack/react-table"
-import { Checkbox } from "@/components/ui/checkbox"
 
-// User data types
 interface User {
   id: number
   name: string
@@ -128,332 +133,180 @@ export default function UsersAdminPage() {
   const [userToDeactivate, setUserToDeactivate] = useState<User | null>(null)
   const [deactivatingUser, setDeactivatingUser] = useState(false)
 
-  // DataTable states
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [globalFilter, setGlobalFilter] = useState("")
 
-  // State for mobile detection
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
     checkMobile()
     window.addEventListener("resize", checkMobile)
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  // Fetch users
   const tokenFromStore = useAuthStore((state) => state.token)
+
   const fetchUsers = async () => {
     try {
       setLoading(true)
       const token = tokenFromStore || localStorage.getItem("auth_token")
-
       if (!token) {
-        toast({
-          variant: "destructive",
-          title: "Authentication Required",
-          description: "Please log in to access users.",
-        })
+        toast({ variant: "destructive", title: "Authentication Required", description: "Please log in to access users." })
         router.push("/login")
         return
       }
-
-      // build query params with search as needed
-      const params = new URLSearchParams({
-        per_page: "100",
-        role: "user",
+      const params = new URLSearchParams({ per_page: "100", role: "user" })
+      if (globalFilter) params.set("search", globalFilter)
+      const response = await fetch(`/api/users?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       })
-      if (globalFilter) {
-        params.set("search", globalFilter)
-      }
-
-      const url = `/api/users?${params.toString()}`
-
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-
       if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem("auth_token")
-          router.push("/login")
-          return
-        }
+        if (response.status === 401) { localStorage.removeItem("auth_token"); router.push("/login"); return }
         throw new Error(`HTTP ${response.status}`)
       }
-
       const result = await response.json()
-
       if (result.success) {
-        // result.data is a paginated object with 'data' property containing items
         const usersData = (result.data && result.data.data) || result.data || []
         setUsers(Array.isArray(usersData) ? usersData : [])
-      } else {
-        throw new Error(result.message || "Failed to fetch users")
-      }
+      } else throw new Error(result.message || "Failed to fetch users")
     } catch (error) {
-      console.error("Failed to fetch users:", error)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to load users.",
-      })
+      toast({ variant: "destructive", title: "Error", description: error instanceof Error ? error.message : "Failed to load users." })
       setUsers([])
     } finally {
       setLoading(false)
     }
   }
 
+  useEffect(() => { fetchUsers() }, [])
   useEffect(() => {
-    fetchUsers()
-  }, [])
-
-  // Debounce search
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (globalFilter !== undefined) {
-        fetchUsers()
-      }
-    }, 500)
-
-    return () => clearTimeout(timeoutId)
+    const id = setTimeout(() => { if (globalFilter !== undefined) fetchUsers() }, 500)
+    return () => clearTimeout(id)
   }, [globalFilter])
 
   const fetchUserOrders = async (userId: number) => {
     try {
       setLoadingOrders(true)
       const token = localStorage.getItem("auth_token")
-
-      if (!token) {
-        toast({
-          variant: "destructive",
-          title: "Authentication Required",
-          description: "Please log in to view orders.",
-        })
-        return
-      }
-
+      if (!token) return
       const response = await fetch(`/api/orders?user_id=${userId}&per_page=100`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       })
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const result = await response.json()
-      console.log("[v0] Orders fetched for user:", userId, result)
-
       if (result.success) {
-        const ordersData = Array.isArray(result.data) ? result.data : result.data?.data || []
-        setUserOrders(ordersData)
-      } else {
-        throw new Error(result.message || "Failed to fetch orders")
-      }
+        setUserOrders(Array.isArray(result.data) ? result.data : result.data?.data || [])
+      } else throw new Error(result.message || "Failed to fetch orders")
     } catch (error) {
-      console.error("[v0] Failed to fetch orders:", error)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to load user orders.",
-      })
+      toast({ variant: "destructive", title: "Error", description: error instanceof Error ? error.message : "Failed to load user orders." })
       setUserOrders([])
     } finally {
       setLoadingOrders(false)
     }
   }
 
-  const handleViewUser = (user: User) => {
-    setSelectedUser(user)
-    setShowUserDialog(true)
-  }
-
-  const handleViewOrders = (user: User) => {
-    setSelectedUser(user)
-    setShowOrdersDialog(true)
-    fetchUserOrders(user.id)
-  }
-
-  const handleSendEmail = (user: User) => {
-    setSelectedUser(user)
-    setEmailSubject("")
-    setEmailMessage("")
-    setShowEmailDialog(true)
-  }
+  const handleViewUser = (user: User) => { setSelectedUser(user); setShowUserDialog(true) }
+  const handleViewOrders = (user: User) => { setSelectedUser(user); setShowOrdersDialog(true); fetchUserOrders(user.id) }
+  const handleSendEmail = (user: User) => { setSelectedUser(user); setEmailSubject(""); setEmailMessage(""); setShowEmailDialog(true) }
 
   const sendEmail = async () => {
     if (!selectedUser || !emailSubject || !emailMessage) {
-      toast({
-        variant: "destructive",
-        title: "Missing Information",
-        description: "Please fill in both subject and message.",
-      })
+      toast({ variant: "destructive", title: "Missing Information", description: "Please fill in both subject and message." })
       return
     }
-
     try {
       setSendingEmail(true)
       const token = localStorage.getItem("auth_token")
-
-      if (!token) {
-        toast({
-          variant: "destructive",
-          title: "Authentication Required",
-          description: "Please log in to send emails.",
-        })
-        return
-      }
-
+      if (!token) return
       const response = await fetch("/api/send-email", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: selectedUser.email,
-          subject: emailSubject,
-          message: emailMessage,
-        }),
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ to: selectedUser.email, subject: emailSubject, message: emailMessage }),
       })
-
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: "Unknown error" }))
-        throw new Error(errorData.message || `HTTP ${response.status}`)
+        const err = await response.json().catch(() => ({ message: "Unknown error" }))
+        throw new Error(err.message || `HTTP ${response.status}`)
       }
-
-      const result = await response.json()
-
-      toast({
-        title: "Email Sent",
-        description: `Email successfully sent to ${selectedUser.name}`,
-      })
-
+      toast({ title: "Email Sent", description: `Email successfully sent to ${selectedUser.name}` })
       setShowEmailDialog(false)
-      setEmailSubject("")
-      setEmailMessage("")
     } catch (error) {
-      console.error("[v0] Failed to send email:", error)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send email.",
-      })
+      toast({ variant: "destructive", title: "Error", description: error instanceof Error ? error.message : "Failed to send email." })
     } finally {
       setSendingEmail(false)
     }
   }
 
-  const handleDeactivateUser = (user: User) => {
-    setUserToDeactivate(user)
-    setShowDeactivateDialog(true)
-  }
+  const handleDeactivateUser = (user: User) => { setUserToDeactivate(user); setShowDeactivateDialog(true) }
 
   const deactivateUser = async () => {
     if (!userToDeactivate) return
-
     try {
       setDeactivatingUser(true)
       const token = localStorage.getItem("auth_token")
-
-      if (!token) {
-        toast({
-          variant: "destructive",
-          title: "Authentication Required",
-          description: "Please log in to deactivate users.",
-        })
-        return
-      }
-
+      if (!token) return
       const response = await fetch(`/api/users/${userToDeactivate.id}/deactivate`, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status: "deactivated",
-        }),
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "deactivated" }),
       })
-
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: "Unknown error" }))
-        throw new Error(errorData.message || `HTTP ${response.status}`)
+        const err = await response.json().catch(() => ({ message: "Unknown error" }))
+        throw new Error(err.message || `HTTP ${response.status}`)
       }
-
-      toast({
-        title: "User Deactivated",
-        description: `${userToDeactivate.name} has been deactivated successfully.`,
-      })
-
+      toast({ title: "User Deactivated", description: `${userToDeactivate.name} has been deactivated successfully.` })
       setShowDeactivateDialog(false)
       setUserToDeactivate(null)
-
-      // Refresh the users list
       fetchUsers()
     } catch (error) {
-      console.error("Failed to deactivate user:", error)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to deactivate user.",
-      })
+      toast({ variant: "destructive", title: "Error", description: error instanceof Error ? error.message : "Failed to deactivate user." })
     } finally {
       setDeactivatingUser(false)
     }
   }
 
-  // Define columns for DataTable
   const columns: ColumnDef<User>[] = [
     {
       accessorKey: "id",
       header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="p-0 h-auto font-normal">
-          ID
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="p-0 h-auto font-semibold text-purple-900 hover:text-purple-700">
+          ID <ArrowUpDown className="ml-1 h-3 w-3" />
         </Button>
       ),
-      cell: ({ row }) => <div className="font-semibold text-gray-900">#{row.original.id}</div>,
+      cell: ({ row }) => (
+        <span className="font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full text-xs">
+          #{row.original.id}
+        </span>
+      ),
     },
     {
       accessorKey: "name",
       header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="p-0 h-auto font-normal">
-          Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="p-0 h-auto font-semibold text-purple-900 hover:text-purple-700">
+          Name <ArrowUpDown className="ml-1 h-3 w-3" />
         </Button>
       ),
       cell: ({ row }) => (
         <div className="min-w-0">
-          <div className="font-medium text-gray-900 truncate">{row.original.name}</div>
-          <div className="text-xs text-gray-500 truncate">{row.original.email}</div>
+          <div className="font-semibold text-gray-900 truncate">{row.original.name}</div>
+          <div className="text-xs text-purple-500 truncate">{row.original.email}</div>
         </div>
       ),
     },
     {
       accessorKey: "phone",
-      header: "Phone",
-      cell: ({ row }) => <div className="text-sm hidden lg:block">{row.original.phone || "N/A"}</div>,
+      header: () => <span className="font-semibold text-purple-900">Phone</span>,
+      cell: ({ row }) => <div className="text-sm text-gray-600 hidden lg:block">{row.original.phone || "—"}</div>,
     },
     {
       accessorKey: "city",
-      header: "City",
-      cell: ({ row }) => <div className="text-sm hidden lg:block">{row.original.city || "N/A"}</div>,
+      header: () => <span className="font-semibold text-purple-900">City</span>,
+      cell: ({ row }) => <div className="text-sm text-gray-600 hidden lg:block">{row.original.city || "—"}</div>,
     },
     {
       accessorKey: "role",
-      header: "Role",
+      header: () => <span className="font-semibold text-purple-900">Role</span>,
       cell: () => (
-        <Badge variant="outline" className="text-xs">
+        <Badge className="text-xs bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200">
           User
         </Badge>
       ),
@@ -461,22 +314,13 @@ export default function UsersAdminPage() {
     {
       accessorKey: "created_at",
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 h-auto font-normal hidden lg:flex"
-        >
-          Joined
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="p-0 h-auto font-semibold text-purple-900 hover:text-purple-700 hidden lg:flex">
+          Joined <ArrowUpDown className="ml-1 h-3 w-3" />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-sm hidden lg:block">
-          {new Date(row.original.created_at).toLocaleDateString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-          })}
+        <div className="text-sm text-gray-600 hidden lg:block">
+          {new Date(row.original.created_at).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })}
         </div>
       ),
     },
@@ -487,79 +331,69 @@ export default function UsersAdminPage() {
         const user = row.original
         return (
           <div className="flex items-center gap-1">
-            <Dialog
-              open={showUserDialog} // only open for this row
-              onOpenChange={(open) => !open && setShowUserDialog(false)}
-            >
+            <Dialog open={showUserDialog} onOpenChange={(open) => !open && setShowUserDialog(false)}>
               <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => handleViewUser(user)} className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleViewUser(user)}
+                  className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-3 rounded-lg text-purple-600 hover:text-purple-800 hover:bg-purple-100 transition-all"
+                >
                   <Eye className="h-4 w-4" />
-                  <span className="ml-1 sr-only sm:not-sr-only hidden sm:inline">View</span>
+                  <span className="ml-1 sr-only sm:not-sr-only hidden sm:inline text-xs font-medium">View</span>
                 </Button>
               </DialogTrigger>
 
               {selectedUser?.id === user.id && (
-                <DialogContent className="w-full sm:max-w-2xl overflow-y-auto">
+                <DialogContent className="w-full sm:max-w-2xl overflow-y-auto border-purple-200">
                   <DialogHeader>
-                    <DialogTitle>User Details - {selectedUser.name}</DialogTitle>
-                    <DialogDescription>Complete information for this user</DialogDescription>
+                    <DialogTitle className="text-purple-900">User Details — {selectedUser.name}</DialogTitle>
+                    <DialogDescription className="text-purple-500">Complete information for this user</DialogDescription>
                   </DialogHeader>
-
                   <div className="space-y-6">
-                    <Card className="gap-0 p-0">
-                      <CardHeader className="p-3 bg-gradient-to-r from-violet-500 to-red-500 text-white rounded-t-lg">
-                        <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <UserCheck className="w-5 h-5" />
-                          Personal Information
+                    <Card className="gap-0 p-0 border-purple-200 shadow-lg">
+                      <CardHeader className="p-4 rounded-t-lg" style={{ background: "linear-gradient(135deg, #7c3aed, #a21caf)" }}>
+                        <h3 className="font-semibold text-lg flex items-center gap-2 text-white">
+                          <UserCheck className="w-5 h-5" /> Personal Information
                         </h3>
                       </CardHeader>
                       <CardContent className="space-y-4 pt-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <p className="text-sm font-medium text-gray-500">Full Name</p>
-                            <p className="font-medium">{selectedUser.name}</p>
+                            <p className="text-xs font-semibold text-purple-500 uppercase tracking-wide">Full Name</p>
+                            <p className="font-semibold text-gray-900 mt-1">{selectedUser.name}</p>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-500">Role</p>
-                            <Badge variant="outline">{selectedUser.role}</Badge>
+                            <p className="text-xs font-semibold text-purple-500 uppercase tracking-wide">Role</p>
+                            <Badge className="mt-1 bg-purple-100 text-purple-700 border-purple-300">{selectedUser.role}</Badge>
                           </div>
                         </div>
-
-                        <div className="flex items-center gap-2 text-sm">
-                          <Mail className="w-4 h-4 text-gray-400" />
-                          <p>{selectedUser.email}</p>
+                        <div className="flex items-center gap-2 text-sm bg-purple-50 p-3 rounded-lg">
+                          <Mail className="w-4 h-4 text-purple-400" />
+                          <p className="text-gray-700">{selectedUser.email}</p>
                         </div>
-
                         {selectedUser.phone && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Phone className="w-4 h-4 text-gray-400" />
-                            <p>{selectedUser.phone}</p>
+                          <div className="flex items-center gap-2 text-sm bg-purple-50 p-3 rounded-lg">
+                            <Phone className="w-4 h-4 text-purple-400" />
+                            <p className="text-gray-700">{selectedUser.phone}</p>
                           </div>
                         )}
-
                         {selectedUser.address && (
-                          <div className="flex items-start gap-2 text-sm">
-                            <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                          <div className="flex items-start gap-2 text-sm bg-purple-50 p-3 rounded-lg">
+                            <MapPin className="w-4 h-4 text-purple-400 mt-0.5" />
                             <div>
-                              <p>{selectedUser.address}</p>
+                              <p className="text-gray-700">{selectedUser.address}</p>
                               {selectedUser.city && selectedUser.zip_code && (
-                                <p className="text-gray-500">
-                                  {selectedUser.city}, {selectedUser.zip_code}
-                                </p>
+                                <p className="text-purple-500 text-xs mt-0.5">{selectedUser.city}, {selectedUser.zip_code}</p>
                               )}
                             </div>
                           </div>
                         )}
-
-                        <div className="mb-4 flex items-center gap-2 text-sm pt-2 border-t">
-                          <Calendar className="w-4 h-4 text-gray-400" />
+                        <div className="flex items-center gap-2 text-sm pt-3 border-t border-purple-100">
+                          <Calendar className="w-4 h-4 text-purple-400" />
                           <p className="text-gray-600">
                             Joined on{" "}
-                            {new Date(selectedUser.created_at).toLocaleDateString("en-US", {
-                              month: "long",
-                              day: "2-digit",
-                              year: "numeric",
-                            })}
+                            {new Date(selectedUser.created_at).toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" })}
                           </p>
                         </div>
                       </CardContent>
@@ -571,25 +405,22 @@ export default function UsersAdminPage() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg text-purple-500 hover:bg-purple-100 hover:text-purple-700">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>User Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => handleViewOrders(user)}>
-                  <ShoppingBag className="mr-2 h-4 w-4" />
-                  View Orders
+              <DropdownMenuContent align="end" className="border-purple-200 shadow-xl">
+                <DropdownMenuLabel className="text-purple-700">User Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-purple-100" />
+                <DropdownMenuItem onClick={() => handleViewOrders(user)} className="hover:bg-purple-50 focus:bg-purple-50 cursor-pointer">
+                  <ShoppingBag className="mr-2 h-4 w-4 text-purple-500" /> View Orders
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleSendEmail(user)}>
-                  <Send className="mr-2 h-4 w-4" />
-                  Send Email
+                <DropdownMenuItem onClick={() => handleSendEmail(user)} className="hover:bg-purple-50 focus:bg-purple-50 cursor-pointer">
+                  <Send className="mr-2 h-4 w-4 text-purple-500" /> Send Email
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600" onClick={() => handleDeactivateUser(user)}>
-                  <UserX className="mr-2 h-4 w-4" />
-                  Deactivate User
+                <DropdownMenuSeparator className="bg-purple-100" />
+                <DropdownMenuItem className="text-red-600 hover:bg-red-50 focus:bg-red-50 cursor-pointer" onClick={() => handleDeactivateUser(user)}>
+                  <UserX className="mr-2 h-4 w-4" /> Deactivate User
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -599,33 +430,30 @@ export default function UsersAdminPage() {
     },
   ]
 
-  // Initialize table instance
   const table = useReactTable({
     data: users,
-    columns: columns,
+    columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    state: {
-      columnFilters,
-      globalFilter,
-      rowSelection,
-    },
+    state: { columnFilters, globalFilter, rowSelection },
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     onRowSelectionChange: setRowSelection,
   })
 
+  const purpleBg = { background: "linear-gradient(160deg, #1e0a3c 0%, #2d1057 40%, #1a0a2e 100%)" }
+
   if (loading) {
     return (
       <SidebarProvider defaultOpen={!isMobile}>
-        <div className="flex min-h-screen w-full bg-gradient-to-br from-violet-50 to-red-50">
+        <div className="flex min-h-screen w-full" style={{ background: "linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 100%)" }}>
           <AppSidebar />
           <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-72"}`}>
-            <div className="flex items-center justify-center min-h-screen w-full">
-              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-xl shadow-lg">
-                <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
-                <span className="text-gray-700 font-medium">Loading users...</span>
+            <div className="flex items-center justify-center min-h-screen">
+              <div className="flex items-center gap-3 bg-white/90 backdrop-blur-sm px-8 py-5 rounded-2xl shadow-2xl border border-purple-100">
+                <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+                <span className="text-purple-800 font-semibold">Loading users...</span>
               </div>
             </div>
           </div>
@@ -636,220 +464,234 @@ export default function UsersAdminPage() {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-violet-50 to-red-50">
+      <div className="flex min-h-screen w-full" style={{ background: "linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 50%, #f3e8ff 100%)" }}>
         <AppSidebar />
         <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-72"}`}>
           {isMobile && (
-            <div className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b bg-white/90 backdrop-blur-sm px-4 md:hidden shadow-sm">
-              <SidebarTrigger className="-ml-1" />
-              <span className="text-sm font-semibold bg-gradient-to-r from-violet-600 to-red-600 bg-clip-text text-transparent">Users</span>
+            <div
+              className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b px-4 shadow-sm"
+              style={{ background: "rgba(30,10,60,0.97)", borderColor: "rgba(168,85,247,0.3)" }}
+            >
+              <SidebarTrigger className="-ml-1 text-purple-300" />
+              <span className="text-sm font-bold text-purple-200 tracking-wide">Users</span>
             </div>
           )}
-          <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
-            <div className="max-w-full space-y-4 sm:space-y-6">
+
+          <main className="flex-1 overflow-auto p-4 sm:p-6 md:p-8">
+            <div className="max-w-full space-y-6">
+
               {/* Header */}
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-violet-100">
-                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-violet-600 to-red-600 bg-clip-text text-transparent">Users</h1>
-                  <p className="text-sm sm:text-base text-gray-600 mt-1">Manage customer accounts and information</p>
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-stretch justify-between">
+                <div
+                  className="rounded-2xl px-7 py-6 shadow-xl relative overflow-hidden flex-1"
+                  style={purpleBg}
+                >
+                  {/* Decorative orb */}
+                  <div className="absolute right-4 top-4 w-24 h-24 rounded-full opacity-10 pointer-events-none"
+                    style={{ background: "radial-gradient(circle, #c026d3, transparent)" }} />
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Users</h1>
+                  <p className="text-purple-300 text-sm mt-1">Manage customer accounts and information</p>
                 </div>
-                <div className="flex items-center gap-4 bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-violet-100">
-                  <div className="flex items-center gap-2 text-sm">
-                    <UsersIcon className="w-5 h-5 text-violet-500" />
-                    <span className="text-gray-600 font-medium">Total Customers:</span>
-                    <span className="font-bold text-violet-600 text-lg">{users.length}</span>
+
+                <div
+                  className="rounded-2xl px-6 py-5 shadow-xl flex items-center gap-4 border"
+                  style={{ background: "rgba(255,255,255,0.85)", borderColor: "rgba(168,85,247,0.25)" }}
+                >
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
+                    style={{ background: "linear-gradient(135deg, #7c3aed, #a21caf)" }}
+                  >
+                    <UsersIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-purple-500 uppercase tracking-widest">Total Customers</p>
+                    <p className="text-3xl font-bold text-purple-900 leading-tight">{users.length}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Filters and Search */}
-              <Card className="gap-0 p-0 bg-white/70 backdrop-blur-sm shadow-xl border-violet-100">
-                <CardHeader className="pb-3 bg-gradient-to-r from-violet-500 to-red-500 text-white rounded-t-lg">
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-                      <div className="mt-4 relative flex-1 max-w-sm">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
-                        <Input
-                          placeholder="Search users..."
-                          value={globalFilter || ""}
-                          onChange={(event) => setGlobalFilter(event.target.value)}
-                          className="pl-9 pr-3 py-2 w-full bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 focus:border-white/50"
-                        />
-                      </div>
+              {/* Table Card */}
+              <div
+                className="rounded-2xl shadow-2xl overflow-hidden border"
+                style={{ borderColor: "rgba(168,85,247,0.2)", background: "rgba(255,255,255,0.92)" }}
+              >
+                {/* Card Header */}
+                <div className="px-6 py-5" style={{ background: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #a21caf 100%)" }}>
+                  <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+                    <div>
+                      <h2 className="text-white font-bold text-lg">All Users</h2>
+                      <p className="text-purple-200 text-xs mt-0.5">
+                        Showing {table.getFilteredRowModel().rows.length} of {users.length} users
+                      </p>
+                    </div>
+                    <div className="relative max-w-xs w-full">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-purple-300" />
+                      <Input
+                        placeholder="Search users..."
+                        value={globalFilter || ""}
+                        onChange={(e) => setGlobalFilter(e.target.value)}
+                        className="pl-9 pr-3 py-2 w-full text-white placeholder:text-purple-300 border-0 rounded-xl focus-visible:ring-2 focus-visible:ring-white/40"
+                        style={{ background: "rgba(255,255,255,0.15)" }}
+                      />
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="bg-white rounded-b-lg">
-                  <div className="mt-4 text-sm text-gray-600 mb-4 font-medium">
-                    Showing {table.getFilteredRowModel().rows.length} of {users.length} users
-                  </div>
-                  <div className="w-full mb-5">
-                    <div className="rounded-lg border border-violet-200 overflow-hidden shadow-lg">
-                      <div className="overflow-x-auto">
-                        <table className="w-full min-w-[800px]">
-                          <thead className="bg-gradient-to-r from-violet-100 to-red-100">
-                            <tr className="border-b border-violet-200">
-                              {table.getHeaderGroups().map((headerGroup) =>
-                                headerGroup.headers.map((header) => (
-                                  <th key={header.id} className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700">
-                                    {header.isPlaceholder ? null : (
-                                      <div>
-                                        {typeof header.column.columnDef.header === "function"
-                                          ? header.column.columnDef.header(header.getContext())
-                                          : header.column.columnDef.header}
-                                      </div>
-                                    )}
-                                  </th>
-                                )),
+                </div>
+
+                {/* Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[800px]">
+                    <thead>
+                      <tr style={{ background: "linear-gradient(135deg, #f5f3ff, #fdf4ff)" }}>
+                        {table.getHeaderGroups().map((hg) =>
+                          hg.headers.map((header) => (
+                            <th
+                              key={header.id}
+                              className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider border-b"
+                              style={{ borderColor: "rgba(168,85,247,0.15)", color: "#6d28d9" }}
+                            >
+                              {header.isPlaceholder ? null : (
+                                typeof header.column.columnDef.header === "function"
+                                  ? header.column.columnDef.header(header.getContext())
+                                  : header.column.columnDef.header
                               )}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {table.getRowModel().rows.map((row, index) => (
-                              <tr
-                                key={row.id}
-                                className={`border-b border-violet-100 hover:bg-gradient-to-r hover:from-violet-50 hover:to-red-50 transition-all duration-200 ${index % 2 === 0 ? "bg-white" : "bg-violet-25"}`}
-                              >
-                                {row.getVisibleCells().map((cell) => (
-                                  <td key={cell.id} className="p-2 sm:p-3 text-xs sm:text-sm">
-                                    {typeof cell.column.columnDef.cell === "function"
-                                      ? cell.column.columnDef.cell(cell.getContext())
-                                      : (cell.getValue() as React.ReactNode)}
-                                  </td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                            </th>
+                          ))
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {table.getRowModel().rows.map((row, index) => (
+                        <tr
+                          key={row.id}
+                          className="transition-all duration-150 border-b group"
+                          style={{
+                            background: index % 2 === 0 ? "white" : "rgba(245,243,255,0.5)",
+                            borderColor: "rgba(168,85,247,0.08)",
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(237,233,254,0.6)" }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = index % 2 === 0 ? "white" : "rgba(245,243,255,0.5)" }}
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <td key={cell.id} className="px-4 py-3 text-xs sm:text-sm">
+                              {typeof cell.column.columnDef.cell === "function"
+                                ? cell.column.columnDef.cell(cell.getContext())
+                                : (cell.getValue() as React.ReactNode)}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {table.getRowModel().rows.length === 0 && (
+                  <div className="text-center py-16">
+                    <div
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+                      style={{ background: "linear-gradient(135deg, #7c3aed, #a21caf)" }}
+                    >
+                      <UsersIcon className="w-8 h-8 text-white" />
                     </div>
-                    {table.getRowModel().rows.length === 0 && (
-                      <div className="text-center py-12 text-gray-500 bg-white rounded-lg border border-violet-200 mt-4">
-                        <div className="bg-gradient-to-r from-violet-100 to-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <UsersIcon className="w-8 h-8 text-violet-500" />
-                        </div>
-                        <p className="text-lg font-medium text-gray-700">No users found</p>
-                        {globalFilter && <p className="text-sm mt-1 text-gray-500">Try adjusting your search terms</p>}
-                      </div>
-                    )}
+                    <p className="text-lg font-semibold text-purple-900">No users found</p>
+                    {globalFilter && <p className="text-sm text-purple-400 mt-1">Try adjusting your search terms</p>}
                   </div>
-                </CardContent>
-              </Card>
+                )}
+              </div>
             </div>
           </main>
         </div>
       </div>
 
+      {/* Orders Dialog */}
       <Dialog open={showOrdersDialog} onOpenChange={setShowOrdersDialog}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto border-purple-200">
           <DialogHeader>
-            <DialogTitle>Orders for {selectedUser?.name}</DialogTitle>
-            <DialogDescription>View all orders placed by this customer</DialogDescription>
+            <DialogTitle className="text-purple-900">Orders for {selectedUser?.name}</DialogTitle>
+            <DialogDescription className="text-purple-500">View all orders placed by this customer</DialogDescription>
           </DialogHeader>
           <div className="mt-4">
             {loadingOrders ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
-                <span className="ml-2 text-gray-600">Loading orders...</span>
+                <Loader2 className="h-6 w-6 animate-spin text-purple-500" />
+                <span className="ml-2 text-purple-700 font-medium">Loading orders...</span>
               </div>
             ) : userOrders.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <ShoppingBag className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                <p>No orders found for this user</p>
+              <div className="text-center py-10">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: "linear-gradient(135deg, #7c3aed, #a21caf)" }}>
+                  <ShoppingBag className="w-7 h-7 text-white" />
+                </div>
+                <p className="font-semibold text-purple-900">No orders found for this user</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {userOrders.map((order) => (
-                  <Card key={order.id} className="border-violet-200">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
+                  <Card key={order.id} className="border-purple-200 shadow-md overflow-hidden">
+                    <div className="h-1" style={{ background: "linear-gradient(90deg, #7c3aed, #a21caf)" }} />
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <p className="font-semibold text-lg">Order #{order.order_number}</p>
-                            <Badge variant={order.status === "delivered" ? "default" : order.status === "cancelled" ? "destructive" : "outline"}>
+                          <div className="flex items-center gap-2 mb-3">
+                            <p className="font-bold text-purple-900 text-lg">Order #{order.order_number}</p>
+                            <Badge
+                              className={`text-xs ${order.status === "delivered" ? "bg-green-100 text-green-700 border-green-300" : order.status === "cancelled" ? "bg-red-100 text-red-700 border-red-300" : "bg-purple-100 text-purple-700 border-purple-300"}`}
+                            >
                               {order.status}
                             </Badge>
                           </div>
-                          <div className="space-y-1 text-sm text-gray-600">
+                          <div className="space-y-2 text-sm text-gray-600">
                             <div className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4" />
+                              <MapPin className="w-4 h-4 text-purple-400" />
                               <p>{order.delivery_address}</p>
                             </div>
                             {order.delivery_city && (
-                              <p className="ml-6 text-xs">
-                                {order.delivery_city}, {order.delivery_zip_code}
-                              </p>
+                              <p className="ml-6 text-xs text-purple-400">{order.delivery_city}, {order.delivery_zip_code}</p>
                             )}
                             <div className="flex items-center gap-2">
-                              <Phone className="w-4 h-4" />
+                              <Phone className="w-4 h-4 text-purple-400" />
                               <p>{order.customer_phone}</p>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4" />
-                              <p className="text-xs">
-                                {new Date(order.created_at).toLocaleDateString("en-US", {
-                                  month: "long",
-                                  day: "2-digit",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </p>
+                              <Calendar className="w-4 h-4 text-purple-400" />
+                              <p className="text-xs">{new Date(order.created_at).toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold text-xl text-violet-600">₱{order.total_amount.toFixed(2)}</p>
-                          <p className="text-xs text-gray-500 mt-1">Subtotal: ₱{order.subtotal.toFixed(2)}</p>
-                          <p className="text-xs text-gray-500">Delivery: ₱{order.delivery_fee.toFixed(2)}</p>
-                          <Badge variant="outline" className="mt-2 text-xs">
-                            {order.payment_method}
-                          </Badge>
+                        <div className="text-right ml-4">
+                          <p className="font-bold text-2xl text-purple-700">₱{order.total_amount.toFixed(2)}</p>
+                          <p className="text-xs text-gray-400 mt-1">Subtotal: ₱{order.subtotal.toFixed(2)}</p>
+                          <p className="text-xs text-gray-400">Delivery: ₱{order.delivery_fee.toFixed(2)}</p>
+                          <Badge className="mt-2 text-xs bg-purple-50 text-purple-600 border-purple-200">{order.payment_method}</Badge>
                         </div>
                       </div>
-
-                      {/* Order Items */}
                       {order.items && order.items.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-violet-100">
-                          <p className="text-sm font-semibold mb-2 text-gray-700">Order Items ({order.items.length})</p>
+                        <div className="mt-4 pt-4 border-t border-purple-100">
+                          <p className="text-xs font-bold text-purple-600 uppercase tracking-widest mb-3">Order Items ({order.items.length})</p>
                           <div className="space-y-2">
-                            {order.items.map((item, index) => (
-                              <div key={index} className="flex items-center gap-3 text-sm bg-violet-50 p-2 rounded">
+                            {order.items.map((item, i) => (
+                              <div key={i} className="flex items-center gap-3 text-sm p-3 rounded-xl" style={{ background: "rgba(245,243,255,0.8)" }}>
                                 <div className="flex-1">
-                                  <p className="font-medium">{item.name}</p>
-                                  <p className="text-xs text-gray-600">{item.description}</p>
-                                  <div className="flex gap-1 mt-1">
-                                    <Badge variant="outline" className="text-xs">
-                                      {item.category}
-                                    </Badge>
-                                    {item.is_spicy && (
-                                      <Badge variant="destructive" className="text-xs">
-                                        Spicy
-                                      </Badge>
-                                    )}
-                                    {item.is_vegetarian && (
-                                      <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
-                                        Veg
-                                      </Badge>
-                                    )}
+                                  <p className="font-semibold text-gray-900">{item.name}</p>
+                                  <p className="text-xs text-gray-500">{item.description}</p>
+                                  <div className="flex gap-1 mt-1 flex-wrap">
+                                    <Badge className="text-xs bg-purple-100 text-purple-600 border-purple-200">{item.category}</Badge>
+                                    {item.is_spicy && <Badge className="text-xs bg-red-100 text-red-600 border-red-200">Spicy</Badge>}
+                                    {item.is_vegetarian && <Badge className="text-xs bg-green-100 text-green-600 border-green-200">Veg</Badge>}
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className="font-medium">₱{item.price.toFixed(2)}</p>
-                                  <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
-                                  <p className="font-semibold text-violet-600">₱{(item.price * item.quantity).toFixed(2)}</p>
+                                  <p className="font-medium text-gray-700">₱{item.price.toFixed(2)}</p>
+                                  <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
+                                  <p className="font-bold text-purple-700">₱{(item.price * item.quantity).toFixed(2)}</p>
                                 </div>
                               </div>
                             ))}
                           </div>
                         </div>
                       )}
-
-                      {/* Special Notes */}
                       {order.notes && (
-                        <div className="mt-4 pt-4 border-t border-violet-100">
-                          <p className="text-sm font-semibold mb-1 text-gray-700">Special Notes:</p>
-                          <p className="text-sm text-gray-600 bg-yellow-50 p-2 rounded">{order.notes}</p>
+                        <div className="mt-4 pt-4 border-t border-purple-100">
+                          <p className="text-xs font-bold text-purple-600 uppercase tracking-widest mb-2">Special Notes</p>
+                          <p className="text-sm text-gray-600 bg-amber-50 border border-amber-200 p-3 rounded-lg">{order.notes}</p>
                         </div>
                       )}
                     </CardContent>
@@ -861,88 +703,80 @@ export default function UsersAdminPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Email Dialog */}
       <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
-        <DialogContent>
+        <DialogContent className="border-purple-200">
           <DialogHeader>
-            <DialogTitle>Send Email to {selectedUser?.name}</DialogTitle>
-            <DialogDescription>Compose and send an email to this customer</DialogDescription>
+            <DialogTitle className="text-purple-900">Send Email to {selectedUser?.name}</DialogTitle>
+            <DialogDescription className="text-purple-400">Compose and send an email to this customer</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 mt-4">
+          <div className="space-y-4 mt-2">
             <div>
-              <Label htmlFor="email-to">To</Label>
-              <Input id="email-to" value={selectedUser?.email || ""} disabled className="mt-1" />
+              <Label htmlFor="email-to" className="text-purple-700 font-semibold text-xs uppercase tracking-wide">To</Label>
+              <Input id="email-to" value={selectedUser?.email || ""} disabled className="mt-1 bg-purple-50 border-purple-200 text-purple-700" />
             </div>
             <div>
-              <Label htmlFor="email-subject">Subject</Label>
+              <Label htmlFor="email-subject" className="text-purple-700 font-semibold text-xs uppercase tracking-wide">Subject</Label>
               <Input
                 id="email-subject"
                 placeholder="Enter email subject"
                 value={emailSubject}
                 onChange={(e) => setEmailSubject(e.target.value)}
-                className="mt-1"
+                className="mt-1 border-purple-200 focus-visible:ring-purple-400"
               />
             </div>
             <div>
-              <Label htmlFor="email-message">Message</Label>
+              <Label htmlFor="email-message" className="text-purple-700 font-semibold text-xs uppercase tracking-wide">Message</Label>
               <Textarea
                 id="email-message"
                 placeholder="Enter your message"
                 value={emailMessage}
                 onChange={(e) => setEmailMessage(e.target.value)}
-                className="mt-1 min-h-[150px]"
+                className="mt-1 min-h-[140px] border-purple-200 focus-visible:ring-purple-400"
               />
             </div>
           </div>
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setShowEmailDialog(false)} disabled={sendingEmail}>
+          <DialogFooter className="mt-4 gap-2">
+            <Button variant="outline" onClick={() => setShowEmailDialog(false)} disabled={sendingEmail} className="border-purple-200 text-purple-600 hover:bg-purple-50">
               Cancel
             </Button>
             <Button
               onClick={sendEmail}
               disabled={sendingEmail || !emailSubject || !emailMessage}
-              className={`bg-gradient-to-r from-purple-400 to-purple-700 
-              text-white font-semibold 
-              py-2 px-4 rounded-lg 
-              transition duration-300 
-              disabled:opacity-50 disabled:cursor-not-allowed
-              hover:from-purple-500 hover:to-purple-800`}
+              className="text-white font-semibold rounded-xl px-5 disabled:opacity-50"
+              style={{ background: "linear-gradient(135deg, #7c3aed, #a21caf)" }}
             >
               {sendingEmail ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending...</>
               ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  Send Email
-                </>
+                <><Send className="mr-2 h-4 w-4" />Send Email</>
               )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Deactivate Dialog */}
       <AlertDialog open={showDeactivateDialog} onOpenChange={setShowDeactivateDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="border-red-200">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle className="text-gray-900">Deactivate this user?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will deactivate the user account for <strong>{userToDeactivate?.name}</strong>. The user will no longer be able to access their
-              account, but their data will be preserved.
+              This will deactivate the account for <strong className="text-purple-700">{userToDeactivate?.name}</strong>. They will no longer be able to log in, but their data will be preserved.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deactivatingUser}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={deactivateUser} disabled={deactivatingUser} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogCancel disabled={deactivatingUser} className="border-purple-200 text-purple-600 hover:bg-purple-50">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deactivateUser}
+              disabled={deactivatingUser}
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl"
+            >
               {deactivatingUser ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deactivating...
-                </>
-              ) : (
-                "Deactivate User"
-              )}
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Deactivating...</>
+              ) : "Deactivate User"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
