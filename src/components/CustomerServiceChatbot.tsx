@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname } from "next/navigation"
 import { useState, useEffect, useRef } from "react"
 import { MessageCircle, X, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -50,6 +51,7 @@ export default function CustomerServiceChatbot() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const pathname = usePathname()
 
   useEffect(() => {
     if (isOpen && messages.length === 0 && !isChatEnded) {
@@ -133,6 +135,11 @@ export default function CustomerServiceChatbot() {
     }, 2000)
   }
 
+    // Only show on homepage and /user
+  if (pathname !== "/" && pathname !== "/user") {
+    return null
+  }
+
   return (
     <>
       {/* Floating Button */}
@@ -184,17 +191,15 @@ export default function CustomerServiceChatbot() {
                       className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-2.5 shadow-sm ${
-                          message.sender === "user"
+                        className={`max-w-[85%] rounded-2xl px-4 py-2.5 shadow-sm ${message.sender === "user"
                             ? "bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-tr-sm"
                             : "bg-white text-gray-800 border border-gray-200 rounded-tl-sm"
-                        }`}
+                          }`}
                       >
                         <p className="text-sm leading-relaxed">{message.text}</p>
                         <p
-                          className={`text-[10px] mt-1.5 ${
-                            message.sender === "user" ? "text-white/80" : "text-gray-400"
-                          }`}
+                          className={`text-[10px] mt-1.5 ${message.sender === "user" ? "text-white/80" : "text-gray-400"
+                            }`}
                         >
                           {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </p>

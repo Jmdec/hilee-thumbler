@@ -9,8 +9,8 @@ export default function FloatingSocialMedia() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
 
-  // Hide on login and registration pages
-  if (pathname === "/login" || pathname === "/register") {
+  // Only show on homepage and /user
+  if (pathname !== "/" && pathname !== "/user") {
     return null
   }
 
@@ -30,22 +30,26 @@ export default function FloatingSocialMedia() {
     {
       name: "Email",
       icon: Mail,
-      href: "hileestore@gmail.com",
+      href: "mailto:hileestore@gmail.com",
       color: "hover:bg-[#25D366]",
     },
     {
       name: "Call Us",
       icon: Phone,
-      href: "tel:+63 956 764 5027",
+      href: "tel:+639567645027",
       color: "hover:bg-orange-600",
     },
   ]
 
   return (
     <div className="fixed right-4 bottom-24 md:top-1/2 md:bottom-auto md:-translate-y-1/2 z-30 flex flex-col gap-4">
-      {/* Social Links - Show/Hide based on isOpen state */}
+      {/* Social Links */}
       <div
-        className={`flex flex-col gap-3 transition-all duration-300 ${isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none md:opacity-100 md:translate-y-0 md:pointer-events-auto"}`}
+        className={`flex flex-col gap-3 transition-all duration-300 ${
+          isOpen
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4 pointer-events-none md:opacity-100 md:translate-y-0 md:pointer-events-auto"
+        }`}
       >
         {socialLinks.map((social, index) => (
           <a
@@ -69,7 +73,7 @@ export default function FloatingSocialMedia() {
         ))}
       </div>
 
-      {/* Toggle Button - Only visible on mobile */}
+      {/* Toggle Button - Only on mobile */}
       <Button
         size="icon"
         onClick={() => setIsOpen(!isOpen)}

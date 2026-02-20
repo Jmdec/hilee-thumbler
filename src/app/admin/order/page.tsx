@@ -11,6 +11,8 @@ import {
   MoreHorizontal, Eye, Search, Loader2, ArrowUpDown, Edit,
   Package, CheckCircle, XCircle, Truck, DollarSign,
   User, Phone, MapPin,
+  ClockArrowUp,
+  PhilippinePeso,
 } from "lucide-react"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
@@ -63,6 +65,8 @@ interface Order {
   created_at: string
   updated_at: string
 }
+
+const purpleGrad = "linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)"
 
 const orderStatuses = [
   { value: "confirmed", label: "Confirmed", color: "bg-blue-100 text-blue-800", icon: CheckCircle },
@@ -560,15 +564,21 @@ export default function OrdersAdminPage() {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100">
+      <div
+        className="flex min-h-screen w-full"
+        style={{ background: "linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 50%, #f3e8ff 100%)" }}
+      >
         <AppSidebar />
-        <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-72"}`}>
+        <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-64"}`}>
+
+          {/* Mobile topbar */}
           {isMobile && (
-            <div className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b bg-white/90 backdrop-blur-sm px-4 md:hidden shadow-sm border-purple-100">
-              <SidebarTrigger className="-ml-1" />
-              <span className="text-sm font-semibold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
-                Orders
-              </span>
+            <div
+              className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b px-4 shadow-sm"
+              style={{ background: "rgba(124,58,237,0.97)", borderColor: "rgba(168,85,247,0.3)" }}
+            >
+              <SidebarTrigger className="-ml-1 text-white" />
+              <span className="text-sm font-bold text-white">Orders</span>
             </div>
           )}
 
@@ -576,25 +586,35 @@ export default function OrdersAdminPage() {
             <div className="max-w-full space-y-4 sm:space-y-6">
 
               {/* Header */}
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-purple-100">
-                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-700 to-violet-600 bg-clip-text text-transparent">
-                    주문 관리 Orders
-                  </h1>
-                  <p className="text-sm sm:text-base text-gray-600 mt-1">
-                    Manage customer orders and track delivery status
-                  </p>
-                  <p className="text-xs text-purple-400 mt-1">Showing all orders from all customers (Admin View)</p>
-                </div>
-                <div className="flex items-center gap-4 bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-purple-100">
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
-                      <DollarSign className="w-5 h-5 text-white" />
-                    </div>
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-stretch justify-between">
+                <div
+                  className="rounded-2xl px-7 py-6 shadow-xl relative overflow-hidden"
+                  style={{ background: purpleGrad }}
+                >
+                  <div className="absolute right-4 top-4 w-20 h-20 rounded-full opacity-10 pointer-events-none"
+                    style={{ background: "radial-gradient(circle, white, transparent)" }} />
+                  <div className="flex items-center gap-3">
+                    <ClockArrowUp className="w-7 h-7 text-white opacity-90" />
                     <div>
-                      <p className="text-xs text-gray-500 font-medium">Total Revenue</p>
-                      <span className="font-bold text-purple-700 text-lg">₱{calculateTotalRevenue(orders)}</span>
+                      <h1 className="text-2xl font-bold text-white tracking-tight">Orders Management</h1>
+                      <p className="text-violet-200 text-sm mt-0.5">Manage customer orders</p>
                     </div>
+                  </div>
+                </div>
+
+                <div
+                  className="rounded-2xl px-6 py-5 shadow-xl flex items-center gap-4 bg-white/90 border"
+                  style={{ borderColor: "rgba(139,92,246,0.15)" }}
+                >
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
+                    style={{ background: purpleGrad }}
+                  >
+                    <PhilippinePeso className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium">Total Revenue</p>
+                    <span className="font-bold text-purple-700 text-lg">₱{calculateTotalRevenue(orders)}</span>
                   </div>
                 </div>
               </div>
@@ -608,11 +628,10 @@ export default function OrdersAdminPage() {
                     <Card
                       key={status.value}
                       onClick={() => setStatusFilter(statusFilter === status.value ? "all" : status.value)}
-                      className={`bg-white/80 backdrop-blur-sm shadow-lg border transition-all duration-200 rounded-2xl cursor-pointer ${
-                        statusFilter === status.value
-                          ? "border-purple-400 ring-2 ring-purple-300 shadow-purple-200"
-                          : "border-purple-100 hover:shadow-xl hover:border-purple-200"
-                      }`}
+                      className={`bg-white/80 backdrop-blur-sm shadow-lg border transition-all duration-200 rounded-2xl cursor-pointer ${statusFilter === status.value
+                        ? "border-purple-400 ring-2 ring-purple-300 shadow-purple-200"
+                        : "border-purple-100 hover:shadow-xl hover:border-purple-200"
+                        }`}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">

@@ -140,13 +140,19 @@ export default function ReportsPage() {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="flex min-h-screen w-full" style={{ background: "linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 50%, #f3e8ff 100%)" }}>
+      <div
+        className="flex min-h-screen w-full"
+        style={{ background: "linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 50%, #f3e8ff 100%)" }}
+      >
         <AppSidebar />
         <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-64"}`}>
 
+          {/* Mobile topbar */}
           {isMobile && (
-            <div className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b px-4 shadow-sm"
-              style={{ background: "rgba(124,58,237,0.97)", borderColor: "rgba(168,85,247,0.3)" }}>
+            <div
+              className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b px-4 shadow-sm"
+              style={{ background: "rgba(124,58,237,0.97)", borderColor: "rgba(168,85,247,0.3)" }}
+            >
               <SidebarTrigger className="-ml-1 text-white" />
               <span className="text-sm font-bold text-white">Reports</span>
             </div>
@@ -163,7 +169,7 @@ export default function ReportsPage() {
                   <div className="flex items-center gap-3">
                     <BarChart3 className="w-7 h-7 text-white opacity-90" />
                     <div>
-                      <h1 className="text-2xl font-bold text-white tracking-tight">Reports</h1>
+                      <h1 className="text-2xl font-bold text-white tracking-tight">Reports Management</h1>
                       <p className="text-violet-200 text-sm mt-0.5">Business analytics &amp; insights</p>
                     </div>
                   </div>

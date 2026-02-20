@@ -1,19 +1,32 @@
 import { NextResponse } from "next/server"
 
 const LARAVEL_API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+const LARAVEL_API_TOKEN = process.env.LARAVEL_API_TOKEN || ""
 
 async function fetchDashboardAnalytics() {
-  const response = await fetch(`${LARAVEL_API_BASE}/api/dashboard/analytics`, {
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  }
+
+  // Attach Bearer token if provided (required for auth:sanctum routes)
+  if (LARAVEL_API_TOKEN) {
+    headers["Authorization"] = `Bearer ${LARAVEL_API_TOKEN}`
+  }
+
+  const url = `${LARAVEL_API_BASE}/api/dashboard/analytics`
+  console.log("[dashboard] GET", url)
+
+  const response = await fetch(url, {
+    headers,
+    // Disable Next.js fetch cache so we always get fresh data
+    cache: "no-store",
   })
 
   if (!response.ok) {
     const errorText = await response.text()
-    console.error(`Laravel Dashboard API error (${response.status}):`, errorText)
-    throw new Error(`Dashboard API error: ${response.status} - ${errorText}`)
+    console.error(`[dashboard] Laravel error (${response.status}):`, errorText)
+    throw new Error(`Laravel returned ${response.status}: ${errorText}`)
   }
 
   return response.json()
@@ -21,26 +34,24 @@ async function fetchDashboardAnalytics() {
 
 export async function GET() {
   try {
-    console.log("[v0] Fetching analytics from Laravel DashboardController...")
+    const laravelResponse = await fetchDashboardAnalytics()
 
-    const analyticsResponse = await fetchDashboardAnalytics()
-
-    if (analyticsResponse.success) {
-      console.log("[v0] Successfully fetched analytics data")
-      return NextResponse.json({
-        success: true,
-        data: analyticsResponse.data,
-      })
-    } else {
-      throw new Error("Laravel API returned success: false")
+    // Laravel controller should return { success: true, data: { ... } }
+    if (!laravelResponse.success) {
+      throw new Error(laravelResponse.message || "Laravel returned success: false")
     }
-  } catch (error) {
-    console.error("[v0] Dashboard API error:", error)
 
+    return NextResponse.json({
+      success: true,
+      data: laravelResponse.data,
+    })
+  } catch (error) {
+    console.error("[dashboard] Failed to fetch analytics:", error)
+
+    // Return a structured fallback so the UI can still render empty states
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to fetch analytics data from Laravel",
         message: error instanceof Error ? error.message : "Unknown error",
         data: {
           keyMetrics: {
@@ -55,9 +66,10 @@ export async function GET() {
           paymentMethodData: [],
           popularProducts: [],
           categoryData: [],
+          productsCount: 0,
         },
       },
-      { status: 500 },
+      { status: 502 }, // 502 = upstream error, more accurate than 500
     )
   }
 }
