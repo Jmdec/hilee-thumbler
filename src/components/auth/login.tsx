@@ -61,7 +61,7 @@ export default function LoginPage() {
           login({ ...user, token })
 
           toast.success("Login Successful!", {
-            description: "Welcome back to Izakaya Tori Ichizu!",
+            description: "Welcome back to Hilee!",
           })
 
           const userRole = user?.role?.toLowerCase?.() || user?.role || ""

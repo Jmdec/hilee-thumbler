@@ -36,7 +36,8 @@ export async function GET(request: NextRequest) {
     })
 
     const data = await response.json()
-
+    
+    console.log("[API] Fetching orders data", data)
     if (!response.ok) {
       console.error("[API] Laravel API error:", data)
       return NextResponse.json(

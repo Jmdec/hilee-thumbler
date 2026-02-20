@@ -34,9 +34,19 @@ interface Contact {
   name: string
   email: string
   phone?: string
+  subject?: string
   message?: string
   created_at: string
   updated_at: string
+}
+
+const subjectLabels: Record<string, string> = {
+  orders: "Orders & Shipping",
+  custom: "Customization Request",
+  bulk: "Bulk / Corporate Order",
+  product: "Product Questions",
+  support: "Customer Support",
+  others: "Others",
 }
 
 export default function ContactsAdminPage() {
@@ -99,6 +109,16 @@ export default function ContactsAdminPage() {
       accessorKey: "phone",
       header: "Phone",
       cell: ({ row }) => <div className="text-sm text-gray-700">{row.original.phone || "-"}</div>,
+    },
+    {
+      accessorKey: "subject",
+      header: "Subject",
+      cell: ({ row }) => {
+        const value = row.original.subject ?? ""
+        const label = subjectLabels[value] ?? "-"
+
+        return <div className="text-sm text-gray-700 truncate max-w-[200px]">{label}</div>
+      },
     },
     {
       accessorKey: "message",

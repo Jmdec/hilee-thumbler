@@ -60,12 +60,10 @@ const Checkout = () => {
   const user = localStorage.getItem("user_data")
   const token = localStorage.getItem("auth_token")
 
-
   useEffect(() => {
     const checkAuthAndFillForm = async () => {
       const storedUser = localStorage.getItem("user_data")
       const storedToken = localStorage.getItem("auth_token")
-
 
       if (storedToken && storedUser) {
         try {
@@ -112,7 +110,7 @@ const Checkout = () => {
                 }))
 
                 toast({
-                  title: "Welcome back!",
+                  title: "Address loaded",
                   description: "Your default address has been loaded.",
                 })
               } else {
@@ -127,7 +125,7 @@ const Checkout = () => {
                 }))
 
                 toast({
-                  title: "Welcome back!",
+                  title: "Details auto-filled",
                   description: "Your information has been automatically filled.",
                 })
               }
@@ -143,7 +141,7 @@ const Checkout = () => {
               }))
 
               toast({
-                title: "Welcome back!",
+                title: "Details auto-filled",
                 description: "Your information has been automatically filled.",
               })
             }
@@ -190,7 +188,7 @@ const Checkout = () => {
           variant: "destructive",
         })
         // Clear the file input
-        e.target.value = ''
+        e.target.value = ""
         return
       }
 
@@ -214,9 +212,9 @@ const Checkout = () => {
     })
   }
 
-  const copyToClipboard = (text: string, type: 'gcash' | 'bank') => {
+  const copyToClipboard = (text: string, type: "gcash" | "bank") => {
     navigator.clipboard.writeText(text)
-    if (type === 'gcash') {
+    if (type === "gcash") {
       setCopiedGcash(true)
       setTimeout(() => setCopiedGcash(false), 2000)
       toast({
@@ -256,15 +254,14 @@ const Checkout = () => {
 
     console.log("Token in   localStorage:", localStorage.getItem("auth_token"))
 
-    items: items.map((item) => ({
+    items: (items.map((item) => ({
       id: item.id,
       name: item.name,
       description: item.description || "",
       price: item.price,
       quantity: item.quantity,
-      image: typeof item.image === "string" ? item.image : 'placeholder.svg',
+      image: typeof item.image === "string" ? item.image : "placeholder.svg",
     })),
-
       // if (!token) {
       //   toast({
       //     title: "Authentication Required",
@@ -275,7 +272,7 @@ const Checkout = () => {
       //   return
       // }
 
-      setIsProcessing(true)
+      setIsProcessing(true))
 
     try {
       const orderData = {
@@ -285,7 +282,7 @@ const Checkout = () => {
           description: item.description || "",
           price: item.price,
           quantity: item.quantity,
-          image: typeof item.image === "string" ? item.image : 'placeholder.svg',
+          image: typeof item.image === "string" ? item.image : "placeholder.svg",
         })),
         payment_method: checkoutInfo.paymentMethod,
         delivery_address: checkoutInfo.address,
@@ -302,7 +299,7 @@ const Checkout = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json"
+          Accept: "application/json",
         },
         body: JSON.stringify(orderData),
       })
@@ -317,11 +314,7 @@ const Checkout = () => {
       if (response.ok) {
         // Check multiple possible success formats
         const orderNumber =
-          result.data?.order?.order_number ||
-          result.data?.order_number ||
-          result.order?.order_number ||
-          result.order_number ||
-          "your order"
+          result.data?.order?.order_number || result.data?.order_number || result.order?.order_number || result.order_number || "your order"
 
         clearCart()
         setIsOrderComplete(true)
@@ -421,9 +414,7 @@ const Checkout = () => {
               <CardContent className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">
-                      Personal Information
-                    </h3>
+                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">Personal Information</h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -474,9 +465,7 @@ const Checkout = () => {
                   <Separator className="bg-purple-200" />
 
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">
-                      Delivery Address
-                    </h3>
+                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">Delivery Address</h3>
 
                     <div>
                       <Label htmlFor="address" className="text-gray-700">
@@ -525,9 +514,7 @@ const Checkout = () => {
                   <Separator className="bg-purple-200" />
 
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">
-                      Payment Method
-                    </h3>
+                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">Payment Method</h3>
 
                     {total > 1000 && (
                       <div className="p-3 bg-amber-50 border border-amber-300 rounded-lg mb-3">
@@ -539,12 +526,13 @@ const Checkout = () => {
 
                     <div className="space-y-3">
                       <div
-                        className={`p-4 rounded-lg border-2 transition-all ${total > 1000
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          total > 1000
                             ? "bg-gray-100 border-gray-300 cursor-not-allowed opacity-60"
                             : checkoutInfo.paymentMethod === "cash"
                               ? "bg-purple-50 border-purple-500 cursor-pointer"
                               : "bg-white border-purple-200 hover:border-purple-300 cursor-pointer"
-                          }`}
+                        }`}
                         onClick={() => {
                           if (total <= 1000) {
                             handleInputChange("paymentMethod", "cash")
@@ -555,23 +543,20 @@ const Checkout = () => {
                           <Banknote className="w-5 h-5" />
                           <span className="font-medium">Cash on Delivery</span>
                           {total > 1000 && (
-                            <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold ml-auto">
-                              Not Available
-                            </span>
+                            <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold ml-auto">Not Available</span>
                           )}
                         </div>
                         <p className="text-sm text-gray-600 mt-2">
-                          {total > 1000
-                            ? "Only available for orders ₱1,000 and below"
-                            : "Pay with cash when your order arrives"}
+                          {total > 1000 ? "Only available for orders ₱1,000 and below" : "Pay with cash when your order arrives"}
                         </p>
                       </div>
 
                       <div
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "gcash"
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                          checkoutInfo.paymentMethod === "gcash"
                             ? "bg-purple-50 border-purple-500"
                             : "bg-white border-purple-200 hover:border-purple-300"
-                          }`}
+                        }`}
                         onClick={() => handleInputChange("paymentMethod", "gcash")}
                       >
                         <div className="flex items-center gap-2 text-gray-700">
@@ -584,10 +569,11 @@ const Checkout = () => {
                       </div>
 
                       <div
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "security_bank"
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                          checkoutInfo.paymentMethod === "security_bank"
                             ? "bg-purple-50 border-purple-500"
                             : "bg-white border-purple-200 hover:border-purple-300"
-                          }`}
+                        }`}
                         onClick={() => handleInputChange("paymentMethod", "security_bank")}
                       >
                         <div className="flex items-center gap-2 text-gray-700">
@@ -603,12 +589,7 @@ const Checkout = () => {
                     {checkoutInfo.paymentMethod === "gcash" && (
                       <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                         <div className="flex items-start gap-2 mb-3">
-                          <svg
-                            className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
+                          <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -621,11 +602,7 @@ const Checkout = () => {
 
                             {/* GCash QR Code */}
                             <div className="bg-white p-4 rounded-lg border border-blue-200 mb-3 flex justify-center">
-                              <Image
-                                src="/gcash_qr.png"
-                                alt="GCash QR Code"
-                                className="w-48 h-48 object-contain"
-                              />
+                              <Image src="/gcash_qr.png" alt="GCash QR Code" className="w-48 h-48 object-contain" />
                             </div>
 
                             {/* GCash Number */}
@@ -642,11 +619,7 @@ const Checkout = () => {
                                   onClick={() => copyToClipboard("09456754591", "gcash")}
                                   className="border-blue-300 hover:bg-blue-50"
                                 >
-                                  {copiedGcash ? (
-                                    <Check className="w-4 h-4 text-green-600" />
-                                  ) : (
-                                    <Copy className="w-4 h-4" />
-                                  )}
+                                  {copiedGcash ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                                 </Button>
                               </div>
                             </div>
@@ -665,13 +638,7 @@ const Checkout = () => {
                           </Label>
                           {!receiptFile ? (
                             <div className="relative">
-                              <input
-                                type="file"
-                                id="receipt"
-                                accept="image/*"
-                                onChange={handleFileUpload}
-                                className="hidden"
-                              />
+                              <input type="file" id="receipt" accept="image/*" onChange={handleFileUpload} className="hidden" />
                               <label
                                 htmlFor="receipt"
                                 className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-purple-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all"
@@ -684,12 +651,7 @@ const Checkout = () => {
                             <div className="relative p-4 border-2 border-green-300 rounded-lg bg-green-50">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <svg
-                                    className="w-5 h-5 text-green-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
+                                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
@@ -699,19 +661,11 @@ const Checkout = () => {
                                   </svg>
                                   <span className="text-green-800 font-medium">Receipt uploaded</span>
                                 </div>
-                                <button
-                                  type="button"
-                                  onClick={removeReceipt}
-                                  className="text-red-600 hover:text-red-800 transition-colors"
-                                >
+                                <button type="button" onClick={removeReceipt} className="text-red-600 hover:text-red-800 transition-colors">
                                   <X className="w-5 h-5" />
                                 </button>
                               </div>
-                              <Image
-                                src={receiptFile}
-                                alt="Receipt"
-                                className="mt-3 max-h-40 rounded-lg border border-gray-300"
-                              />
+                              <Image src={receiptFile} alt="Receipt" className="mt-3 max-h-40 rounded-lg border border-gray-300" />
                             </div>
                           )}
                           <p className="text-xs text-gray-600 mt-1">Max file size: 2MB (JPG, PNG)</p>
@@ -722,12 +676,7 @@ const Checkout = () => {
                     {checkoutInfo.paymentMethod === "security_bank" && (
                       <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                         <div className="flex items-start gap-2 mb-3">
-                          <svg
-                            className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
+                          <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -758,11 +707,7 @@ const Checkout = () => {
                                     onClick={() => copyToClipboard("0000075486863", "bank")}
                                     className="border-blue-300 hover:bg-blue-50"
                                   >
-                                    {copiedBank ? (
-                                      <Check className="w-4 h-4 text-green-600" />
-                                    ) : (
-                                      <Copy className="w-4 h-4" />
-                                    )}
+                                    {copiedBank ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                                   </Button>
                                 </div>
                               </div>
@@ -782,13 +727,7 @@ const Checkout = () => {
                           </Label>
                           {!receiptFile ? (
                             <div className="relative">
-                              <input
-                                type="file"
-                                id="receipt"
-                                accept="image/*"
-                                onChange={handleFileUpload}
-                                className="hidden"
-                              />
+                              <input type="file" id="receipt" accept="image/*" onChange={handleFileUpload} className="hidden" />
                               <label
                                 htmlFor="receipt"
                                 className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-purple-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all"
@@ -801,12 +740,7 @@ const Checkout = () => {
                             <div className="relative p-4 border-2 border-green-300 rounded-lg bg-green-50">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <svg
-                                    className="w-5 h-5 text-green-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
+                                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
@@ -816,11 +750,7 @@ const Checkout = () => {
                                   </svg>
                                   <span className="text-green-800 font-medium">Receipt uploaded</span>
                                 </div>
-                                <button
-                                  type="button"
-                                  onClick={removeReceipt}
-                                  className="text-red-600 hover:text-red-800 transition-colors"
-                                >
+                                <button type="button" onClick={removeReceipt} className="text-red-600 hover:text-red-800 transition-colors">
                                   <X className="w-5 h-5" />
                                 </button>
                               </div>
@@ -842,9 +772,7 @@ const Checkout = () => {
                   <Separator className="bg-purple-200" />
 
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">
-                      Additional Notes
-                    </h3>
+                    <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">Additional Notes</h3>
                     <div>
                       <Label htmlFor="notes" className="text-gray-700">
                         Special Instructions (Optional)
@@ -889,10 +817,7 @@ const Checkout = () => {
                     const itemTotal = itemPrice * item.quantity
 
                     return (
-                      <div
-                        key={item.id}
-                        className="flex justify-between items-center p-3 rounded-lg bg-purple-50 border border-purple-200"
-                      >
+                      <div key={item.id} className="flex justify-between items-center p-3 rounded-lg bg-purple-50 border border-purple-200">
                         <div className="flex-1">
                           <div className="font-medium text-sm text-gray-900">{item.name}</div>
                           <div className="text-xs text-gray-600">

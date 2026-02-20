@@ -25,7 +25,6 @@ import {
   UserX,
   Send,
   User,
-  Users,
 } from "lucide-react"
 import {
   DropdownMenu,

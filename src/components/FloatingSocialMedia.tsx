@@ -14,6 +14,8 @@ export default function FloatingSocialMedia() {
     return null
   }
 
+  if (pathname.startsWith("/admin")) return null
+
   const socialLinks = [
     {
       name: "Facebook",
