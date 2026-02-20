@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation"
 import FloatingSocialMedia from "@/components/FloatingSocialMedia"
 import CustomerServiceChatbot from "@/components/CustomerServiceChatbot"
 import { useAuthStore } from "@/store/authStore"
+import { ConditionalMainWrapper } from "@/components/conditional-main-wrapper"
 
 const queryClient = new QueryClient()
 
@@ -28,7 +29,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <>
       <OppaLoader />
-      <QueryClientProvider client={queryClient}>
+      <ConditionalMainWrapper>
+
         <TooltipProvider>
           <div className="min-h-screen flex flex-col">
             {showHeader && <Header />}
@@ -40,7 +42,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           <Toaster />
           <SonnerToaster />
         </TooltipProvider>
-      </QueryClientProvider>
+
+      </ConditionalMainWrapper>
     </>
   )
 }

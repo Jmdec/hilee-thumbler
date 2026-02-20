@@ -324,7 +324,7 @@ const Orders = () => {
                   asChild
                   className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-6 px-8 text-lg shadow-lg"
                 >
-                  <Link href="/menu">Browse Menu</Link>
+                  <Link href="/products">Browse Menu</Link>
                 </Button>
               </CardContent>
             </Card>
