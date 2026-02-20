@@ -25,7 +25,13 @@ export default function ProductSection() {
     const [error, setError] = useState<string | null>(null)
     const [adding, setAdding] = useState(false)
     const router = useRouter()
-
+    const getImageUrl = (imagePath: string): string => {
+        if (!imagePath) return "/placeholder.svg"
+        if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) return imagePath
+        const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+        const fullPath = imagePath.startsWith("images/products/") ? imagePath : `images/products/${imagePath}`
+        return `${BASE}/${fullPath}`
+    }
     // Fetch products
     useEffect(() => {
         const fetchAllProducts = async () => {
@@ -126,7 +132,7 @@ export default function ProductSection() {
                                 {/* Product image */}
                                 <div className="relative h-80 w-full -mt-10">
                                     <Image
-                                        src={product.image}
+                                        src={getImageUrl(product.image)}
                                         alt={product.name}
                                         fill
                                         className="object-cover"
@@ -165,7 +171,7 @@ export default function ProductSection() {
                                                     {product.image && (
                                                         <div className="relative w-full h-64 sm:h-full rounded-lg overflow-hidden">
                                                             <Image
-                                                                src={product.image}
+                                                                src={getImageUrl(product.image)}
                                                                 alt={product.name}
                                                                 fill
                                                                 className="object-contain rounded-lg"
@@ -184,7 +190,7 @@ export default function ProductSection() {
                                                         </h2>
                                                         <p className="text-gray-700 text-sm sm:text-base mb-4">
                                                             <span className="font-bold">Details: </span>
-                                                                {product.description}
+                                                            {product.description}
                                                         </p>
                                                         <p className="text-lg lg:text-2xl font-bold text-purple-600 mb-4">
                                                             ₱{Number(product.price).toLocaleString()}

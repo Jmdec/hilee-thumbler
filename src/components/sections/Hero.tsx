@@ -22,6 +22,13 @@ export default function HeroSection() {
   const [loading, setLoading] = useState(true)
   const [selectedproduct, setSelectedproduct] = useState<Product | null>(null)
   const [selectedproductIndex, setSelectedproductIndex] = useState<number>(0)
+  const getImageUrl = (imagePath: string): string => {
+    if (!imagePath) return "/placeholder.svg"
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) return imagePath
+    const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+    const fullPath = imagePath.startsWith("images/products/") ? imagePath : `images/products/${imagePath}`
+    return `${BASE}/${fullPath}`
+  }
 
   useEffect(() => {
     const fetchAllProducts = async () => {
@@ -217,7 +224,7 @@ export default function HeroSection() {
                             <div className="bg-white rounded-2xl overflow-hidden border border-purple-200 shadow-2xl h-full w-full max-w-[320px] cursor-pointer">
                               <div className="relative h-48 lg:h-64 overflow-hidden">
                                 <Image
-                                  src={product.image}
+                                  src={getImageUrl(product.image)}
                                   alt={product.name}
                                   fill
                                   className="object-cover"
@@ -287,7 +294,7 @@ export default function HeroSection() {
             </button>
 
             <div className="relative h-64 md:h-80 overflow-hidden rounded-t-2xl">
-              <Image src={selectedproduct.image} alt={selectedproduct.name} fill className="object-cover" placeholder="blur" blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2RlZGVkZSIvPjwvc3ZnPg==" />
+              <Image src={getImageUrl(selectedproduct.image)} alt={selectedproduct.name} fill className="object-cover" placeholder="blur" blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2RlZGVkZSIvPjwvc3ZnPg==" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               {products.length > 1 && (
                 <div className="absolute bottom-4 right-4 bg-black/70 text-purple-400 px-3 py-1 rounded-full text-sm font-medium">
