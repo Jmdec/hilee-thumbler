@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -8,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Minus, Plus, X, ShoppingBag } from "lucide-react"
 import { useCartStore } from "@/store/cartStore"
 import { toast } from "@/hooks/use-toast"
-
+import IzakayaLoader from "@/components/oppa-loader"
 
 const formatPrice = (price: number): string => {
   return price.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -46,6 +47,24 @@ const Cart = () => {
     })
   }
 
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 2000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <IzakayaLoader />
+      </div>
+    )
+  }
+
   if (items.length === 0) {
     return (
       <div className="min-h-screen relative overflow-hidden bg-white">
@@ -65,7 +84,7 @@ const Cart = () => {
                   <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center"></div>
                 </div>
                 <h1 className="text-3xl font-bold mb-4 text-gray-900 text-balance">Your Cart is Empty</h1>
-                <p className="text-xl text-gray-700 mb-8 text-pretty"> 
+                <p className="text-xl text-gray-700 mb-8 text-pretty">
                   Looks like you haven&apos;t added any delicious Japanese dishes yet!
                 </p>
                 <Button

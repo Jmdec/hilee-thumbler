@@ -112,7 +112,7 @@ export default function HeroSection() {
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-16">
               {/* Left side - Text content */}
-              <div className="flex-1 text-center lg:text-left lg:ml-12 text-white order-1 max-w-xl lg:w-full">
+              <div className="flex-1 text-center lg:text-left lg:mx-12 text-white order-1 max-w-xl lg:w-full">
                 <p className="text-6xl font-semibold text-purple-100 mb-4">
                   Stay Hydrated,<br /> <span className="text-purple-400 font-bold">Stay Fresh</span>
                 </p>
@@ -173,51 +173,73 @@ export default function HeroSection() {
 
                     <div className="relative w-72 h-80 lg:w-80 lg:h-96 mx-auto mb-4 lg:mb-8" style={{ perspective: "1000px" }}>
                       {products.map((product, i) => {
-                        const offset = i - currentSlide
-                        const isActive = offset === 0
-                        const isNext = offset === 1 || offset === -(products.length - 1)
-                        const isPrev = offset === -1 || offset === products.length - 1
+                        if (products.length === 0) return null
 
-                        if (Math.abs(offset) > 1 && offset !== products.length - 1 && offset !== -(products.length - 1)) return null
+                        // ⭐ Apple style circular offset (key part)
+                        let offset = i - currentSlide
+                        const half = Math.floor(products.length / 2)
+
+                        if (offset > half) offset -= products.length
+                        if (offset < -half) offset += products.length
+
+                        const isActive = offset === 0
+                        const abs = Math.abs(offset)
+
+                        // ⭐ Apple style transforms
+                        const translateX = offset * 220
+                        const scale = isActive ? 1 : 0.82
+                        const rotate = offset * 18
+                        const zIndex = 50 - abs
+
+                        // hide far cards (Apple style)
+                        if (abs > 2) return null
 
                         return (
                           <div
                             key={product.id}
-                            className={`absolute inset-0 transition-all duration-700 ease-in-out transform-gpu 
-                              ${isActive ? "z-30 scale-100 translate-x-0 cursor-pointer" 
-                                : isNext ? "z-20 scale-75 translate-x-24" 
-                                : isPrev ? "z-20 scale-75  -translate-x-24" 
-                                : "z-10 scale-50 translate-x-0"}`}
-                            style={{
-                              transform: `translateX(${offset * 100}px) rotateY(${offset * 35}deg) scale(${isActive ? 1 : 0.8}) translateZ(${isActive ? 0 : -80}px)`,
-                              filter: isActive ? 'brightness(1)' : 'brightness(0.6)',
-                            }}
                             onClick={() => handleCardClick(product, offset, i)}
+                            className="absolute inset-0 flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(.22,1,.36,1)]"
+                            style={{
+                              transform: `
+                                translateX(${translateX}px)
+                                scale(${scale})
+                                rotateY(${rotate}deg)
+                              `,
+                              zIndex,
+                              backfaceVisibility: "hidden",
+                              WebkitBackfaceVisibility: "hidden",
+                              transformStyle: "preserve-3d",
+                              filter: isActive ? "none" : "brightness(.75)",
+                              opacity: abs > 2 ? 0 : 1,
+                              pointerEvents: isActive ? "auto" : "auto",
+                            }}
                           >
-                            <div className="bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/20 shadow-2xl h-full hover:bg-white/15 transition-colors">
+                            <div className="bg-white rounded-2xl overflow-hidden border border-purple-200 shadow-2xl h-full w-full max-w-[320px] cursor-pointer">
                               <div className="relative h-48 lg:h-64 overflow-hidden">
                                 <Image
                                   src={product.image}
                                   alt={product.name}
                                   fill
                                   className="object-cover"
-                                  placeholder="blur"
-                                  blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2RlZGVkZSIvPjwvc3ZnPg=="
+                                  sizes="320px"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                               </div>
-                              <div className="px-3 pt-1 pb-3 lg:px-4 lg:pt-1.5 lg:pb-4 text-left">
-                                <h3 className="text-lg lg:text-xl font-semibold mb-1 text-purple-400">{product.name}</h3>
+
+                              <div className="px-4 pt-2 pb-4 text-left">
+                                <h3 className="text-lg lg:text-xl font-semibold mb-1 text-purple-700">
+                                  {product.name}
+                                </h3>
+
                                 {product.price > 0 && (
-                                  <p className="text-lg lg:text-xl font-bold mb-2 text-purple-300">
-                                    ₱{Number(product.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                  <p className="text-lg font-bold mb-2 text-purple-600">
+                                    ₱{Number(product.price).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                   </p>
                                 )}
-                                <p className="text-purple-100 text-xs lg:text-sm leading-relaxed line-clamp-3 lg:line-clamp-4">{product.description}</p>
 
                                 {isActive && (
-                                  <button
-                                    className="mt-2 text-purple-400 text-sm lg:text-base font-medium hover:text-purple-300 transition-colors flex items-center gap-1"
+                                  <Button
+                                    className="w-full bg-purple-500 hover:bg-purple-600 text-white mt-auto"
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       setSelectedproduct(product)
@@ -225,13 +247,14 @@ export default function HeroSection() {
                                     }}
                                   >
                                     Read More →
-                                  </button>
+                                  </Button>
                                 )}
                               </div>
                             </div>
                           </div>
                         )
                       })}
+
                     </div>
                   </div>
                 )}

@@ -23,7 +23,7 @@ export default function CTASection() {
             size="lg"
             className="text-lg sm:text-xl px-8 sm:px-10 py-4 sm:py-6 bg-white/95 backdrop-blur-sm text-purple-800 hover:bg-white hover:scale-105 transition-all duration-300 shadow-2xl border-2 border-white/20 font-semibold"
           >
-            <Link href="/shop">💧 Shop Tumblers</Link>
+            <Link href="/products">💧 Shop Tumblers</Link>
           </Button>
           <Button
             asChild
@@ -31,7 +31,7 @@ export default function CTASection() {
             variant="outline"
             className="text-lg sm:text-xl px-8 sm:px-10 py-4 sm:py-6 border-2 border-white/80 text-white hover:bg-white/10 backdrop-blur-sm hover:scale-105 transition-all duration-300 shadow-xl font-semibold bg-transparent"
           >
-            <Link href="/custom">🎨 Customize Yours</Link>
+            <Link href="/contact">📞 Contact Us</Link>
           </Button>
         </div>
 
