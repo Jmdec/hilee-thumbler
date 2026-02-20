@@ -57,8 +57,6 @@ const Checkout = () => {
   })
 
   const [receiptFile, setReceiptFile] = useState<string | null>(null)
-  const user = localStorage.getItem("user_data")
-  const token = localStorage.getItem("auth_token")
 
   useEffect(() => {
     const checkAuthAndFillForm = async () => {
@@ -262,15 +260,6 @@ const Checkout = () => {
       quantity: item.quantity,
       image: typeof item.image === "string" ? item.image : "placeholder.svg",
     })),
-      // if (!token) {
-      //   toast({
-      //     title: "Authentication Required",
-      //     description: "Please log in to place an order.",
-      //     variant: "destructive",
-      //   })
-      //   router.push("/login")
-      //   return
-      // }
 
       setIsProcessing(true))
 
@@ -526,13 +515,12 @@ const Checkout = () => {
 
                     <div className="space-y-3">
                       <div
-                        className={`p-4 rounded-lg border-2 transition-all ${
-                          total > 1000
-                            ? "bg-gray-100 border-gray-300 cursor-not-allowed opacity-60"
-                            : checkoutInfo.paymentMethod === "cash"
-                              ? "bg-purple-50 border-purple-500 cursor-pointer"
-                              : "bg-white border-purple-200 hover:border-purple-300 cursor-pointer"
-                        }`}
+                        className={`p-4 rounded-lg border-2 transition-all ${total > 1000
+                          ? "bg-gray-100 border-gray-300 cursor-not-allowed opacity-60"
+                          : checkoutInfo.paymentMethod === "cash"
+                            ? "bg-purple-50 border-purple-500 cursor-pointer"
+                            : "bg-white border-purple-200 hover:border-purple-300 cursor-pointer"
+                          }`}
                         onClick={() => {
                           if (total <= 1000) {
                             handleInputChange("paymentMethod", "cash")
@@ -552,11 +540,10 @@ const Checkout = () => {
                       </div>
 
                       <div
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                          checkoutInfo.paymentMethod === "gcash"
-                            ? "bg-purple-50 border-purple-500"
-                            : "bg-white border-purple-200 hover:border-purple-300"
-                        }`}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "gcash"
+                          ? "bg-purple-50 border-purple-500"
+                          : "bg-white border-purple-200 hover:border-purple-300"
+                          }`}
                         onClick={() => handleInputChange("paymentMethod", "gcash")}
                       >
                         <div className="flex items-center gap-2 text-gray-700">
@@ -569,11 +556,10 @@ const Checkout = () => {
                       </div>
 
                       <div
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                          checkoutInfo.paymentMethod === "security_bank"
-                            ? "bg-purple-50 border-purple-500"
-                            : "bg-white border-purple-200 hover:border-purple-300"
-                        }`}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "security_bank"
+                          ? "bg-purple-50 border-purple-500"
+                          : "bg-white border-purple-200 hover:border-purple-300"
+                          }`}
                         onClick={() => handleInputChange("paymentMethod", "security_bank")}
                       >
                         <div className="flex items-center gap-2 text-gray-700">
