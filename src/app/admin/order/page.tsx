@@ -61,7 +61,7 @@ interface Order {
   total_amount: number
   notes?: string
   receipt_file?: string
-  items: OrderItem[]
+  order_items: OrderItem[]
   created_at: string
   updated_at: string
 }
@@ -231,7 +231,7 @@ export default function OrdersAdminPage() {
             total_amount: typeof order.total_amount === "number" ? order.total_amount : Number(order.total ?? 0),
             subtotal: typeof order.subtotal === "number" ? order.subtotal : 0,
             delivery_fee: typeof order.delivery_fee === "number" ? order.delivery_fee : 0,
-            items: Array.isArray(order.items) ? order.items : [],
+            order_items: Array.isArray(order.order_items) ? order.order_items : [],
           }))
           setOrders(validatedOrders)
         } else {
@@ -436,12 +436,12 @@ export default function OrdersAdminPage() {
                         <CardHeader className="pb-3 bg-purple-50 rounded-t-lg">
                           <h3 className="font-semibold text-lg flex items-center gap-2 text-purple-900">
                             <Package className="w-5 h-5 text-purple-600" />
-                            Order Items ({selectedOrder.items?.length || 0})
+                            Order Items ({selectedOrder.order_items?.length || 0})
                           </h3>
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-3">
-                            {(selectedOrder.items || []).map((item, index) => (
+                            {(selectedOrder.order_items || []).map((item, index) => (
                               <div key={index} className="flex items-center gap-3 p-3 border border-purple-100 rounded-lg hover:bg-purple-50 transition-colors">
                                 <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
                                   <Image
@@ -455,11 +455,6 @@ export default function OrdersAdminPage() {
                                 <div className="flex-1 min-w-0">
                                   <h4 className="font-medium text-sm truncate">{item.name}</h4>
                                   <p className="text-xs text-gray-500 truncate">{item.description}</p>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <Badge variant="outline" className="text-xs border-purple-200 text-purple-700">{item.category}</Badge>
-                                    {item.is_spicy && <Badge variant="destructive" className="text-xs">Spicy</Badge>}
-                                    {item.is_vegetarian && <Badge className="text-xs bg-green-100 text-green-800">Veg</Badge>}
-                                  </div>
                                 </div>
                                 <div className="text-right">
                                   <div className="font-medium text-sm">₱{(typeof item.price === "number" ? item.price : 0).toFixed(2)}</div>

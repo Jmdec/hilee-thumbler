@@ -25,6 +25,7 @@ import {
   UserX,
   Send,
   User,
+  Users,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -95,7 +96,7 @@ interface Order {
   status: "pending" | "confirmed" | "preparing" | "ready" | "delivered" | "cancelled"
   subtotal: number
   delivery_fee: number
-  total_amount: number
+  total: number
   notes?: string
   receipt_file?: string
   items: OrderItem[]
@@ -669,9 +670,9 @@ export default function UsersAdminPage() {
                           </div>
                         </div>
                         <div className="text-right ml-4">
-                          <p className="font-bold text-2xl text-purple-700">₱{order.total_amount.toFixed(2)}</p>
-                          <p className="text-xs text-gray-400 mt-1">Subtotal: ₱{order.subtotal.toFixed(2)}</p>
-                          <p className="text-xs text-gray-400">Delivery: ₱{order.delivery_fee.toFixed(2)}</p>
+                          <p className="font-bold text-2xl text-purple-700"> ₱{Number(order.total || 0).toFixed(2)}</p>
+                          <p className="text-xs text-gray-400 mt-1">Subtotal: ₱{Number(order.subtotal || 0).toFixed(2)}</p>
+                          <p className="text-xs text-gray-400">Delivery: ₱{Number(order.delivery_fee || 0).toFixed(2)}</p>
                           <Badge className="mt-2 text-xs bg-purple-50 text-purple-600 border-purple-200">{order.payment_method}</Badge>
                         </div>
                       </div>
