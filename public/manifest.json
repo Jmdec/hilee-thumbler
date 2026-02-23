@@ -1,5 +1,14 @@
 {
-  "id": "izakaya-tori-ichizu-ordering",
+  "id": "hilee-thumblr",
+  "name": "hilee-thumblr",
+  "short_name": "hilee-thumblr",
+  "description": "Vibe with Hilee Thumblr – where every sip tells a story.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "dir": "auto",
+  "lang": "en-US",
   "theme_color": "#FFB400",
   "background_color": "#1A1A1A",
   "icons": [
@@ -16,13 +25,34 @@
       "type": "image/png"
     }
   ],
-  "orientation": "any",
-  "display": "standalone",
-  "dir": "auto",
-  "lang": "en-US",
-  "name": "Izakaya Tori Ichizu",
-  "short_name": "izakaya",
-  "start_url": "/",
-  "scope": "/",
-  "description": "Experience authentic Japanese dining with Izakaya Tori Ichizu."
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot-home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Hilee Home – Shop premium tumblers"
+    },
+    {
+      "src": "/screenshots/screenshot-products.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Shop All – Browse every color and size"
+    },
+    {
+      "src": "/screenshots/screenshot-mobile-home.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Hilee Home on mobile"
+    },
+    {
+      "src": "/screenshots/screenshot-mobile-products.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Shop All on mobile"
+    }
+  ]
 }

@@ -35,6 +35,8 @@ export const metadata: Metadata = {
   publisher: "Hilee",
   applicationName: "Hilee",
 
+  manifest: "/manifest.json",
+
   openGraph: {
     type: "website",
     locale: "en_PH",
@@ -87,23 +89,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Brand",
-    "@id": "https://hilee.ph/#brand",
-    name: "Hilee",
-    url: "https://hilee.ph",
-    logo: "https://hilee.ph/hilee-logo.jpg",
-    image: "https://hilee.ph/hilee-logo.jpg",
-    description:
-      "Hilee is a drinkware brand offering stylish insulated tumblers designed for everyday use.",
-    sameAs: [
-      "https://www.tiktok.com/@hilee",
-      "https://www.instagram.com/hilee",
-      "https://www.facebook.com/hilee"
-    ]
-  }
-
   return (
     <html lang="en-PH">
       <head>
@@ -150,6 +135,9 @@ export default function RootLayout({
 
         {/* Canonical */}
         <link rel="canonical" href="https://hilee.ph" />
+
+        {/* Web App Manifest */}
+        <link rel="manifest" href="/manifest.json" />
 
         {/* Performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

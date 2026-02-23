@@ -68,18 +68,12 @@ const Checkout = () => {
           const parsedUserInfo = await JSON.parse(storedUser)
           setUserInfo(parsedUserInfo)
 
-          const addressesResponse = await fetch("/api/orders?page=1&per_page=1", {
-            headers: {
-              Authorization: `Bearer ${storedToken}`,
-            },
-          })
-
           const response = await fetch("/api/orders?page=1&per_page=1", {
             headers: {
               Authorization: `Bearer ${storedToken}`,
             },
           })
-          console.log("orders response", response)
+
           if (response.ok) {
             const parsedUserData = JSON.parse(storedUser)
             setUserInfo(parsedUserData)
@@ -93,7 +87,6 @@ const Checkout = () => {
             if (addressesResponse.ok) {
               const addressesData = await addressesResponse.json()
               const addresses: Address[] = addressesData.addresses || []
-
               const defaultAddress = addresses.find((addr) => addr.is_default)
 
               if (defaultAddress) {
@@ -106,11 +99,7 @@ const Checkout = () => {
                   city: defaultAddress.city,
                   zipCode: defaultAddress.postal_code,
                 }))
-
-                toast({
-                  title: "Address loaded",
-                  description: "Your default address has been loaded.",
-                })
+                toast({ title: "Address loaded", description: "Your default address has been loaded." })
               } else {
                 setCheckoutInfo((prev) => ({
                   ...prev,
@@ -121,11 +110,7 @@ const Checkout = () => {
                   city: parsedUserData.city || "",
                   zipCode: parsedUserData.zip_code || "",
                 }))
-
-                toast({
-                  title: "Details auto-filled",
-                  description: "Your information has been automatically filled.",
-                })
+                toast({ title: "Details auto-filled", description: "Your information has been automatically filled." })
               }
             } else {
               setCheckoutInfo((prev) => ({
@@ -137,11 +122,7 @@ const Checkout = () => {
                 city: parsedUserData.city || "",
                 zipCode: parsedUserData.zip_code || "",
               }))
-
-              toast({
-                title: "Details auto-filled",
-                description: "Your information has been automatically filled.",
-              })
+              toast({ title: "Details auto-filled", description: "Your information has been automatically filled." })
             }
           } else {
             localStorage.removeItem("auth_token")
@@ -178,25 +159,19 @@ const Checkout = () => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // Enforce 2MB limit for receipt uploads
       if (file.size > 2 * 1024 * 1024) {
         toast({
           title: "File too large",
           description: "Please upload an image smaller than 2MB",
           variant: "destructive",
         })
-        // Clear the file input
         e.target.value = ""
         return
       }
-
       const reader = new FileReader()
       reader.onloadend = () => {
         setReceiptFile(reader.result as string)
-        toast({
-          title: "Receipt uploaded",
-          description: "Your payment receipt has been attached",
-        })
+        toast({ title: "Receipt uploaded", description: "Your payment receipt has been attached" })
       }
       reader.readAsDataURL(file)
     }
@@ -204,10 +179,7 @@ const Checkout = () => {
 
   const removeReceipt = () => {
     setReceiptFile(null)
-    toast({
-      title: "Receipt removed",
-      description: "Payment receipt has been removed",
-    })
+    toast({ title: "Receipt removed", description: "Payment receipt has been removed" })
   }
 
   const copyToClipboard = (text: string, type: "gcash" | "bank") => {
@@ -215,17 +187,11 @@ const Checkout = () => {
     if (type === "gcash") {
       setCopiedGcash(true)
       setTimeout(() => setCopiedGcash(false), 2000)
-      toast({
-        title: "Copied!",
-        description: "GCash number copied to clipboard",
-      })
+      toast({ title: "Copied!", description: "GCash number copied to clipboard" })
     } else {
       setCopiedBank(true)
       setTimeout(() => setCopiedBank(false), 2000)
-      toast({
-        title: "Copied!",
-        description: "Bank account number copied to clipboard",
-      })
+      toast({ title: "Copied!", description: "Bank account number copied to clipboard" })
     }
   }
 
@@ -250,18 +216,7 @@ const Checkout = () => {
       return
     }
 
-    console.log("Token in   localStorage:", localStorage.getItem("auth_token"))
-
-    items: (items.map((item) => ({
-      id: item.id,
-      name: item.name,
-      description: item.description || "",
-      price: item.price,
-      quantity: item.quantity,
-      image: typeof item.image === "string" ? item.image : "placeholder.svg",
-    })),
-
-      setIsProcessing(true))
+    setIsProcessing(true)
 
     try {
       const orderData = {
@@ -283,7 +238,7 @@ const Checkout = () => {
         notes: checkoutInfo.notes || "",
         receipt_file: receiptFile || null,
       }
-      console.log("orderData", orderData)
+
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
@@ -295,15 +250,13 @@ const Checkout = () => {
 
       const result = await response.json()
 
-      // Log response for debugging
-      console.log("API Response:", result)
-      console.log("Response Status:", response.status)
-
-      // Handle different response formats
       if (response.ok) {
-        // Check multiple possible success formats
         const orderNumber =
-          result.data?.order?.order_number || result.data?.order_number || result.order?.order_number || result.order_number || "your order"
+          result.data?.order?.order_number ||
+          result.data?.order_number ||
+          result.order?.order_number ||
+          result.order_number ||
+          "your order"
 
         clearCart()
         setIsOrderComplete(true)
@@ -346,6 +299,48 @@ const Checkout = () => {
       </div>
     )
   }
+
+  // Reusable receipt uploader
+  const ReceiptUploader = () => (
+    <div className="mt-3">
+      <Label htmlFor="receipt" className="text-gray-700 mb-2 block">
+        Upload Payment Receipt *
+      </Label>
+      {!receiptFile ? (
+        <div className="relative">
+          <input type="file" id="receipt" accept="image/*" onChange={handleFileUpload} className="hidden" />
+          <label
+            htmlFor="receipt"
+            className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-purple-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all"
+          >
+            <Upload className="w-5 h-5 text-gray-600" />
+            <span className="text-gray-700">Click to upload receipt</span>
+          </label>
+        </div>
+      ) : (
+        <div className="relative p-4 border-2 border-green-300 rounded-lg bg-green-50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-green-800 font-medium">Receipt uploaded</span>
+            </div>
+            <button type="button" onClick={removeReceipt} className="text-red-600 hover:text-red-800 transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          {/* ✅ Fixed: use a regular <img> for base64 data URLs — Next.js Image doesn't support them well */}
+          <img
+            src={receiptFile}
+            alt="Receipt preview"
+            className="mt-3 max-h-40 w-auto rounded-lg border border-gray-300 object-contain"
+          />
+        </div>
+      )}
+      <p className="text-xs text-gray-600 mt-1">Max file size: 2MB (JPG, PNG)</p>
+    </div>
+  )
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-purple-50">
@@ -402,14 +397,12 @@ const Checkout = () => {
               </div>
               <CardContent className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Personal Info */}
                   <div className="space-y-4">
                     <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">Personal Information</h3>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="name" className="text-gray-700">
-                          Full Name *
-                        </Label>
+                        <Label htmlFor="name" className="text-gray-700">Full Name *</Label>
                         <Input
                           id="name"
                           value={checkoutInfo.name}
@@ -420,9 +413,7 @@ const Checkout = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="email" className="text-gray-700">
-                          Email Address *
-                        </Label>
+                        <Label htmlFor="email" className="text-gray-700">Email Address *</Label>
                         <Input
                           id="email"
                           type="email"
@@ -434,11 +425,8 @@ const Checkout = () => {
                         />
                       </div>
                     </div>
-
                     <div>
-                      <Label htmlFor="phone" className="text-gray-700">
-                        Phone Number *
-                      </Label>
+                      <Label htmlFor="phone" className="text-gray-700">Phone Number *</Label>
                       <Input
                         id="phone"
                         type="tel"
@@ -453,13 +441,11 @@ const Checkout = () => {
 
                   <Separator className="bg-purple-200" />
 
+                  {/* Delivery Address */}
                   <div className="space-y-4">
                     <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">Delivery Address</h3>
-
                     <div>
-                      <Label htmlFor="address" className="text-gray-700">
-                        Street Address *
-                      </Label>
+                      <Label htmlFor="address" className="text-gray-700">Street Address *</Label>
                       <Input
                         id="address"
                         value={checkoutInfo.address}
@@ -469,12 +455,9 @@ const Checkout = () => {
                         className="bg-white border-purple-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20"
                       />
                     </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="city" className="text-gray-700">
-                          City *
-                        </Label>
+                        <Label htmlFor="city" className="text-gray-700">City *</Label>
                         <Input
                           id="city"
                           value={checkoutInfo.city}
@@ -485,9 +468,7 @@ const Checkout = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="zipCode" className="text-gray-700">
-                          ZIP Code *
-                        </Label>
+                        <Label htmlFor="zipCode" className="text-gray-700">ZIP Code *</Label>
                         <Input
                           id="zipCode"
                           value={checkoutInfo.zipCode}
@@ -502,11 +483,12 @@ const Checkout = () => {
 
                   <Separator className="bg-purple-200" />
 
+                  {/* Payment Method */}
                   <div className="space-y-4">
                     <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">Payment Method</h3>
 
                     {total > 1000 && (
-                      <div className="p-3 bg-amber-50 border border-amber-300 rounded-lg mb-3">
+                      <div className="p-3 bg-amber-50 border border-amber-300 rounded-lg">
                         <p className="text-sm text-amber-800 font-medium">
                           ⚠️ Cash on Delivery is not available for orders above ₱1,000. Please use GCash or Bank Transfer.
                         </p>
@@ -514,18 +496,16 @@ const Checkout = () => {
                     )}
 
                     <div className="space-y-3">
+                      {/* Cash */}
                       <div
-                        className={`p-4 rounded-lg border-2 transition-all ${total > 1000
-                          ? "bg-gray-100 border-gray-300 cursor-not-allowed opacity-60"
-                          : checkoutInfo.paymentMethod === "cash"
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          total > 1000
+                            ? "bg-gray-100 border-gray-300 cursor-not-allowed opacity-60"
+                            : checkoutInfo.paymentMethod === "cash"
                             ? "bg-purple-50 border-purple-500 cursor-pointer"
                             : "bg-white border-purple-200 hover:border-purple-300 cursor-pointer"
-                          }`}
-                        onClick={() => {
-                          if (total <= 1000) {
-                            handleInputChange("paymentMethod", "cash")
-                          }
-                        }}
+                        }`}
+                        onClick={() => { if (total <= 1000) handleInputChange("paymentMethod", "cash") }}
                       >
                         <div className="flex items-center gap-2 text-gray-700">
                           <Banknote className="w-5 h-5" />
@@ -539,11 +519,13 @@ const Checkout = () => {
                         </p>
                       </div>
 
+                      {/* GCash */}
                       <div
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "gcash"
-                          ? "bg-purple-50 border-purple-500"
-                          : "bg-white border-purple-200 hover:border-purple-300"
-                          }`}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                          checkoutInfo.paymentMethod === "gcash"
+                            ? "bg-purple-50 border-purple-500"
+                            : "bg-white border-purple-200 hover:border-purple-300"
+                        }`}
                         onClick={() => handleInputChange("paymentMethod", "gcash")}
                       >
                         <div className="flex items-center gap-2 text-gray-700">
@@ -555,11 +537,13 @@ const Checkout = () => {
                         <p className="text-sm text-gray-600 mt-2">Scan QR code to pay via GCash</p>
                       </div>
 
+                      {/* Security Bank */}
                       <div
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${checkoutInfo.paymentMethod === "security_bank"
-                          ? "bg-purple-50 border-purple-500"
-                          : "bg-white border-purple-200 hover:border-purple-300"
-                          }`}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                          checkoutInfo.paymentMethod === "security_bank"
+                            ? "bg-purple-50 border-purple-500"
+                            : "bg-white border-purple-200 hover:border-purple-300"
+                        }`}
                         onClick={() => handleInputChange("paymentMethod", "security_bank")}
                       >
                         <div className="flex items-center gap-2 text-gray-700">
@@ -572,26 +556,27 @@ const Checkout = () => {
                       </div>
                     </div>
 
+                    {/* GCash Instructions */}
                     {checkoutInfo.paymentMethod === "gcash" && (
                       <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                         <div className="flex items-start gap-2 mb-3">
                           <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <div className="flex-1">
                             <h4 className="font-semibold text-blue-900 mb-3">GCash Payment Instructions</h4>
 
-                            {/* GCash QR Code */}
+                            {/* ✅ Fixed: added width + height to Next.js Image */}
                             <div className="bg-white p-4 rounded-lg border border-blue-200 mb-3 flex justify-center">
-                              <Image src="/gcash_qr.png" alt="GCash QR Code" className="w-48 h-48 object-contain" />
+                              <Image
+                                src="/gcash_qr.png"
+                                alt="GCash QR Code"
+                                width={192}
+                                height={192}
+                                className="object-contain"
+                              />
                             </div>
 
-                            {/* GCash Number */}
                             <div className="bg-white p-3 rounded-lg border border-blue-200 mb-3">
                               <div className="flex items-center justify-between">
                                 <div>
@@ -617,63 +602,20 @@ const Checkout = () => {
                             </div>
                           </div>
                         </div>
-
-                        <div className="mt-3">
-                          <Label htmlFor="receipt" className="text-gray-700 mb-2 block">
-                            Upload Payment Receipt *
-                          </Label>
-                          {!receiptFile ? (
-                            <div className="relative">
-                              <input type="file" id="receipt" accept="image/*" onChange={handleFileUpload} className="hidden" />
-                              <label
-                                htmlFor="receipt"
-                                className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-purple-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all"
-                              >
-                                <Upload className="w-5 h-5 text-gray-600" />
-                                <span className="text-gray-700">Click to upload receipt</span>
-                              </label>
-                            </div>
-                          ) : (
-                            <div className="relative p-4 border-2 border-green-300 rounded-lg bg-green-50">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
-                                  </svg>
-                                  <span className="text-green-800 font-medium">Receipt uploaded</span>
-                                </div>
-                                <button type="button" onClick={removeReceipt} className="text-red-600 hover:text-red-800 transition-colors">
-                                  <X className="w-5 h-5" />
-                                </button>
-                              </div>
-                              <Image src={receiptFile} alt="Receipt" className="mt-3 max-h-40 rounded-lg border border-gray-300" />
-                            </div>
-                          )}
-                          <p className="text-xs text-gray-600 mt-1">Max file size: 2MB (JPG, PNG)</p>
-                        </div>
+                        <ReceiptUploader />
                       </div>
                     )}
 
+                    {/* Security Bank Instructions */}
                     {checkoutInfo.paymentMethod === "security_bank" && (
                       <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                         <div className="flex items-start gap-2 mb-3">
                           <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <div className="flex-1">
                             <h4 className="font-semibold text-blue-900 mb-3">Security Bank Payment Instructions</h4>
 
-                            {/* Bank Account Details */}
                             <div className="bg-white p-4 rounded-lg border border-blue-200 mb-3">
                               <div className="space-y-3">
                                 <div>
@@ -706,63 +648,18 @@ const Checkout = () => {
                             </div>
                           </div>
                         </div>
-
-                        <div className="mt-3">
-                          <Label htmlFor="receipt" className="text-gray-700 mb-2 block">
-                            Upload Payment Receipt *
-                          </Label>
-                          {!receiptFile ? (
-                            <div className="relative">
-                              <input type="file" id="receipt" accept="image/*" onChange={handleFileUpload} className="hidden" />
-                              <label
-                                htmlFor="receipt"
-                                className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-purple-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all"
-                              >
-                                <Upload className="w-5 h-5 text-gray-600" />
-                                <span className="text-gray-700">Click to upload receipt</span>
-                              </label>
-                            </div>
-                          ) : (
-                            <div className="relative p-4 border-2 border-green-300 rounded-lg bg-green-50">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
-                                  </svg>
-                                  <span className="text-green-800 font-medium">Receipt uploaded</span>
-                                </div>
-                                <button type="button" onClick={removeReceipt} className="text-red-600 hover:text-red-800 transition-colors">
-                                  <X className="w-5 h-5" />
-                                </button>
-                              </div>
-                              <Image
-                                src={receiptFile}
-                                alt="Receipt"
-                                width={100}
-                                height={100}
-                                className="mt-3 max-h-40 rounded-lg border border-gray-300"
-                              />
-                            </div>
-                          )}
-                          <p className="text-xs text-gray-600 mt-1">Max file size: 2MB (JPG, PNG)</p>
-                        </div>
+                        <ReceiptUploader />
                       </div>
                     )}
                   </div>
 
                   <Separator className="bg-purple-200" />
 
+                  {/* Notes */}
                   <div className="space-y-4">
                     <h3 className="font-semibold text-lg text-gray-900 border-b border-purple-200 pb-2">Additional Notes</h3>
                     <div>
-                      <Label htmlFor="notes" className="text-gray-700">
-                        Special Instructions (Optional)
-                      </Label>
+                      <Label htmlFor="notes" className="text-gray-700">Special Instructions (Optional)</Label>
                       <Input
                         id="notes"
                         value={checkoutInfo.notes}
@@ -792,6 +689,7 @@ const Checkout = () => {
               </CardContent>
             </Card>
 
+            {/* Order Summary */}
             <Card className="h-fit bg-white/98 backdrop-blur-md border-purple-200 shadow-lg rounded-2xl sticky top-24 overflow-hidden p-0">
               <div className="border-b border-purple-200 bg-purple-600 text-white px-6 py-4">
                 <h2 className="text-xl font-semibold">Order Summary</h2>
@@ -801,7 +699,6 @@ const Checkout = () => {
                   {items.map((item) => {
                     const itemPrice = Number(item.price) || 0
                     const itemTotal = itemPrice * item.quantity
-
                     return (
                       <div key={item.id} className="flex justify-between items-center p-3 rounded-lg bg-purple-50 border border-purple-200">
                         <div className="flex-1">
@@ -827,7 +724,8 @@ const Checkout = () => {
 
                 <div className="text-xs text-center pt-4 space-y-2">
                   <div className="flex items-center justify-center gap-2 text-gray-600">
-                    <Lock className="w-4 h-4" /> <span>Your payment information is secure</span>
+                    <Lock className="w-4 h-4" />
+                    <span>Your payment information is secure</span>
                   </div>
                   <div className="text-gray-700 font-medium">Thank you for your order!</div>
                 </div>

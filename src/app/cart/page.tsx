@@ -11,6 +11,17 @@ import { useCartStore } from "@/store/cartStore"
 import { toast } from "@/hooks/use-toast"
 import OppaLoader from "@/components/oppa-loader"
 
+const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+
+const getImageUrl = (imagePath: string): string => {
+  if (!imagePath) return "/placeholder.svg"
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) return imagePath
+  const fullPath = imagePath.startsWith("images/products/")
+    ? imagePath
+    : `images/products/${imagePath}`
+  return `${BASE}/${fullPath}`
+}
+
 const formatPrice = (price: number): string => {
   return price.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
@@ -142,16 +153,16 @@ const Cart = () => {
                     >
                       <CardContent className="p-6">
                         <div className="flex flex-col sm:flex-row gap-4">
-                          <div className="relative w-full sm:w-24 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-purple-100 to-amber-100 shadow-md">
+                          {/* ✅ Image with resolved URL */}
+                          <div className="relative w-full sm:w-24 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-purple-100 to-amber-100 shadow-md flex-shrink-0">
                             <Image
-                              src={item.image || "/placeholder.svg?height=96&width=96&query=Japanese food"}
+                              src={getImageUrl(item.image)}
                               alt={item.name}
-                              width={100}
-                              height={100}
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement
-                                target.src = "/japanese-food.jpg"
+                                target.src = "/placeholder.svg"
                               }}
                             />
                           </div>
@@ -173,8 +184,8 @@ const Cart = () => {
                             </div>
 
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2"/>
-                               
+                              <div className="flex items-center gap-2" />
+
                               <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-2 bg-purple-100 rounded-full p-1 border border-purple-300">
                                   <Button
@@ -247,7 +258,7 @@ const Cart = () => {
                   </Button>
 
                   <div className="text-xs text-gray-600 text-center bg-purple-50 rounded-lg p-2 border border-purple-200">
-                    🔒 Secure checkout 
+                    🔒 Secure checkout
                   </div>
                 </CardContent>
               </Card>

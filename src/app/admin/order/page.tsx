@@ -10,9 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   MoreHorizontal, Eye, Search, Loader2, ArrowUpDown, Edit,
   Package, CheckCircle, XCircle, Truck, DollarSign,
-  User, Phone, MapPin,
-  ClockArrowUp,
-  PhilippinePeso,
+  User, Phone, MapPin, ClockArrowUp, PhilippinePeso,
 } from "lucide-react"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
@@ -31,7 +29,6 @@ import {
   useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel,
 } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
-import Image from "next/image"
 
 interface OrderItem {
   id: number
@@ -61,6 +58,7 @@ interface Order {
   total_amount: number
   notes?: string
   receipt_file?: string
+  // API may return items under either key — we normalise to order_items
   order_items: OrderItem[]
   created_at: string
   updated_at: string
@@ -69,108 +67,160 @@ interface Order {
 const purpleGrad = "linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)"
 
 const orderStatuses = [
-  { value: "confirmed", label: "Confirmed", color: "bg-blue-100 text-blue-800", icon: CheckCircle },
-  { value: "preparing", label: "Preparing", color: "bg-orange-100 text-orange-800", icon: Package },
-  { value: "ready", label: "On The Way", color: "bg-violet-100 text-violet-800", icon: Truck },
-  { value: "delivered", label: "Delivered", color: "bg-emerald-100 text-emerald-800", icon: CheckCircle },
-  { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-800", icon: XCircle },
+  { value: "confirmed", label: "Confirmed",  color: "bg-blue-100 text-blue-800",       icon: CheckCircle },
+  { value: "preparing", label: "Preparing",  color: "bg-orange-100 text-orange-800",   icon: Package    },
+  { value: "ready",     label: "On The Way", color: "bg-violet-100 text-violet-800",   icon: Truck      },
+  { value: "delivered", label: "Delivered",  color: "bg-emerald-100 text-emerald-800", icon: CheckCircle },
+  { value: "cancelled", label: "Cancelled",  color: "bg-red-100 text-red-800",         icon: XCircle    },
 ]
 
 const paymentMethods = [
-  { value: "cash", label: "Cash on Delivery" },
-  { value: "gcash", label: "GCash" },
-  { value: "security_bank", label: "Security Bank" },
-  { value: "paypal", label: "PayPal" },
-  { value: "bpi", label: "BPI Online" },
-  { value: "maya", label: "Maya" },
+  { value: "cash",          label: "Cash on Delivery" },
+  { value: "gcash",         label: "GCash"            },
+  { value: "security_bank", label: "Security Bank"    },
+  { value: "paypal",        label: "PayPal"           },
+  { value: "bpi",           label: "BPI Online"       },
+  { value: "maya",          label: "Maya"             },
 ]
 
+const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+
+/** Receipts live under images/proof_of_payments/ */
+function resolveReceiptUrl(path: string | undefined | null): string {
+  if (!path) return ""
+  if (path.startsWith("http://") || path.startsWith("https://")) return path
+  if (path.includes("/")) return `${BASE}/${path}`
+  return `${BASE}/images/proof_of_payments/${path}`
+}
+
+/** Product / order-item images live under images/products/ */
+function resolveProductImageUrl(path: string | undefined | null): string {
+  if (!path) return ""
+  if (path.startsWith("http://") || path.startsWith("https://")) return path
+  if (path.includes("/")) return `${BASE}/${path}`
+  return `${BASE}/images/products/${path}`
+}
+
+/** Normalise a raw API order so all fields are consistently typed */
+function normaliseOrder(raw: any): Order {
+  // The API may return items as `items` OR `order_items`
+  const rawItems: any[] = Array.isArray(raw.order_items)
+    ? raw.order_items
+    : Array.isArray(raw.items)
+    ? raw.items
+    : []
+
+const order_items: OrderItem[] = rawItems.map((i) => ({
+  id:            i.id            ?? 0,
+  name:          i.product?.name          ?? i.name          ?? "",
+  description:   i.product?.description   ?? i.description   ?? "",
+  price:         Number(i.price ?? i.unit_price ?? 0),
+  quantity:      Number(i.quantity ?? i.qty ?? 1),
+  category:      i.product?.category      ?? i.category      ?? "",
+  is_spicy:      Boolean(i.product?.is_spicy   ?? i.is_spicy),
+  is_vegetarian: Boolean(i.product?.is_vegetarian ?? i.is_vegetarian),
+  image_url:     resolveProductImageUrl(i.product?.image_url ?? i.product?.image ?? i.image_url ?? i.image ?? ""),
+}))
+
+  // Derive subtotal from items if the field is missing / zero
+  const derivedSubtotal = order_items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  )
+
+  const subtotal     = Number(raw.subtotal     ?? 0) || derivedSubtotal
+  const delivery_fee = Number(raw.delivery_fee ?? 0)
+  const total_amount = Number(raw.total_amount ?? raw.total ?? 0) || subtotal + delivery_fee
+
+  return {
+    id:                raw.id,
+    order_number:      raw.order_number    ?? "",
+    customer_name:     raw.customer_name   ?? "",
+    customer_email:    raw.customer_email  ?? "",
+    customer_phone:    raw.customer_phone  ?? "",
+    delivery_address:  raw.delivery_address ?? "",
+    delivery_city:     raw.delivery_city   ?? "",
+    delivery_zip_code: raw.delivery_zip_code ?? "",
+    payment_method:    raw.payment_method  ?? "",
+    status:            raw.status          ?? "confirmed",
+    subtotal,
+    delivery_fee,
+    total_amount,
+    notes:        raw.notes,
+    receipt_file: raw.receipt_file ? resolveReceiptUrl(raw.receipt_file) : undefined,
+    order_items,
+    created_at:  raw.created_at  ?? "",
+    updated_at:  raw.updated_at  ?? "",
+  }
+}
+
 export default function OrdersAdminPage() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
+  const [orders, setOrders]               = useState<Order[]>([])
+  const [loading, setLoading]             = useState(true)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const { toast } = useToast()
   const router = useRouter()
 
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const [globalFilter, setGlobalFilter] = useState("")
-  // Client-side filter state
-  const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [sorting, setSorting]                         = useState<SortingState>([])
+  const [columnFilters, setColumnFilters]             = useState<ColumnFiltersState>([])
+  const [rowSelection, setRowSelection]               = useState<RowSelectionState>({})
+  const [globalFilter, setGlobalFilter]               = useState("")
+  const [statusFilter, setStatusFilter]               = useState<string>("all")
   const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>("all")
-  const [isMobile, setIsMobile] = useState(false)
-  const [updatingStatus, setUpdatingStatus] = useState<number | null>(null)
+  const [isMobile, setIsMobile]                       = useState(false)
+  const [updatingStatus, setUpdatingStatus]           = useState<number | null>(null)
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
   }, [])
 
-  // Apply client-side filters on top of raw orders data
   const filteredOrders = useMemo(() => {
     let result = orders
-    if (statusFilter !== "all") {
-      result = result.filter((o) => o.status === statusFilter)
-    }
-    if (paymentMethodFilter !== "all") {
-      result = result.filter((o) => o.payment_method === paymentMethodFilter)
-    }
+    if (statusFilter !== "all")        result = result.filter((o) => o.status === statusFilter)
+    if (paymentMethodFilter !== "all") result = result.filter((o) => o.payment_method === paymentMethodFilter)
     return result
   }, [orders, statusFilter, paymentMethodFilter])
 
   const calculateTotalRevenue = (orders: Order[]): string => {
     if (!Array.isArray(orders) || orders.length === 0) return "0.00"
-    try {
-      const total = orders.reduce((sum, order) => {
-        const orderTotal = typeof order.total_amount === "number" ? order.total_amount : 0
-        return sum + orderTotal
-      }, 0)
-      return total.toFixed(2)
-    } catch {
-      return "0.00"
-    }
+    return orders.reduce((sum, o) => sum + (o.total_amount || 0), 0).toFixed(2)
   }
 
   const getStatusBadge = (status: string) => {
-    const statusInfo = orderStatuses.find((s) => s.value === status)
-    if (!statusInfo) return null
-    const Icon = statusInfo.icon
+    const s = orderStatuses.find((x) => x.value === status)
+    if (!s) return null
+    const Icon = s.icon
     return (
-      <Badge className={`text-xs px-2 py-1 ${statusInfo.color} border-0`}>
-        <Icon className="w-3 h-3 mr-1" />
-        {statusInfo.label}
+      <Badge className={`text-xs px-2 py-1 ${s.color} border-0`}>
+        <Icon className="w-3 h-3 mr-1" /> {s.label}
       </Badge>
     )
   }
 
   const getPaymentMethodBadge = (method: string) => {
-    const methodInfo = paymentMethods.find((m) => m.value === method)
+    const m = paymentMethods.find((x) => x.value === method)
     return (
       <Badge variant="outline" className="text-xs border-purple-200 text-purple-700">
-        {methodInfo?.label || method}
+        {m?.label || method}
       </Badge>
     )
   }
 
-  const getDisabledStatuses = (currentStatus: string): string[] => {
-    switch (currentStatus) {
-      case "cancelled": return ["confirmed", "preparing", "ready", "delivered"]
-      case "preparing": return ["confirmed"]
-      case "ready": return ["confirmed", "preparing"]
-      case "delivered": return ["confirmed", "preparing", "ready", "cancelled"]
-      default: return []
-    }
-  }
+  const getDisabledStatuses = (current: string): string[] => ({
+    cancelled: ["confirmed", "preparing", "ready", "delivered"],
+    preparing: ["confirmed"],
+    ready:     ["confirmed", "preparing"],
+    delivered: ["confirmed", "preparing", "ready", "cancelled"],
+  }[current] ?? [])
 
   const handleStatusUpdate = async (orderId: number, newStatus: string) => {
     setUpdatingStatus(orderId)
     try {
       const token = localStorage.getItem("auth_token")
       if (!token) throw new Error("Authentication token not found")
-
       const response = await fetch(`/api/orders/${orderId}`, {
         method: "PATCH",
         headers: {
@@ -180,10 +230,8 @@ export default function OrdersAdminPage() {
         },
         body: JSON.stringify({ status: newStatus }),
       })
-
       const result = await response.json()
       if (!response.ok) throw new Error(result.message || "Failed to update order status.")
-
       toast({ title: "Success", description: "Order status updated successfully!" })
       fetchOrders()
     } catch (error: any) {
@@ -202,8 +250,6 @@ export default function OrdersAdminPage() {
         router.push("/login")
         return
       }
-
-      // Fetch ALL orders — filtering is done client-side
       const response = await fetch("/api/orders?per_page=100", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -211,32 +257,14 @@ export default function OrdersAdminPage() {
           "Content-Type": "application/json",
         },
       })
-
       if (!response.ok) {
-        const errorText = await response.text()
-        if (response.status === 401) {
-          localStorage.removeItem("auth_token")
-          router.push("/login")
-          return
-        }
-        throw new Error(`HTTP ${response.status}: ${errorText}`)
+        if (response.status === 401) { localStorage.removeItem("auth_token"); router.push("/login"); return }
+        throw new Error(`HTTP ${response.status}`)
       }
-
       const result = await response.json()
       if (result.success) {
-        const ordersData = result.data || []
-        if (Array.isArray(ordersData)) {
-          const validatedOrders = ordersData.map((order) => ({
-            ...order,
-            total_amount: typeof order.total_amount === "number" ? order.total_amount : Number(order.total ?? 0),
-            subtotal: typeof order.subtotal === "number" ? order.subtotal : 0,
-            delivery_fee: typeof order.delivery_fee === "number" ? order.delivery_fee : 0,
-            order_items: Array.isArray(order.order_items) ? order.order_items : [],
-          }))
-          setOrders(validatedOrders)
-        } else {
-          setOrders([])
-        }
+        const raw = Array.isArray(result.data) ? result.data : []
+        setOrders(raw.map(normaliseOrder))
       } else {
         throw new Error(result.message || "Failed to fetch orders")
       }
@@ -247,10 +275,6 @@ export default function OrdersAdminPage() {
         description: error instanceof Error ? error.message : "Failed to load orders.",
       })
       setOrders([])
-      if (error instanceof Error && error.message.includes("401")) {
-        localStorage.removeItem("auth_token")
-        router.push("/login")
-      }
     } finally {
       setLoading(false)
     }
@@ -264,7 +288,7 @@ export default function OrdersAdminPage() {
       header: ({ table }) => (
         <Checkbox
           checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
           aria-label="Select all"
           className="border-purple-300"
         />
@@ -272,7 +296,7 @@ export default function OrdersAdminPage() {
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(v) => row.toggleSelected(!!v)}
           aria-label="Select row"
           className="border-purple-300"
         />
@@ -359,19 +383,30 @@ export default function OrdersAdminPage() {
           <div className="flex items-center gap-1">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedOrder(order)} className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50">
+                <Button
+                  variant="ghost" size="sm"
+                  onClick={() => setSelectedOrder(order)}
+                  className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50"
+                >
                   <Eye className="h-4 w-4" />
                   <span className="ml-1 sr-only sm:not-sr-only hidden sm:inline">View</span>
                 </Button>
               </SheetTrigger>
+
+              {/* ── ORDER DETAIL SHEET ── */}
               <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
                 {selectedOrder && (
                   <>
                     <SheetHeader>
-                      <SheetTitle className="text-purple-900">Order Details - #{selectedOrder.order_number}</SheetTitle>
+                      <SheetTitle className="text-purple-900">
+                        Order Details - #{selectedOrder.order_number}
+                      </SheetTitle>
                       <SheetDescription>Complete information for this order</SheetDescription>
                     </SheetHeader>
+
                     <div className="mt-6 space-y-6">
+
+                      {/* Header row */}
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-purple-50 rounded-lg border border-purple-100">
                         <div>
                           <div className="flex items-center gap-3 mb-2">
@@ -381,21 +416,22 @@ export default function OrdersAdminPage() {
                           <p className="text-sm text-gray-600">
                             Order placed on{" "}
                             {new Date(selectedOrder.created_at).toLocaleDateString("en-US", {
-                              month: "long", day: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit",
+                              month: "long", day: "2-digit", year: "numeric",
+                              hour: "2-digit", minute: "2-digit",
                             })}
                           </p>
                         </div>
                         <div className="text-right">
                           <div className="text-2xl font-bold text-purple-700">
-                            ₱{(typeof selectedOrder.total_amount === "number" ? selectedOrder.total_amount : 0).toFixed(2)}
+                            ₱{selectedOrder.total_amount.toFixed(2)}
                           </div>
                           <div className="text-sm text-gray-500">
-                            Subtotal: ₱{(typeof selectedOrder.subtotal === "number" ? selectedOrder.subtotal : 0).toFixed(2)} +
-                            Delivery: ₱{(typeof selectedOrder.delivery_fee === "number" ? selectedOrder.delivery_fee : 0).toFixed(2)}
+                            Subtotal: ₱{selectedOrder.subtotal.toFixed(2)} + Delivery: ₱{selectedOrder.delivery_fee.toFixed(2)}
                           </div>
                         </div>
                       </div>
 
+                      {/* Customer + Address */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Card className="border-purple-100">
                           <CardHeader className="pb-3 bg-purple-50 rounded-t-lg">
@@ -427,55 +463,100 @@ export default function OrdersAdminPage() {
                           </CardHeader>
                           <CardContent className="space-y-2 pt-4">
                             <p className="text-sm">{selectedOrder.delivery_address}</p>
-                            <p className="text-sm">{selectedOrder.delivery_city}, {selectedOrder.delivery_zip_code}</p>
+                            <p className="text-sm">
+                              {selectedOrder.delivery_city}, {selectedOrder.delivery_zip_code}
+                            </p>
                           </CardContent>
                         </Card>
                       </div>
 
+                      {/* Order Items */}
                       <Card className="border-purple-100">
                         <CardHeader className="pb-3 bg-purple-50 rounded-t-lg">
                           <h3 className="font-semibold text-lg flex items-center gap-2 text-purple-900">
                             <Package className="w-5 h-5 text-purple-600" />
-                            Order Items ({selectedOrder.order_items?.length || 0})
+                            Order Items ({selectedOrder.order_items.length})
                           </h3>
                         </CardHeader>
                         <CardContent>
-                          <div className="space-y-3">
-                            {(selectedOrder.order_items || []).map((item, index) => (
-                              <div key={index} className="flex items-center gap-3 p-3 border border-purple-100 rounded-lg hover:bg-purple-50 transition-colors">
-                                <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
-                                  <Image
-                                    src={item.image_url || "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop"}
-                                    alt={item.name}
-                                    width={48}
-                                    height={48}
-                                    className="object-cover w-full h-full"
-                                  />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-medium text-sm truncate">{item.name}</h4>
-                                  <p className="text-xs text-gray-500 truncate">{item.description}</p>
-                                </div>
-                                <div className="text-right">
-                                  <div className="font-medium text-sm">₱{(typeof item.price === "number" ? item.price : 0).toFixed(2)}</div>
-                                  <div className="text-xs text-gray-500">Qty: {item.quantity || 0}</div>
-                                  <div className="font-bold text-xs text-purple-700">
-                                    ₱{((typeof item.price === "number" ? item.price : 0) * (item.quantity || 0)).toFixed(2)}
+                          {selectedOrder.order_items.length === 0 ? (
+                            <p className="text-sm text-gray-400 py-4 text-center">No items found for this order.</p>
+                          ) : (
+                            <div className="space-y-3">
+                              {selectedOrder.order_items.map((item, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center gap-3 p-3 border border-purple-100 rounded-lg hover:bg-purple-50 transition-colors"
+                                >
+                                  {/* ✅ plain <img> — no Next.js domain restrictions */}
+                                  <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0 bg-purple-50 border border-purple-100">
+                                    <img
+                                      src={item.image_url || "/placeholder.svg"}
+                                      alt={item.name || "Order item"}
+                                      width={48}
+                                      height={48}
+                                      className="object-cover w-full h-full"
+                                      onError={(e) => {
+                                        (e.target as HTMLImageElement).src = "/placeholder.svg"
+                                      }}
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-medium text-sm truncate">{item.name || "—"}</h4>
+                                    <p className="text-xs text-gray-500 truncate">{item.description}</p>
+                                  </div>
+                                  <div className="text-right flex-shrink-0">
+                                    <div className="font-medium text-sm">₱{item.price.toFixed(2)}</div>
+                                    <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
+                                    <div className="font-bold text-xs text-purple-700">
+                                      ₱{(item.price * item.quantity).toFixed(2)}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Items total */}
+                          {selectedOrder.order_items.length > 0 && (
+                            <div className="flex justify-between items-center mt-4 pt-3 border-t border-purple-100">
+                              <span className="text-sm font-semibold text-gray-600">Items Total</span>
+                              <span className="text-sm font-bold text-purple-700">
+                                ₱{selectedOrder.order_items
+                                  .reduce((s, i) => s + i.price * i.quantity, 0)
+                                  .toFixed(2)}
+                              </span>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
 
+                      {/* Receipt image */}
+                      {selectedOrder.receipt_file && (
+                        <Card className="border-purple-100">
+                          <CardHeader className="pb-3 bg-purple-50 rounded-t-lg">
+                            <h3 className="font-semibold text-lg text-purple-900">Payment Receipt</h3>
+                          </CardHeader>
+                          <CardContent className="pt-4">
+                            <img
+                              src={selectedOrder.receipt_file}
+                              alt="Payment receipt"
+                              className="max-h-64 rounded-lg border border-gray-200 object-contain"
+                            />
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* Notes */}
                       {selectedOrder.notes && (
                         <Card className="border-purple-100">
                           <CardHeader className="pb-3 bg-purple-50 rounded-t-lg">
                             <h3 className="font-semibold text-lg text-purple-900">Special Notes</h3>
                           </CardHeader>
                           <CardContent>
-                            <p className="text-sm p-3 bg-purple-50 rounded-md whitespace-pre-wrap">{selectedOrder.notes}</p>
+                            <p className="text-sm p-3 bg-purple-50 rounded-md whitespace-pre-wrap">
+                              {selectedOrder.notes}
+                            </p>
                           </CardContent>
                         </Card>
                       )}
@@ -495,11 +576,11 @@ export default function OrdersAdminPage() {
                 <DropdownMenuLabel className="text-purple-900">Order Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-purple-100" />
                 {orderStatuses.map((status) => {
-                  const disabledStatuses = getDisabledStatuses(order.status)
+                  const disabled = getDisabledStatuses(order.status)
                   const isDisabled =
                     updatingStatus === order.id ||
                     order.status === status.value ||
-                    disabledStatuses.includes(status.value)
+                    disabled.includes(status.value)
                   return (
                     <DropdownMenuItem
                       key={status.value}
@@ -513,7 +594,10 @@ export default function OrdersAdminPage() {
                   )
                 })}
                 <DropdownMenuSeparator className="bg-purple-100" />
-                <DropdownMenuItem onClick={() => router.push(`/admin/order/${order.id}/edit`)} className="text-red-600 focus:bg-red-50">
+                <DropdownMenuItem
+                  onClick={() => router.push(`/admin/order/${order.id}/edit`)}
+                  className="text-red-600 focus:bg-red-50"
+                >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Order
                 </DropdownMenuItem>
@@ -525,7 +609,6 @@ export default function OrdersAdminPage() {
     },
   ]
 
-  // Table now receives `filteredOrders` (pre-filtered by status/payment) + globalFilter for search
   const table = useReactTable({
     data: filteredOrders,
     columns,
@@ -566,7 +649,6 @@ export default function OrdersAdminPage() {
         <AppSidebar />
         <div className={`flex-1 min-w-0 ${isMobile ? "ml-0" : "ml-64"}`}>
 
-          {/* Mobile topbar */}
           {isMobile && (
             <div
               className="sticky top-0 z-50 flex h-12 items-center gap-2 border-b px-4 shadow-sm"
@@ -582,10 +664,7 @@ export default function OrdersAdminPage() {
 
               {/* Header */}
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-stretch justify-between">
-                <div
-                  className="rounded-2xl px-7 py-6 shadow-xl relative overflow-hidden"
-                  style={{ background: purpleGrad }}
-                >
+                <div className="rounded-2xl px-7 py-6 shadow-xl relative overflow-hidden" style={{ background: purpleGrad }}>
                   <div className="absolute right-4 top-4 w-20 h-20 rounded-full opacity-10 pointer-events-none"
                     style={{ background: "radial-gradient(circle, white, transparent)" }} />
                   <div className="flex items-center gap-3">
@@ -597,14 +676,8 @@ export default function OrdersAdminPage() {
                   </div>
                 </div>
 
-                <div
-                  className="rounded-2xl px-6 py-5 shadow-xl flex items-center gap-4 bg-white/90 border"
-                  style={{ borderColor: "rgba(139,92,246,0.15)" }}
-                >
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
-                    style={{ background: purpleGrad }}
-                  >
+                <div className="rounded-2xl px-6 py-5 shadow-xl flex items-center gap-4 bg-white/90 border" style={{ borderColor: "rgba(139,92,246,0.15)" }}>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0" style={{ background: purpleGrad }}>
                     <PhilippinePeso className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -617,16 +690,17 @@ export default function OrdersAdminPage() {
               {/* Stats Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {orderStatuses.slice(0, 4).map((status) => {
-                  const count = orders.filter((order) => order.status === status.value).length
+                  const count = orders.filter((o) => o.status === status.value).length
                   const Icon = status.icon
                   return (
                     <Card
                       key={status.value}
                       onClick={() => setStatusFilter(statusFilter === status.value ? "all" : status.value)}
-                      className={`bg-white/80 backdrop-blur-sm shadow-lg border transition-all duration-200 rounded-2xl cursor-pointer ${statusFilter === status.value
-                        ? "border-purple-400 ring-2 ring-purple-300 shadow-purple-200"
-                        : "border-purple-100 hover:shadow-xl hover:border-purple-200"
-                        }`}
+                      className={`bg-white/80 backdrop-blur-sm shadow-lg border transition-all duration-200 rounded-2xl cursor-pointer ${
+                        statusFilter === status.value
+                          ? "border-purple-400 ring-2 ring-purple-300 shadow-purple-200"
+                          : "border-purple-100 hover:shadow-xl hover:border-purple-200"
+                      }`}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
@@ -720,8 +794,8 @@ export default function OrdersAdminPage() {
                       <table className="w-full min-w-[800px]">
                         <thead className="bg-gradient-to-r from-purple-50 to-violet-50">
                           <tr className="border-b border-purple-100">
-                            {table.getHeaderGroups().map((headerGroup) =>
-                              headerGroup.headers.map((header) => (
+                            {table.getHeaderGroups().map((hg) =>
+                              hg.headers.map((header) => (
                                 <th key={header.id} className="text-left p-3 text-xs sm:text-sm font-semibold text-purple-800">
                                   {header.isPlaceholder ? null : (
                                     typeof header.column.columnDef.header === "function"
@@ -737,7 +811,9 @@ export default function OrdersAdminPage() {
                           {table.getRowModel().rows.map((row, index) => (
                             <tr
                               key={row.id}
-                              className={`border-b border-purple-50 hover:bg-purple-50/50 transition-colors duration-150 ${index % 2 === 0 ? "bg-white" : "bg-purple-50/20"}`}
+                              className={`border-b border-purple-50 hover:bg-purple-50/50 transition-colors duration-150 ${
+                                index % 2 === 0 ? "bg-white" : "bg-purple-50/20"
+                              }`}
                             >
                               {row.getVisibleCells().map((cell) => (
                                 <td key={cell.id} className="p-3 text-xs sm:text-sm">

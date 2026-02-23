@@ -116,7 +116,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 })
             } catch (error) {
                 toast({ variant: "destructive", title: "Error", description: "Failed to load product details" })
-                router.push("/admin/products")  // ✅ correct path
+                router.push("/admin/product")  // ✅ correct path
             } finally {
                 setLoading(false)
             }
@@ -165,7 +165,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             if (!response.ok) throw new Error(result.message || "Failed to update product.")
 
             toast({ title: "Success", description: "Product updated successfully!" })
-            router.push("/admin/products")  // ✅ correct path
+            router.push("/admin/product")  // ✅ correct path
         } catch (error: any) {
             toast({ variant: "destructive", title: "Error", description: error.message || "Error updating the product." })
         } finally {
@@ -209,7 +209,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                                 </div>
                                 <h2 className="text-xl font-bold text-gray-800 mb-2">Product not found</h2>
                                 <p className="text-gray-500 text-sm mb-6">The product you're looking for doesn't exist.</p>
-                                <Button onClick={() => router.push("/admin/products")}
+                                <Button onClick={() => router.push("/admin/product")}
                                     className="text-white font-semibold rounded-xl shadow-lg"
                                     style={{ background: purpleGrad }}>
                                     <ArrowLeft className="mr-2 h-4 w-4" /> Back to Products
